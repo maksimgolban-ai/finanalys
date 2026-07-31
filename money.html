@@ -1,0 +1,2770 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Деньги</title>
+    <meta
+      name="description"
+      content="Раздел Деньги в оболочке финансового веб-приложения."
+    >
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    >
+    <link rel="stylesheet" href="assets/css/layout.css">
+    <style>
+      .cash-page {
+        gap: 24px;
+      }
+
+      .cash-hero {
+        display: grid;
+        gap: 26px;
+      }
+
+      .cash-hero__header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+      }
+
+      .cash-hero__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .cash-hero__badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(0, 217, 255, 0.18);
+        background: rgba(0, 217, 255, 0.08);
+        color: var(--accent);
+        font-size: 0.85rem;
+        font-weight: 700;
+      }
+
+      .cash-hero__meta {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .cash-meta-card {
+        padding: 18px 20px;
+        border: 1px solid rgba(138, 164, 214, 0.14);
+        border-radius: 18px;
+        background: rgba(7, 15, 30, 0.34);
+      }
+
+      .cash-meta-card__label {
+        display: block;
+        color: var(--text-muted);
+        font-size: 0.79rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .cash-meta-card__value {
+        display: block;
+        margin-top: 10px;
+        font-family: "Manrope", sans-serif;
+        font-size: 1.08rem;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+      }
+
+      .cash-meta-card__hint {
+        display: block;
+        margin-top: 8px;
+        color: var(--text-secondary);
+        font-size: 0.88rem;
+        line-height: 1.55;
+      }
+
+      .cash-filters-card,
+      .cash-table-card,
+      .cash-chart-card {
+        padding: 26px 28px;
+      }
+
+      .cash-filter-grid {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .cash-filter-block {
+        display: grid;
+        gap: 10px;
+      }
+
+      .cash-filter-block--wide {
+        grid-column: span 2;
+      }
+
+      .cash-filter-label {
+        color: var(--text-muted);
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .cash-filter-input,
+      .cash-filter-search {
+        width: 100%;
+        min-height: 48px;
+        padding: 12px 14px;
+        border: 1px solid rgba(138, 164, 214, 0.16);
+        border-radius: 15px;
+        color: var(--text-primary);
+        background: rgba(7, 15, 30, 0.42);
+        outline: none;
+        transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+      }
+
+      .cash-filter-input:focus,
+      .cash-filter-search:focus {
+        border-color: rgba(0, 217, 255, 0.34);
+        box-shadow: 0 0 0 4px rgba(0, 217, 255, 0.1);
+        background: rgba(7, 15, 30, 0.62);
+      }
+
+      .cash-filter-details {
+        position: relative;
+      }
+
+      .cash-filter-details[open] .cash-filter-summary {
+        border-color: rgba(0, 217, 255, 0.28);
+        box-shadow: 0 0 0 4px rgba(0, 217, 255, 0.08);
+      }
+
+      .cash-filter-summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        min-height: 48px;
+        padding: 12px 14px;
+        border: 1px solid rgba(138, 164, 214, 0.16);
+        border-radius: 15px;
+        color: var(--text-primary);
+        background: rgba(7, 15, 30, 0.42);
+        cursor: pointer;
+        list-style: none;
+        transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+      }
+
+      .cash-filter-summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .cash-filter-summary__value {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .cash-filter-panel {
+        position: absolute;
+        top: calc(100% + 10px);
+        left: 0;
+        z-index: 25;
+        width: min(100%, 340px);
+        padding: 14px;
+        border: 1px solid rgba(138, 164, 214, 0.2);
+        border-radius: 18px;
+        background: rgba(10, 18, 37, 0.96);
+        box-shadow: 0 24px 50px rgba(2, 8, 23, 0.42);
+        backdrop-filter: blur(18px);
+      }
+
+      .cash-filter-panel__actions {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+
+      .cash-filter-chip-btn,
+      .cash-ghost-btn,
+      .cash-toggle-btn,
+      .cash-row-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border: 1px solid rgba(138, 164, 214, 0.18);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--text-primary);
+        cursor: pointer;
+        transition: transform var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+      }
+
+      .cash-filter-chip-btn,
+      .cash-toggle-btn,
+      .cash-row-button {
+        padding: 9px 12px;
+      }
+
+      .cash-ghost-btn {
+        padding: 11px 14px;
+      }
+
+      .cash-filter-chip-btn:hover,
+      .cash-ghost-btn:hover,
+      .cash-toggle-btn:hover,
+      .cash-row-button:hover {
+        transform: translateY(-1px);
+        border-color: rgba(0, 217, 255, 0.24);
+        background: rgba(0, 217, 255, 0.08);
+      }
+
+      .cash-filter-options {
+        display: grid;
+        gap: 8px;
+        max-height: 220px;
+        overflow: auto;
+        padding-right: 4px;
+      }
+
+      .cash-filter-option {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 10px;
+        border-radius: 12px;
+        color: var(--text-secondary);
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .cash-filter-option:hover {
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .cash-filter-option input {
+        accent-color: var(--accent);
+      }
+
+      .cash-filter-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 18px;
+        flex-wrap: wrap;
+      }
+
+      .cash-filter-note {
+        color: var(--text-secondary);
+        font-size: 0.89rem;
+      }
+
+      .cash-dashboard {
+        display: grid;
+        gap: 22px;
+      }
+
+      .cash-kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .cash-kpi-card {
+        position: relative;
+        overflow: hidden;
+        padding: 22px;
+        border: 1px solid rgba(138, 164, 214, 0.16);
+        border-radius: 20px;
+        background: linear-gradient(180deg, rgba(22, 34, 64, 0.95), rgba(17, 27, 50, 0.92));
+        box-shadow: var(--shadow-panel);
+      }
+
+      .cash-kpi-card::after {
+        content: "";
+        position: absolute;
+        inset: auto -20% -45% auto;
+        width: 150px;
+        height: 150px;
+        background: radial-gradient(circle, rgba(0, 217, 255, 0.08), transparent 68%);
+        pointer-events: none;
+      }
+
+      .cash-kpi-card__label {
+        display: block;
+        color: var(--text-muted);
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .cash-kpi-card__value {
+        display: block;
+        margin-top: 14px;
+        font-family: "Manrope", sans-serif;
+        font-size: clamp(1.35rem, 2.2vw, 2rem);
+        font-weight: 800;
+        line-height: 1.08;
+        letter-spacing: -0.05em;
+      }
+
+      .cash-kpi-card__hint {
+        display: block;
+        margin-top: 12px;
+        color: var(--text-secondary);
+        font-size: 0.91rem;
+        line-height: 1.6;
+      }
+
+      .cash-kpi-card__delta {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 16px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 700;
+      }
+
+      .cash-kpi-card__delta--positive {
+        color: #d5ffea;
+        background: rgba(68, 214, 124, 0.12);
+        border: 1px solid rgba(68, 214, 124, 0.22);
+      }
+
+      .cash-kpi-card__delta--negative {
+        color: #ffd9d9;
+        background: rgba(255, 107, 107, 0.12);
+        border: 1px solid rgba(255, 107, 107, 0.22);
+      }
+
+      .cash-kpi-card__delta--neutral {
+        color: #dafbff;
+        background: rgba(0, 217, 255, 0.12);
+        border: 1px solid rgba(0, 217, 255, 0.22);
+      }
+
+      .cash-chart-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 22px;
+      }
+
+      .cash-chart-card {
+        display: grid;
+        gap: 18px;
+        min-height: 320px;
+      }
+
+      .cash-chart-card--full {
+        grid-column: 1 / -1;
+      }
+
+      .cash-chart-card__header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      .cash-chart-card__title {
+        margin: 0;
+        font-family: "Manrope", sans-serif;
+        font-size: 1.28rem;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+      }
+
+      .cash-chart-card__text {
+        margin: 8px 0 0;
+        color: var(--text-secondary);
+        font-size: 0.93rem;
+        line-height: 1.6;
+      }
+
+      .cash-toggle-group {
+        display: inline-flex;
+        gap: 8px;
+        padding: 5px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(138, 164, 214, 0.14);
+      }
+
+      .cash-toggle-btn.is-active {
+        border-color: rgba(0, 217, 255, 0.26);
+        background: rgba(0, 217, 255, 0.12);
+        box-shadow: 0 0 0 1px rgba(0, 217, 255, 0.14);
+      }
+
+      .cash-bars {
+        display: grid;
+        gap: 12px;
+      }
+
+      .cash-bar-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1.3fr) minmax(160px, 2fr) auto;
+        gap: 14px;
+        align-items: center;
+      }
+
+      .cash-bar-row__label {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-weight: 600;
+      }
+
+      .cash-bar-track {
+        position: relative;
+        height: 14px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.06);
+        overflow: hidden;
+      }
+
+      .cash-bar-fill {
+        position: absolute;
+        inset: 0 auto 0 0;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #0bc0e3 0%, #00d9ff 100%);
+      }
+
+      .cash-bar-fill--risk {
+        background: linear-gradient(90deg, rgba(255, 120, 120, 0.76) 0%, rgba(255, 168, 168, 0.96) 100%);
+      }
+
+      .cash-bar-fill--negative {
+        background: linear-gradient(90deg, rgba(255, 107, 107, 0.85) 0%, rgba(255, 146, 146, 1) 100%);
+      }
+
+      .cash-bar-row__value {
+        white-space: nowrap;
+        color: var(--text-secondary);
+        font-weight: 600;
+      }
+
+      .cash-direction-legend,
+      .cash-balance-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .cash-legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-secondary);
+        font-size: 0.88rem;
+      }
+
+      .cash-legend-item__swatch {
+        width: 12px;
+        height: 12px;
+        border-radius: 4px;
+        background: var(--accent);
+      }
+
+      .cash-legend-item__swatch--negative {
+        background: #ff8c8c;
+      }
+
+      .cash-legend-item__swatch--line {
+        width: 22px;
+        height: 3px;
+        border-radius: 999px;
+        background: #8f7dff;
+      }
+
+      .cash-svg-wrap {
+        width: 100%;
+        min-height: 240px;
+      }
+
+      .cash-svg-wrap svg {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      .cash-pie-layout {
+        display: grid;
+        grid-template-columns: 240px minmax(0, 1fr);
+        gap: 22px;
+        align-items: center;
+      }
+
+      .cash-pie-chart {
+        width: 220px;
+        height: 220px;
+        margin: 0 auto;
+        border-radius: 50%;
+        position: relative;
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .cash-pie-chart::after {
+        content: "";
+        position: absolute;
+        inset: 28px;
+        border-radius: 50%;
+        background: #111a31;
+        border: 1px solid rgba(138, 164, 214, 0.12);
+      }
+
+      .cash-pie-center {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        z-index: 1;
+        text-align: center;
+      }
+
+      .cash-pie-center__value {
+        font-family: "Manrope", sans-serif;
+        font-size: 1.08rem;
+        font-weight: 800;
+      }
+
+      .cash-pie-center__label {
+        margin-top: 6px;
+        color: var(--text-secondary);
+        font-size: 0.83rem;
+      }
+
+      .cash-pie-legend {
+        display: grid;
+        gap: 10px;
+      }
+
+      .cash-pie-legend__row {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto auto;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .cash-pie-legend__swatch {
+        width: 12px;
+        height: 12px;
+        border-radius: 4px;
+      }
+
+      .cash-pie-legend__label {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: var(--text-secondary);
+      }
+
+      .cash-pie-legend__share,
+      .cash-pie-legend__value {
+        white-space: nowrap;
+        font-weight: 600;
+      }
+
+      .cash-table-card__toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+      }
+
+      .cash-table-card__meta {
+        color: var(--text-secondary);
+        font-size: 0.92rem;
+      }
+
+      .cash-table-wrap {
+        overflow: auto;
+        border: 1px solid rgba(138, 164, 214, 0.16);
+        border-radius: 18px;
+      }
+
+      .cash-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 1080px;
+        background: rgba(7, 15, 30, 0.28);
+      }
+
+      .cash-table thead th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        padding: 14px 16px;
+        text-align: left;
+        color: var(--text-muted);
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        background: rgba(11, 19, 36, 0.96);
+        border-bottom: 1px solid rgba(138, 164, 214, 0.16);
+      }
+
+      .cash-table tbody tr {
+        border-bottom: 1px solid rgba(138, 164, 214, 0.1);
+      }
+
+      .cash-table tbody tr:hover {
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .cash-table td {
+        padding: 12px 16px;
+        color: var(--text-secondary);
+        vertical-align: top;
+      }
+
+      .cash-table__sticky {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        min-width: 340px;
+        background: rgba(13, 21, 39, 0.96);
+      }
+
+      .cash-table__row-button {
+        width: 100%;
+        justify-content: flex-start;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        text-align: left;
+        box-shadow: none;
+      }
+
+      .cash-table__label {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+      }
+
+      .cash-table__caret {
+        color: var(--accent);
+        font-size: 0.88rem;
+      }
+
+      .cash-table__level-0 td {
+        color: var(--text-primary);
+        font-weight: 700;
+        background: rgba(0, 217, 255, 0.04);
+      }
+
+      .cash-table__level-1 td {
+        color: #dce8ff;
+        font-weight: 600;
+      }
+
+      .cash-table__level-2 td .cash-table__label {
+        padding-left: 16px;
+      }
+
+      .cash-table__level-3 td .cash-table__label {
+        padding-left: 32px;
+      }
+
+      .cash-table__value {
+        text-align: right;
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .cash-table__value--negative {
+        color: #ff8f8f;
+      }
+
+      .cash-table__value--positive {
+        color: #cbfff2;
+      }
+
+      .cash-table__detail td {
+        background: rgba(6, 14, 28, 0.92);
+      }
+
+      .cash-detail-panel {
+        display: grid;
+        gap: 14px;
+        padding: 12px 0 4px;
+      }
+
+      .cash-detail-panel__title {
+        margin: 0;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+        font-weight: 700;
+      }
+
+      .cash-detail-wrap {
+        overflow: auto;
+        border: 1px solid rgba(138, 164, 214, 0.12);
+        border-radius: 16px;
+      }
+
+      .cash-detail-table {
+        width: 100%;
+        min-width: 900px;
+        border-collapse: collapse;
+      }
+
+      .cash-detail-table th,
+      .cash-detail-table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid rgba(138, 164, 214, 0.1);
+        text-align: left;
+        font-size: 0.9rem;
+      }
+
+      .cash-detail-table th {
+        color: var(--text-muted);
+        font-size: 0.77rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        background: rgba(11, 19, 36, 0.96);
+      }
+
+      .cash-detail-table td:last-child {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .cash-empty-state {
+        display: grid;
+        gap: 16px;
+        padding: 28px;
+        border: 1px dashed rgba(138, 164, 214, 0.24);
+        border-radius: 22px;
+        background: rgba(7, 15, 30, 0.24);
+      }
+
+      .cash-empty-state__title {
+        margin: 0;
+        font-family: "Manrope", sans-serif;
+        font-size: 1.45rem;
+        font-weight: 800;
+      }
+
+      .cash-empty-state__text,
+      .cash-empty-state__list {
+        color: var(--text-secondary);
+        line-height: 1.7;
+      }
+
+      .cash-empty-state__list {
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .cash-empty-chart {
+        display: grid;
+        place-items: center;
+        min-height: 220px;
+        color: var(--text-muted);
+        border: 1px dashed rgba(138, 164, 214, 0.16);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.02);
+        text-align: center;
+        padding: 18px;
+      }
+
+      .cash-pill-stack {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .cash-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(138, 164, 214, 0.14);
+        color: var(--text-secondary);
+        font-size: 0.82rem;
+        font-weight: 600;
+      }
+
+      @media (max-width: 1320px) {
+        .cash-kpi-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .cash-filter-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .cash-filter-block--wide {
+          grid-column: span 1;
+        }
+      }
+
+      @media (max-width: 1024px) {
+        .cash-hero__meta,
+        .cash-kpi-grid,
+        .cash-chart-grid,
+        .cash-filter-grid,
+        .cash-pie-layout {
+          grid-template-columns: 1fr;
+        }
+
+        .cash-chart-card--full {
+          grid-column: auto;
+        }
+
+        .cash-bar-row {
+          grid-template-columns: 1fr;
+        }
+
+        .cash-table__sticky {
+          min-width: 280px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .cash-hero__header,
+        .cash-table-card__toolbar,
+        .cash-chart-card__header {
+          flex-direction: column;
+        }
+
+        .cash-filters-card,
+        .cash-table-card,
+        .cash-chart-card {
+          padding: 22px;
+        }
+
+        .cash-pie-chart {
+          width: 200px;
+          height: 200px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell" data-shell>
+      <div class="app-overlay" data-overlay></div>
+
+      <aside class="app-sidebar" aria-label="Основная навигация">
+        <div class="brand-panel">
+          <span class="brand-kicker">Finance Control Layer</span>
+          <h1 class="brand-title">Управление финансовым состоянием компании</h1>
+          <p class="brand-subtitle">Управляй финансами прозрачно и просто</p>
+        </div>
+
+        <nav class="sidebar-nav">
+          <p class="nav-label">Разделы приложения</p>
+          <a class="nav-link" href="dashboard.html" data-nav-link data-page="dashboard">
+            <span class="nav-link__icon">◈</span>
+            <span class="nav-link__body">
+              <span class="nav-link__title">Дэшборд</span>
+              <span class="nav-link__meta">Общий обзор</span>
+            </span>
+            <span class="nav-link__chevron">›</span>
+          </a>
+          <a class="nav-link" href="money.html" data-nav-link data-page="money">
+            <span class="nav-link__icon">₽</span>
+            <span class="nav-link__body">
+              <span class="nav-link__title">Деньги</span>
+              <span class="nav-link__meta">Движение и ликвидность</span>
+            </span>
+            <span class="nav-link__chevron">›</span>
+          </a>
+          <a class="nav-link" href="capital.html" data-nav-link data-page="capital">
+            <span class="nav-link__icon">◆</span>
+            <span class="nav-link__body">
+              <span class="nav-link__title">Капитал</span>
+              <span class="nav-link__meta">Устойчивость структуры</span>
+            </span>
+            <span class="nav-link__chevron">›</span>
+          </a>
+          <a class="nav-link" href="profit.html" data-nav-link data-page="profit">
+            <span class="nav-link__icon">◌</span>
+            <span class="nav-link__body">
+              <span class="nav-link__title">Прибыль</span>
+              <span class="nav-link__meta">Результат и маржинальность</span>
+            </span>
+            <span class="nav-link__chevron">›</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-foot">
+          <span class="sidebar-foot__label">Источник модуля</span>
+          <p class="sidebar-foot__value">Раздел рассчитывается в браузере и ожидает клиентские данные листа <code>Деньги</code> в диапазоне <code>rangecash</code>.</p>
+        </div>
+      </aside>
+
+      <main class="app-main">
+        <header class="app-topbar">
+          <div class="topbar-group">
+            <button class="sidebar-toggle" type="button" aria-label="Открыть меню" data-sidebar-toggle>
+              ☰
+            </button>
+            <div class="topbar-title-wrap">
+              <p class="topbar-kicker">Раздел системы</p>
+              <h2 class="topbar-title" data-page-title>Деньги</h2>
+              <p class="topbar-subtitle">Фильтрация денежных потоков, KPI, концентрация по контрагентам и аналитика ликвидности на клиентской стороне.</p>
+            </div>
+          </div>
+
+          <div class="topbar-actions">
+            <button class="action-btn action-btn--primary" type="button" data-cash-refresh>Обновить</button>
+            <button class="action-btn" type="button">Настройки</button>
+            <button class="action-btn" type="button">Выход</button>
+          </div>
+        </header>
+
+        <div class="app-content">
+          <div class="page-grid cash-page" id="cashPage" data-cash-page>
+            <section class="hero-panel cash-hero">
+              <div class="cash-hero__header">
+                <div class="hero-panel__head">
+                  <span class="hero-panel__eyebrow">Модуль денежных потоков</span>
+                  <h3 class="hero-panel__title">Движение денег, устойчивость остатка и концентрация по операциям</h3>
+                  <p class="hero-panel__text">
+                    Страница работает полностью в браузере: читает клиентский набор данных <code>rangecash</code>, применяет период и глобальные фильтры, пересчитывает KPI и перестраивает диаграммы без серверной логики.
+                  </p>
+                </div>
+
+                <div class="cash-hero__actions">
+                  <span class="cash-hero__badge" id="cashSourceBadge">Источник не подключен</span>
+                  <button class="cash-ghost-btn" type="button" data-cash-reset-all>Сбросить все фильтры</button>
+                </div>
+              </div>
+
+              <div class="cash-hero__meta" id="cashHeroMeta">
+                <div class="cash-meta-card">
+                  <span class="cash-meta-card__label">Период страницы</span>
+                  <span class="cash-meta-card__value" id="cashHeroPeriod">—</span>
+                  <span class="cash-meta-card__hint">Календарный интервал влияет на все блоки модуля.</span>
+                </div>
+                <div class="cash-meta-card">
+                  <span class="cash-meta-card__label">Строк после фильтрации</span>
+                  <span class="cash-meta-card__value" id="cashHeroRows">0</span>
+                  <span class="cash-meta-card__hint">Учитываются только строки с валидной датой в столбце <code>Дата</code>.</span>
+                </div>
+                <div class="cash-meta-card">
+                  <span class="cash-meta-card__label">Диапазон данных</span>
+                  <span class="cash-meta-card__value" id="cashHeroCoverage">—</span>
+                  <span class="cash-meta-card__hint">Покрытие по исходным датам загруженного набора.</span>
+                </div>
+                <div class="cash-meta-card">
+                  <span class="cash-meta-card__label">Активные фильтры</span>
+                  <span class="cash-meta-card__value" id="cashHeroFilters">0</span>
+                  <span class="cash-meta-card__hint">Счет, Контрагент, Статья и Направление работают совместно.</span>
+                </div>
+              </div>
+            </section>
+
+            <section class="content-card cash-filters-card">
+              <div class="section-head">
+                <span class="section-eyebrow">Управление выборкой</span>
+                <h3 class="section-title">Период и глобальные фильтры</h3>
+                <p class="section-text">Все фильтры применяются ко всей странице. Раздел <code>Перемещение</code> исключается только из диаграмм и таблицы, но не подменяется вымышленными значениями.</p>
+              </div>
+
+              <div class="cash-filter-grid" id="cashFilterGrid">
+                <div class="cash-filter-block">
+                  <label class="cash-filter-label" for="cashPeriodStart">Дата начала</label>
+                  <input class="cash-filter-input" id="cashPeriodStart" type="date" data-cash-period-start>
+                </div>
+
+                <div class="cash-filter-block">
+                  <label class="cash-filter-label" for="cashPeriodEnd">Дата окончания</label>
+                  <input class="cash-filter-input" id="cashPeriodEnd" type="date" data-cash-period-end>
+                </div>
+
+                <div class="cash-filter-block" id="cashFilterAccount"></div>
+                <div class="cash-filter-block" id="cashFilterCounterparty"></div>
+                <div class="cash-filter-block" id="cashFilterArticle"></div>
+                <div class="cash-filter-block" id="cashFilterDirection"></div>
+              </div>
+
+              <div class="cash-filter-footer">
+                <div class="cash-pill-stack" id="cashActivePills"></div>
+                <span class="cash-filter-note" id="cashFilterNote">Фильтры ещё не применены.</span>
+              </div>
+            </section>
+
+            <section class="cash-empty-state" id="cashEmptyState" hidden>
+              <h3 class="cash-empty-state__title">Источник данных для раздела “Деньги” пока не найден</h3>
+              <p class="cash-empty-state__text">
+                Модуль ожидает browser-side данные листа <code>Деньги</code>. Страница не использует Apps Script и не обращается к Google-инфраструктуре.
+              </p>
+              <ul class="cash-empty-state__list">
+                <li>Поддерживается <code>window.cashData</code> как массив объектов или строк диапазона.</li>
+                <li>Поддерживается <code>window.rangecash</code> с тем же принципом.</li>
+                <li>Поддерживается <code>window.workbookData</code>, если лист <code>Деньги</code> доступен в клиентском runtime.</li>
+              </ul>
+            </section>
+
+            <section class="cash-dashboard" id="cashDashboard" hidden>
+              <div class="cash-kpi-grid" id="cashKpiGrid"></div>
+
+              <div class="cash-chart-grid">
+                <article class="content-card cash-chart-card">
+                  <div class="cash-chart-card__header">
+                    <div>
+                      <h3 class="cash-chart-card__title">Концентрация по контрагентам</h3>
+                      <p class="cash-chart-card__text">Диаграмма исключает депозитные счета. Контрагент с долей выше 30% помечается как риск-маркер.</p>
+                    </div>
+
+                    <div class="cash-toggle-group" data-cash-counterparty-toggle>
+                      <button class="cash-toggle-btn is-active" type="button" data-cash-mode="suppliers">Поставщики</button>
+                      <button class="cash-toggle-btn" type="button" data-cash-mode="buyers">Покупатели</button>
+                    </div>
+                  </div>
+
+                  <div id="cashCounterpartyChart"></div>
+                </article>
+
+                <article class="content-card cash-chart-card">
+                  <div class="cash-chart-card__header">
+                    <div>
+                      <h3 class="cash-chart-card__title">Чистый поток по направлениям</h3>
+                      <p class="cash-chart-card__text">Показывает, какое направление формирует положительный или отрицательный вклад в чистый денежный поток.</p>
+                    </div>
+                  </div>
+
+                  <div class="cash-direction-legend">
+                    <span class="cash-legend-item"><span class="cash-legend-item__swatch"></span>Положительный вклад</span>
+                    <span class="cash-legend-item"><span class="cash-legend-item__swatch cash-legend-item__swatch--negative"></span>Отрицательный вклад</span>
+                  </div>
+                  <div id="cashDirectionChart"></div>
+                </article>
+
+                <article class="content-card cash-chart-card cash-chart-card--full">
+                  <div class="cash-chart-card__header">
+                    <div>
+                      <h3 class="cash-chart-card__title">Чистый денежный поток по месяцам</h3>
+                      <p class="cash-chart-card__text">Месячная динамика считается как <code>Приход - Расход</code> без включения операций типа <code>Остаток</code>.</p>
+                    </div>
+                  </div>
+
+                  <div class="cash-svg-wrap" id="cashMonthlyFlowChart"></div>
+                </article>
+
+                <article class="content-card cash-chart-card cash-chart-card--full">
+                  <div class="cash-chart-card__header">
+                    <div>
+                      <h3 class="cash-chart-card__title">Динамика остатков на счетах</h3>
+                      <p class="cash-chart-card__text">Столбики показывают остаток на начало месяца, линия — среднемесячный расход по основной деятельности.</p>
+                    </div>
+                  </div>
+
+                  <div class="cash-balance-legend">
+                    <span class="cash-legend-item"><span class="cash-legend-item__swatch"></span>Остаток на начало месяца</span>
+                    <span class="cash-legend-item"><span class="cash-legend-item__swatch cash-legend-item__swatch--line"></span>Среднемесячный расход по основной деятельности</span>
+                  </div>
+                  <div class="cash-svg-wrap" id="cashBalanceChart"></div>
+                </article>
+
+                <article class="content-card cash-chart-card">
+                  <div class="cash-chart-card__header">
+                    <div>
+                      <h3 class="cash-chart-card__title">Структура расходов по статьям</h3>
+                      <p class="cash-chart-card__text">Круговая диаграмма строится только по операциям типа <code>Расход</code> и не включает раздел <code>Перемещение</code>.</p>
+                    </div>
+                  </div>
+
+                  <div id="cashExpensePieChart"></div>
+                </article>
+              </div>
+
+              <article class="content-card cash-table-card">
+                <div class="cash-table-card__toolbar">
+                  <div>
+                    <h3 class="cash-chart-card__title">Отчет по разделам, видам операций и статьям</h3>
+                    <p class="cash-chart-card__text">Клик по строке раскрывает операции. Колонки — месяцы, строки — иерархия ОДДС с промежуточными итогами.</p>
+                  </div>
+                  <div class="cash-table-card__meta" id="cashTableMeta">—</div>
+                </div>
+
+                <div class="cash-table-wrap" id="cashTableWrap"></div>
+              </article>
+            </section>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="assets/xlsx.full.min.js"></script>
+    <script src="assets/js/gscore.js"></script>
+    <script src="assets/js/layout.js"></script>
+    <script>
+      (() => {
+        "use strict";
+
+        const cashCore = window.GSCore || {};
+        const cashFormatters = {
+          month: new Intl.DateTimeFormat("ru-RU", { month: "short", year: "numeric" }),
+          day: new Intl.DateTimeFormat("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" })
+        };
+
+        const cashPalette = [
+          "#00d9ff",
+          "#17c6b8",
+          "#8f7dff",
+          "#49d17d",
+          "#ff8f8f",
+          "#ffd166",
+          "#6de2ff",
+          "#3fe0c5",
+          "#a49bff",
+          "#ffb3b3"
+        ];
+
+        const cashFieldMap = {
+          account: ["Счет", "Счёт", "Счет/касса", "Банковский счет"],
+          counterparty: ["Контрагент", "Контрагенты", "Партнер", "Плательщик", "Получатель"],
+          article: ["Статья", "Статья ДДС", "Статья движения"],
+          direction: ["Направление", "Направление ДДС", "Бизнес-направление"],
+          section: ["Раздел ОДДС", "Раздел", "ОДДС"],
+          operationType: ["Вид операции", "Тип операции", "Операция"],
+          date: ["Дата"],
+          amount: ["Сумма", "Сумма операции", "Сумма, ₽", "Сумма руб"]
+        };
+
+        const cashOperationOrder = ["Остаток", "Приход", "Расход"];
+
+        const cashState = {
+          rawRows: [],
+          allRows: [],
+          rowsWithValidDates: [],
+          filteredRows: [],
+          filteredChartRows: [],
+          filterOptions: {
+            account: [],
+            counterparty: [],
+            article: [],
+            direction: []
+          },
+          sourceMeta: {
+            sourceName: null,
+            rowsCount: 0
+          },
+          filters: {
+            startDate: "",
+            endDate: "",
+            account: new Set(),
+            counterparty: new Set(),
+            article: new Set(),
+            direction: new Set()
+          },
+          counterpartyMode: "suppliers",
+          expandedKey: null,
+          tableDetailMap: {},
+          balanceBaselineMissing: false
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+          cashInitPage().catch((error) => {
+            console.error("[cash] init failed", error);
+            cashLoadData();
+          });
+        });
+
+        async function cashInitPage() {
+          cashBindPageEvents();
+          await cashEnsureWorkbookData();
+          cashLoadData();
+        }
+
+        function cashBindPageEvents() {
+          const cashPage = document.getElementById("cashPage");
+          const cashRefreshButton = document.querySelector("[data-cash-refresh]");
+          const cashResetAllButton = document.querySelector("[data-cash-reset-all]");
+
+          if (cashRefreshButton) {
+            cashRefreshButton.addEventListener("click", async () => {
+              await cashEnsureWorkbookData(true);
+              cashLoadData();
+            });
+          }
+
+          if (cashResetAllButton) {
+            cashResetAllButton.addEventListener("click", cashResetFilters);
+          }
+
+          if (!cashPage) {
+            return;
+          }
+
+          cashPage.addEventListener("change", (event) => {
+            const target = event.target;
+
+            if (target.matches("[data-cash-period-start]")) {
+              cashState.filters.startDate = target.value || "";
+              cashRenderAll();
+              return;
+            }
+
+            if (target.matches("[data-cash-period-end]")) {
+              cashState.filters.endDate = target.value || "";
+              cashRenderAll();
+              return;
+            }
+
+            if (target.matches("[data-cash-filter-checkbox]")) {
+              const filterName = target.getAttribute("data-cash-filter-name");
+              const optionValue = target.getAttribute("data-cash-filter-value");
+              cashToggleFilterValue(filterName, optionValue, target.checked);
+            }
+          });
+
+          cashPage.addEventListener("click", (event) => {
+            const toggleButton = event.target.closest("[data-cash-mode]");
+            const actionButton = event.target.closest("[data-cash-action]");
+            const rowButton = event.target.closest("[data-cash-row-key]");
+
+            if (toggleButton) {
+              const nextMode = toggleButton.getAttribute("data-cash-mode");
+              if (nextMode && nextMode !== cashState.counterpartyMode) {
+                cashState.counterpartyMode = nextMode;
+                cashRenderCounterpartyChart();
+                cashSyncCounterpartyToggles();
+              }
+              return;
+            }
+
+            if (actionButton) {
+              const actionName = actionButton.getAttribute("data-cash-action");
+              const filterName = actionButton.getAttribute("data-cash-filter-name");
+
+              if (actionName === "reset-all") {
+                cashResetFilters();
+                return;
+              }
+
+              if (actionName === "clear-filter" && filterName && cashState.filters[filterName] instanceof Set) {
+                cashState.filters[filterName].clear();
+                cashRenderAll();
+                return;
+              }
+
+              if (actionName === "select-all-filter" && filterName && cashState.filters[filterName] instanceof Set) {
+                cashState.filterOptions[filterName].forEach((optionValue) => cashState.filters[filterName].add(optionValue));
+                cashRenderAll();
+              }
+              return;
+            }
+
+            if (rowButton) {
+              const rowKey = rowButton.getAttribute("data-cash-row-key");
+              cashState.expandedKey = cashState.expandedKey === rowKey ? null : rowKey;
+              cashRenderTable();
+            }
+          });
+
+          document.addEventListener("click", (event) => {
+            document.querySelectorAll(".cash-filter-details[open]").forEach((detailsElement) => {
+              if (!detailsElement.contains(event.target)) {
+                detailsElement.open = false;
+              }
+            });
+          });
+        }
+
+        async function cashEnsureWorkbookData(forceRefresh = false) {
+          if (!cashCore.loadWorkbookData) {
+            return;
+          }
+
+          try {
+            await cashCore.loadWorkbookData({ forceRefresh });
+          } catch (error) {
+            console.error("[cash] workbook loader failed", error);
+          }
+        }
+
+        function cashLoadData() {
+          const resolved = cashResolveDataset();
+          cashState.rawRows = resolved.rows;
+          cashState.sourceMeta = {
+            sourceName: resolved.sourceName,
+            rowsCount: resolved.rows.length
+          };
+
+          cashState.allRows = cashNormalizeRows(resolved.rows);
+          cashState.rowsWithValidDates = cashState.allRows.filter((row) => row.cashDate instanceof Date);
+          cashState.filterOptions = cashBuildFilterOptions(cashState.rowsWithValidDates);
+          cashState.expandedKey = null;
+          cashState.tableDetailMap = {};
+          cashState.balanceBaselineMissing = false;
+          cashInitializePeriodBounds();
+          cashRenderAll();
+        }
+
+        function cashResolveDataset() {
+          const candidates = [
+            { sourceName: "window.cashData", value: window.cashData },
+            { sourceName: "window.rangecash", value: window.rangecash },
+            { sourceName: "window.moneyData", value: window.moneyData },
+            { sourceName: "window.workbookData", value: window.workbookData }
+          ];
+
+          for (const candidate of candidates) {
+            const extractedRows = cashExtractRowsFromCandidate(candidate.value, candidate.sourceName);
+            if (extractedRows.length > 0) {
+              return {
+                sourceName: candidate.sourceName,
+                rows: extractedRows
+              };
+            }
+          }
+
+          return {
+            sourceName: null,
+            rows: []
+          };
+        }
+
+        function cashExtractRowsFromCandidate(candidateValue, candidateName) {
+          if (!candidateValue) {
+            return [];
+          }
+
+          if (candidateName === "window.workbookData" && cashCore.readSheetAsObjects) {
+            return cashCore.readSheetAsObjects(
+              candidateValue,
+              cashCore.CONFIG && cashCore.CONFIG.SHEETS ? cashCore.CONFIG.SHEETS.MONEY : "Деньги"
+            );
+          }
+
+          if (Array.isArray(candidateValue)) {
+            return cashExtractRowsFromArray(candidateValue);
+          }
+
+          if (typeof candidateValue === "object") {
+            if (Array.isArray(candidateValue.rows)) {
+              return cashExtractRowsFromArray(candidateValue.rows);
+            }
+
+            if (Array.isArray(candidateValue.data)) {
+              return cashExtractRowsFromArray(candidateValue.data);
+            }
+
+            if (Array.isArray(candidateValue.rangecash)) {
+              return cashExtractRowsFromArray(candidateValue.rangecash);
+            }
+
+            if (Array.isArray(candidateValue.cashData)) {
+              return cashExtractRowsFromArray(candidateValue.cashData);
+            }
+          }
+
+          return [];
+        }
+
+        function cashExtractRowsFromArray(arrayValue) {
+          if (arrayValue.length === 0) {
+            return [];
+          }
+
+          if (Array.isArray(arrayValue[0])) {
+            return cashConvertMatrixToObjects(arrayValue);
+          }
+
+          if (typeof arrayValue[0] === "object" && arrayValue[0] !== null) {
+            return arrayValue.slice();
+          }
+
+          return [];
+        }
+
+        function cashConvertMatrixToObjects(matrix) {
+          if (!Array.isArray(matrix) || matrix.length === 0 || !Array.isArray(matrix[0])) {
+            return [];
+          }
+
+          const [headerRow, ...dataRows] = matrix;
+          const headers = headerRow.map((header, index) => {
+            const normalized = cashNormalizeText(header);
+            return normalized || `column_${index + 1}`;
+          });
+
+          return dataRows.reduce((accumulator, dataRow) => {
+            if (!Array.isArray(dataRow)) {
+              return accumulator;
+            }
+
+            const rowObject = {};
+            headers.forEach((header, index) => {
+              rowObject[header] = dataRow[index];
+            });
+
+            accumulator.push(rowObject);
+            return accumulator;
+          }, []);
+        }
+
+        function cashNormalizeRows(rows) {
+          return rows.reduce((accumulator, rawRow, index) => {
+            if (!rawRow || typeof rawRow !== "object") {
+              return accumulator;
+            }
+
+            const dateValue = cashPickField(rawRow, cashFieldMap.date);
+            const parsedDate = cashParseDate(dateValue);
+            const amountValue = cashPickField(rawRow, cashFieldMap.amount);
+            const amountNumber = cashToNumber(amountValue);
+            const operationType = cashNormalizeText(cashPickField(rawRow, cashFieldMap.operationType));
+            const account = cashNormalizeText(cashPickField(rawRow, cashFieldMap.account));
+            const counterparty = cashNormalizeText(cashPickField(rawRow, cashFieldMap.counterparty));
+            const article = cashNormalizeText(cashPickField(rawRow, cashFieldMap.article));
+            const direction = cashNormalizeText(cashPickField(rawRow, cashFieldMap.direction));
+            const section = cashNormalizeText(cashPickField(rawRow, cashFieldMap.section));
+            const monthKey = parsedDate ? cashGetMonthKey(parsedDate) : null;
+
+            accumulator.push({
+              cashId: `cash-row-${index + 1}`,
+              cashRaw: rawRow,
+              cashDate: parsedDate,
+              cashDateLabel: parsedDate ? cashFormatters.day.format(parsedDate) : "—",
+              cashMonthKey: monthKey,
+              cashMonthLabel: parsedDate ? cashGetMonthLabel(parsedDate) : "—",
+              cashAmount: amountNumber,
+              cashAccount: account,
+              cashCounterparty: counterparty,
+              cashArticle: article,
+              cashDirection: direction,
+              cashSection: section,
+              cashOperationType: operationType,
+              cashOperationKind: cashClassifyOperation(operationType)
+            });
+
+            return accumulator;
+          }, []);
+        }
+
+        function cashBuildFilterOptions(rows) {
+          return {
+            account: cashBuildUniqueOptions(rows, "cashAccount"),
+            counterparty: cashBuildUniqueOptions(rows, "cashCounterparty"),
+            article: cashBuildUniqueOptions(rows, "cashArticle"),
+            direction: cashBuildUniqueOptions(rows, "cashDirection")
+          };
+        }
+
+        function cashBuildUniqueOptions(rows, fieldName) {
+          return Array.from(
+            new Set(
+              rows
+                .map((row) => row[fieldName])
+                .filter((value) => typeof value === "string" && value.trim())
+            )
+          ).sort((left, right) => left.localeCompare(right, "ru"));
+        }
+
+        function cashInitializePeriodBounds() {
+          const bounds = cashGetDateBounds(cashState.rowsWithValidDates);
+
+          cashState.filters.startDate = bounds.minDate ? cashFormatDateInput(bounds.minDate) : "";
+          cashState.filters.endDate = bounds.maxDate ? cashFormatDateInput(bounds.maxDate) : "";
+        }
+
+        function cashGetDateBounds(rows) {
+          const validDates = rows.map((row) => row.cashDate).filter((date) => date instanceof Date);
+
+          if (validDates.length === 0) {
+            return { minDate: null, maxDate: null };
+          }
+
+          return {
+            minDate: new Date(Math.min(...validDates.map((date) => date.getTime()))),
+            maxDate: new Date(Math.max(...validDates.map((date) => date.getTime())))
+          };
+        }
+
+        function cashRenderAll() {
+          const emptyState = document.getElementById("cashEmptyState");
+          const dashboard = document.getElementById("cashDashboard");
+          const sourceBadge = document.getElementById("cashSourceBadge");
+
+          if (cashState.rowsWithValidDates.length === 0) {
+            if (emptyState) {
+              emptyState.hidden = false;
+            }
+
+            if (dashboard) {
+              dashboard.hidden = true;
+            }
+
+            if (sourceBadge) {
+              sourceBadge.textContent = "Источник не подключен";
+            }
+
+            cashRenderHeroMeta({ filteredRows: [], activeFilterCount: 0, dataBounds: { minDate: null, maxDate: null } });
+            cashRenderFilterControls();
+            return;
+          }
+
+          cashState.filteredRows = cashApplyFilters(cashState.rowsWithValidDates);
+          cashState.filteredChartRows = cashState.filteredRows.filter((row) => !cashIsTransferRow(row));
+
+          if (emptyState) {
+            emptyState.hidden = true;
+          }
+
+          if (dashboard) {
+            dashboard.hidden = false;
+          }
+
+          if (sourceBadge) {
+            sourceBadge.textContent = cashState.sourceMeta.sourceName
+              ? `Источник: ${cashState.sourceMeta.sourceName}`
+              : "Источник: клиентский runtime";
+          }
+
+          cashRenderHeroMeta({
+            filteredRows: cashState.filteredRows,
+            activeFilterCount: cashCountActiveFilters(),
+            dataBounds: cashGetDateBounds(cashState.rowsWithValidDates)
+          });
+          cashRenderFilterControls();
+          cashRenderKpis();
+          cashRenderCounterpartyChart();
+          cashRenderDirectionsChart();
+          cashRenderMonthlyFlowChart();
+          cashRenderBalanceChart();
+          cashRenderExpensePieChart();
+          cashRenderTable();
+        }
+
+        function cashRenderHeroMeta({ filteredRows, activeFilterCount, dataBounds }) {
+          const periodNode = document.getElementById("cashHeroPeriod");
+          const rowsNode = document.getElementById("cashHeroRows");
+          const coverageNode = document.getElementById("cashHeroCoverage");
+          const filtersNode = document.getElementById("cashHeroFilters");
+
+          if (periodNode) {
+            periodNode.textContent = cashDescribeCurrentPeriod();
+          }
+
+          if (rowsNode) {
+            rowsNode.textContent = cashFormatInteger(filteredRows.length);
+          }
+
+          if (coverageNode) {
+            coverageNode.textContent =
+              dataBounds.minDate && dataBounds.maxDate
+                ? `${cashFormatters.day.format(dataBounds.minDate)} — ${cashFormatters.day.format(dataBounds.maxDate)}`
+                : "Нет дат";
+          }
+
+          if (filtersNode) {
+            filtersNode.textContent = cashFormatInteger(activeFilterCount);
+          }
+        }
+
+        function cashRenderFilterControls() {
+          const filterContainers = {
+            account: document.getElementById("cashFilterAccount"),
+            counterparty: document.getElementById("cashFilterCounterparty"),
+            article: document.getElementById("cashFilterArticle"),
+            direction: document.getElementById("cashFilterDirection")
+          };
+
+          document.getElementById("cashPeriodStart").value = cashState.filters.startDate;
+          document.getElementById("cashPeriodEnd").value = cashState.filters.endDate;
+
+          Object.entries(filterContainers).forEach(([filterName, container]) => {
+            if (!container) {
+              return;
+            }
+
+            container.innerHTML = cashBuildFilterDropdownMarkup(filterName, cashState.filterOptions[filterName], cashState.filters[filterName]);
+          });
+
+          const activePillsNode = document.getElementById("cashActivePills");
+          const filterNoteNode = document.getElementById("cashFilterNote");
+          const pillsMarkup = cashBuildActivePillsMarkup();
+
+          if (activePillsNode) {
+            activePillsNode.innerHTML = pillsMarkup;
+          }
+
+          if (filterNoteNode) {
+            filterNoteNode.textContent =
+              cashState.filteredRows.length > 0
+                ? `После фильтрации доступно ${cashFormatInteger(cashState.filteredRows.length)} строк(и) с валидной датой.`
+                : "После фильтрации данные для отображения отсутствуют.";
+          }
+        }
+
+        function cashBuildFilterDropdownMarkup(filterName, options, selectedSet) {
+          const titles = {
+            account: "Счет",
+            counterparty: "Контрагент",
+            article: "Статья",
+            direction: "Направление"
+          };
+
+          const selectedValues = Array.from(selectedSet);
+          const summaryValue = selectedValues.length === 0
+            ? "Все значения"
+            : selectedValues.length === 1
+              ? selectedValues[0]
+              : `Выбрано: ${selectedValues.length}`;
+
+          const optionMarkup = options.length === 0
+            ? '<div class="cash-filter-note">Нет значений для выбора.</div>'
+            : options.map((optionValue) => {
+                const checked = selectedSet.has(optionValue) ? "checked" : "";
+                return `
+                  <label class="cash-filter-option">
+                    <input
+                      type="checkbox"
+                      data-cash-filter-checkbox
+                      data-cash-filter-name="${filterName}"
+                      data-cash-filter-value="${cashEscapeAttribute(optionValue)}"
+                      ${checked}
+                    >
+                    <span>${cashEscapeHtml(optionValue)}</span>
+                  </label>
+                `;
+              }).join("");
+
+          return `
+            <label class="cash-filter-label">${titles[filterName]}</label>
+            <details class="cash-filter-details">
+              <summary class="cash-filter-summary">
+                <span class="cash-filter-summary__value">${cashEscapeHtml(summaryValue)}</span>
+                <span>▾</span>
+              </summary>
+              <div class="cash-filter-panel">
+                <div class="cash-filter-panel__actions">
+                  <button class="cash-filter-chip-btn" type="button" data-cash-action="select-all-filter" data-cash-filter-name="${filterName}">Все</button>
+                  <button class="cash-filter-chip-btn" type="button" data-cash-action="clear-filter" data-cash-filter-name="${filterName}">Сброс</button>
+                </div>
+                <div class="cash-filter-options">
+                  ${optionMarkup}
+                </div>
+              </div>
+            </details>
+          `;
+        }
+
+        function cashBuildActivePillsMarkup() {
+          const pills = [];
+
+          if (cashState.filters.startDate || cashState.filters.endDate) {
+            pills.push(`<span class="cash-pill">Период: ${cashEscapeHtml(cashDescribeCurrentPeriod())}</span>`);
+          }
+
+          ["account", "counterparty", "article", "direction"].forEach((filterName) => {
+            const values = Array.from(cashState.filters[filterName]);
+            if (values.length > 0) {
+              pills.push(`<span class="cash-pill">${cashEscapeHtml(cashFilterDisplayName(filterName))}: ${cashEscapeHtml(values.length === 1 ? values[0] : values.length.toString())}</span>`);
+            }
+          });
+
+          return pills.length > 0 ? pills.join("") : '<span class="cash-pill">Фильтры по значениям не заданы</span>';
+        }
+
+        function cashRenderKpis() {
+          const kpiGrid = document.getElementById("cashKpiGrid");
+
+          if (!kpiGrid) {
+            return;
+          }
+
+          if (cashState.filteredRows.length === 0) {
+            kpiGrid.innerHTML = cashBuildEmptyBlock("После фильтрации не осталось строк для расчёта KPI.");
+            return;
+          }
+
+          const netFlow = cashCalculateNetFlow(cashState.filteredRows);
+          const cashBuffer = cashCalculateCashBuffer(cashState.filteredRows);
+          const sectionFlows = cashBuildSectionFlowMetrics(cashState.filteredRows);
+
+          const cards = [
+            {
+              label: "Чистый денежный поток",
+              value: cashFormatCurrency(netFlow),
+              hint: "Приходы минус расходы без операций типа “Остаток”.",
+              deltaLabel: netFlow > 0 ? "Положительный поток" : netFlow < 0 ? "Отрицательный поток" : "Нулевой поток",
+              deltaType: netFlow > 0 ? "positive" : netFlow < 0 ? "negative" : "neutral"
+            },
+            {
+              label: "Cash Buffer",
+              value: cashBuffer === null ? "—" : `${cashFormatNumber(cashBuffer, 1)} дн.`,
+              hint: "Чистый поток / среднедневной расход по выбранному периоду.",
+              deltaLabel: cashBuffer === null ? "Нет расходов для деления" : "Календарные дни периода",
+              deltaType: cashBuffer === null ? "neutral" : cashBuffer >= 30 ? "positive" : cashBuffer >= 10 ? "neutral" : "negative"
+            },
+            ...sectionFlows.map((sectionMetric) => ({
+              label: sectionMetric.label,
+              value: cashFormatCurrency(sectionMetric.value),
+              hint: `Доля вклада: ${cashFormatPercent(sectionMetric.share)}`,
+              deltaLabel: sectionMetric.value > 0 ? "Положительный вклад" : sectionMetric.value < 0 ? "Отрицательный вклад" : "Без вклада",
+              deltaType: sectionMetric.value > 0 ? "positive" : sectionMetric.value < 0 ? "negative" : "neutral"
+            }))
+          ];
+
+          kpiGrid.innerHTML = cards.map((card) => `
+            <article class="cash-kpi-card">
+              <span class="cash-kpi-card__label">${cashEscapeHtml(card.label)}</span>
+              <span class="cash-kpi-card__value">${cashEscapeHtml(card.value)}</span>
+              <span class="cash-kpi-card__hint">${cashEscapeHtml(card.hint)}</span>
+              <span class="cash-kpi-card__delta cash-kpi-card__delta--${card.deltaType}">${cashEscapeHtml(card.deltaLabel)}</span>
+            </article>
+          `).join("");
+        }
+
+        function cashRenderCounterpartyChart() {
+          const target = document.getElementById("cashCounterpartyChart");
+          if (!target) {
+            return;
+          }
+
+          const dataset = cashBuildCounterpartyDataset();
+          if (dataset.length === 0) {
+            target.innerHTML = cashBuildEmptyChart("Для выбранного режима и фильтров нет данных по контрагентам.");
+            return;
+          }
+
+          const maxValue = Math.max(...dataset.map((item) => item.amount), 1);
+          target.innerHTML = `
+            <div class="cash-bars">
+              ${dataset.map((item) => `
+                <div class="cash-bar-row">
+                  <span class="cash-bar-row__label">${cashEscapeHtml(item.label)}</span>
+                  <div class="cash-bar-track">
+                    <span class="cash-bar-fill ${item.share > 0.3 ? "cash-bar-fill--risk" : ""}" style="width:${(item.amount / maxValue) * 100}%"></span>
+                  </div>
+                  <span class="cash-bar-row__value">${cashEscapeHtml(cashFormatCurrency(item.amount))} · ${cashEscapeHtml(cashFormatPercent(item.share))}</span>
+                </div>
+              `).join("")}
+            </div>
+          `;
+        }
+
+        function cashRenderDirectionsChart() {
+          const target = document.getElementById("cashDirectionChart");
+          if (!target) {
+            return;
+          }
+
+          const dataset = cashBuildDirectionDataset();
+          if (dataset.length === 0) {
+            target.innerHTML = cashBuildEmptyChart("Нет данных для разреза по направлениям.");
+            return;
+          }
+
+          const maxAbs = Math.max(...dataset.map((item) => Math.abs(item.value)), 1);
+          target.innerHTML = `
+            <div class="cash-bars">
+              ${dataset.map((item) => `
+                <div class="cash-bar-row">
+                  <span class="cash-bar-row__label">${cashEscapeHtml(item.label)}</span>
+                  <div class="cash-bar-track">
+                    <span class="cash-bar-fill ${item.value < 0 ? "cash-bar-fill--negative" : ""}" style="width:${(Math.abs(item.value) / maxAbs) * 100}%"></span>
+                  </div>
+                  <span class="cash-bar-row__value">${cashEscapeHtml(cashFormatCurrency(item.value))}</span>
+                </div>
+              `).join("")}
+            </div>
+          `;
+        }
+
+        function cashRenderMonthlyFlowChart() {
+          const target = document.getElementById("cashMonthlyFlowChart");
+          if (!target) {
+            return;
+          }
+
+          const dataset = cashBuildMonthlyFlowDataset();
+          if (dataset.length === 0) {
+            target.innerHTML = cashBuildEmptyChart("Недостаточно данных для месячной динамики.");
+            return;
+          }
+
+          target.innerHTML = cashCreateLineChartSvg(dataset, {
+            stroke: "#00d9ff",
+            fill: "rgba(0, 217, 255, 0.12)",
+            negativeStroke: "#ff8f8f",
+            title: "Чистый поток"
+          });
+        }
+
+        function cashRenderBalanceChart() {
+          const target = document.getElementById("cashBalanceChart");
+          if (!target) {
+            return;
+          }
+
+          const dataset = cashBuildBalanceDataset();
+          if (dataset.months.length === 0) {
+            target.innerHTML = cashBuildEmptyChart("Недостаточно данных для расчёта остатков на начало месяца.");
+            return;
+          }
+
+          target.innerHTML = cashCreateBalanceChartSvg(dataset);
+        }
+
+        function cashRenderExpensePieChart() {
+          const target = document.getElementById("cashExpensePieChart");
+          if (!target) {
+            return;
+          }
+
+          const dataset = cashBuildExpenseDataset();
+          if (dataset.length === 0) {
+            target.innerHTML = cashBuildEmptyChart("Для структуры расходов нет строк типа “Расход”.");
+            return;
+          }
+
+          const total = dataset.reduce((sum, item) => sum + item.value, 0);
+          let angleCursor = 0;
+          const gradientParts = dataset.map((item, index) => {
+            const nextCursor = angleCursor + item.share * 360;
+            const color = cashPalette[index % cashPalette.length];
+            const part = `${color} ${angleCursor.toFixed(2)}deg ${nextCursor.toFixed(2)}deg`;
+            angleCursor = nextCursor;
+            return part;
+          });
+
+          target.innerHTML = `
+            <div class="cash-pie-layout">
+              <div class="cash-pie-chart" style="background: conic-gradient(${gradientParts.join(", ")})">
+                <div class="cash-pie-center">
+                  <div>
+                    <div class="cash-pie-center__value">${cashEscapeHtml(cashFormatCurrency(total))}</div>
+                    <div class="cash-pie-center__label">Все расходы</div>
+                  </div>
+                </div>
+              </div>
+              <div class="cash-pie-legend">
+                ${dataset.map((item, index) => `
+                  <div class="cash-pie-legend__row">
+                    <span class="cash-pie-legend__swatch" style="background:${cashPalette[index % cashPalette.length]}"></span>
+                    <span class="cash-pie-legend__label">${cashEscapeHtml(item.label)}</span>
+                    <span class="cash-pie-legend__share">${cashEscapeHtml(cashFormatPercent(item.share))}</span>
+                    <span class="cash-pie-legend__value">${cashEscapeHtml(cashFormatCurrency(item.value))}</span>
+                  </div>
+                `).join("")}
+              </div>
+            </div>
+          `;
+        }
+
+        function cashRenderTable() {
+          const target = document.getElementById("cashTableWrap");
+          const metaNode = document.getElementById("cashTableMeta");
+          if (!target) {
+            return;
+          }
+
+          const dataset = cashBuildTableDataset();
+          cashState.tableDetailMap = dataset.detailMap;
+          cashState.balanceBaselineMissing = dataset.balanceBaselineMissing;
+
+          if (metaNode) {
+            metaNode.textContent = dataset.months.length === 0
+              ? "Нет месячных колонок для таблицы."
+              : `Месяцев в отчете: ${dataset.months.length}${dataset.balanceBaselineMissing ? " · первый остаток принят как 0 из-за отсутствия исходного Остатка" : ""}`;
+          }
+
+          if (dataset.rows.length === 0 || dataset.months.length === 0) {
+            target.innerHTML = cashBuildEmptyChart("Для таблицы не осталось строк после фильтрации.");
+            return;
+          }
+
+          const headerMarkup = `
+            <thead>
+              <tr>
+                <th class="cash-table__sticky">Строка отчета</th>
+                ${dataset.months.map((monthKey) => `<th>${cashEscapeHtml(cashGetMonthLabelFromKey(monthKey))}</th>`).join("")}
+              </tr>
+            </thead>
+          `;
+
+          const bodyMarkup = dataset.rows.map((row) => {
+            const isExpanded = cashState.expandedKey === row.key;
+            const drillable = row.details.length > 0;
+            const cellsMarkup = dataset.months.map((monthKey) => {
+              const value = row.monthValues[monthKey] || 0;
+              const valueClass = value > 0 ? "cash-table__value--positive" : value < 0 ? "cash-table__value--negative" : "";
+              return `<td class="cash-table__value ${valueClass}">${cashEscapeHtml(cashFormatCurrency(value))}</td>`;
+            }).join("");
+
+            const labelMarkup = drillable
+              ? `
+                <button class="cash-table__row-button cash-row-button" type="button" data-cash-row-key="${row.key}">
+                  <span class="cash-table__label">
+                    <span class="cash-table__caret">${isExpanded ? "▾" : "▸"}</span>
+                    <span>${cashEscapeHtml(row.label)}</span>
+                  </span>
+                </button>
+              `
+              : `<span class="cash-table__label"><span>${cashEscapeHtml(row.label)}</span></span>`;
+
+            const detailMarkup = isExpanded
+              ? `
+                <tr class="cash-table__detail">
+                  <td colspan="${dataset.months.length + 1}">
+                    ${cashBuildDetailPanelMarkup(row.details)}
+                  </td>
+                </tr>
+              `
+              : "";
+
+            return `
+              <tr class="cash-table__level-${row.level}">
+                <td class="cash-table__sticky">${labelMarkup}</td>
+                ${cellsMarkup}
+              </tr>
+              ${detailMarkup}
+            `;
+          }).join("");
+
+          target.innerHTML = `
+            <table class="cash-table">
+              ${headerMarkup}
+              <tbody>${bodyMarkup}</tbody>
+            </table>
+          `;
+        }
+
+        function cashBuildCounterpartyDataset() {
+          const relevantRows = cashState.filteredChartRows.filter((row) => {
+            if (cashIsDepositAccount(row)) {
+              return false;
+            }
+
+            if (cashState.counterpartyMode === "suppliers") {
+              return row.cashOperationKind === "expense";
+            }
+
+            return row.cashOperationKind === "income";
+          });
+
+          const grouped = {};
+          relevantRows.forEach((row) => {
+            const key = row.cashCounterparty || "Без контрагента";
+            grouped[key] = (grouped[key] || 0) + Math.abs(row.cashAmount);
+          });
+
+          const entries = Object.entries(grouped)
+            .map(([label, amount]) => ({ label, amount }))
+            .sort((left, right) => right.amount - left.amount)
+            .slice(0, 10);
+
+          const total = entries.reduce((sum, item) => sum + item.amount, 0) || 1;
+          return entries.map((item) => ({
+            ...item,
+            share: item.amount / total
+          }));
+        }
+
+        function cashBuildDirectionDataset() {
+          const grouped = {};
+          cashGetFlowRows(cashState.filteredChartRows).forEach((row) => {
+            const key = row.cashDirection || "Без направления";
+            grouped[key] = (grouped[key] || 0) + cashGetSignedFlowAmount(row);
+          });
+
+          return Object.entries(grouped)
+            .map(([label, value]) => ({ label, value }))
+            .sort((left, right) => Math.abs(right.value) - Math.abs(left.value));
+        }
+
+        function cashBuildMonthlyFlowDataset() {
+          const grouped = {};
+          cashGetFlowRows(cashState.filteredChartRows).forEach((row) => {
+            grouped[row.cashMonthKey] = (grouped[row.cashMonthKey] || 0) + cashGetSignedFlowAmount(row);
+          });
+
+          return cashSortMonthKeys(Object.keys(grouped)).map((monthKey) => ({
+            key: monthKey,
+            label: cashGetMonthLabelFromKey(monthKey),
+            value: grouped[monthKey]
+          }));
+        }
+
+        function cashBuildBalanceDataset() {
+          const rows = cashState.filteredChartRows;
+          const monthKeys = cashSortMonthKeys(Array.from(new Set(rows.map((row) => row.cashMonthKey).filter(Boolean))));
+          if (monthKeys.length === 0) {
+            return { months: [], lineValue: 0, balanceBaselineMissing: false };
+          }
+
+          const rowsByMonth = monthKeys.reduce((accumulator, monthKey) => {
+            accumulator[monthKey] = rows.filter((row) => row.cashMonthKey === monthKey);
+            return accumulator;
+          }, {});
+
+          let openingBalance = rowsByMonth[monthKeys[0]]
+            .filter((row) => row.cashOperationKind === "balance")
+            .reduce((sum, row) => sum + row.cashAmount, 0);
+
+          let baselineMissing = false;
+          if (openingBalance === 0) {
+            baselineMissing = true;
+          }
+
+          const months = [];
+          monthKeys.forEach((monthKey, index) => {
+            const monthRows = rowsByMonth[monthKey];
+            const income = monthRows.filter((row) => row.cashOperationKind === "income").reduce((sum, row) => sum + Math.abs(row.cashAmount), 0);
+            const expense = monthRows.filter((row) => row.cashOperationKind === "expense").reduce((sum, row) => sum + Math.abs(row.cashAmount), 0);
+
+            months.push({
+              key: monthKey,
+              label: cashGetMonthLabelFromKey(monthKey),
+              openingBalance
+            });
+
+            openingBalance = openingBalance + income - expense;
+
+            if (index === 0 && baselineMissing && monthRows.some((row) => row.cashOperationKind === "balance")) {
+              baselineMissing = false;
+            }
+          });
+
+          const operatingExpenseValues = monthKeys.map((monthKey) => {
+            return rowsByMonth[monthKey]
+              .filter((row) => row.cashOperationKind === "expense" && cashIsOperatingSection(row.cashSection))
+              .reduce((sum, row) => sum + Math.abs(row.cashAmount), 0);
+          });
+
+          const lineValue = operatingExpenseValues.length > 0
+            ? operatingExpenseValues.reduce((sum, value) => sum + value, 0) / operatingExpenseValues.length
+            : 0;
+
+          return {
+            months,
+            lineValue,
+            balanceBaselineMissing: baselineMissing
+          };
+        }
+
+        function cashBuildExpenseDataset() {
+          const grouped = {};
+          cashState.filteredChartRows
+            .filter((row) => row.cashOperationKind === "expense")
+            .forEach((row) => {
+              const key = row.cashArticle || "Без статьи";
+              grouped[key] = (grouped[key] || 0) + Math.abs(row.cashAmount);
+            });
+
+          const total = Object.values(grouped).reduce((sum, value) => sum + value, 0) || 1;
+          return Object.entries(grouped)
+            .map(([label, value]) => ({
+              label,
+              value,
+              share: value / total
+            }))
+            .sort((left, right) => right.value - left.value)
+            .slice(0, 8);
+        }
+
+        function cashBuildTableDataset() {
+          const rows = cashState.filteredChartRows;
+          const monthKeys = cashSortMonthKeys(Array.from(new Set(rows.map((row) => row.cashMonthKey).filter(Boolean))));
+          if (monthKeys.length === 0) {
+            return { months: [], rows: [], detailMap: {}, balanceBaselineMissing: false };
+          }
+
+          const detailMap = {};
+          const tableRows = [];
+
+          const balanceDataset = cashBuildBalanceDataset();
+          tableRows.push({
+            key: "cash-opening-balance",
+            label: "Остаток на начало месяца",
+            level: 0,
+            monthValues: balanceDataset.months.reduce((accumulator, month) => {
+              accumulator[month.key] = month.openingBalance;
+              return accumulator;
+            }, {}),
+            details: balanceDataset.months.map((month) => ({
+              cashDateLabel: month.label,
+              cashSection: "Остаток",
+              cashOperationType: "Остаток",
+              cashArticle: "Остаток на начало месяца",
+              cashCounterparty: "—",
+              cashAccount: "—",
+              cashDirection: "—",
+              cashAmount: month.openingBalance
+            }))
+          });
+
+          detailMap["cash-opening-balance"] = tableRows[0].details;
+
+          const sectionGroups = cashGroupBy(rows, (row) => row.cashSection || "Без раздела");
+          const sortedSections = Object.keys(sectionGroups).sort(cashSortSections);
+
+          sortedSections.forEach((sectionName) => {
+            const sectionRows = sectionGroups[sectionName];
+            const operationGroups = cashGroupBy(sectionRows, (row) => row.cashOperationType || "Без вида операции");
+            const sectionKey = `cash-section-${cashSlug(sectionName)}`;
+
+            tableRows.push({
+              key: sectionKey,
+              label: sectionName,
+              level: 0,
+              monthValues: cashBuildMonthValueMap(sectionRows, monthKeys, cashGetSignedTableAmount),
+              details: sectionRows.slice().sort(cashSortRowsForDetails)
+            });
+            detailMap[sectionKey] = sectionRows.slice().sort(cashSortRowsForDetails);
+
+            Object.keys(operationGroups).sort(cashSortOperations).forEach((operationName) => {
+              const operationRows = operationGroups[operationName];
+              const articleGroups = cashGroupBy(operationRows, (row) => row.cashArticle || "Без статьи");
+              const operationKey = `${sectionKey}-operation-${cashSlug(operationName)}`;
+
+              tableRows.push({
+                key: operationKey,
+                label: operationName,
+                level: 1,
+                monthValues: cashBuildMonthValueMap(operationRows, monthKeys, cashGetSignedTableAmount),
+                details: operationRows.slice().sort(cashSortRowsForDetails)
+              });
+              detailMap[operationKey] = operationRows.slice().sort(cashSortRowsForDetails);
+
+              Object.keys(articleGroups).sort((left, right) => left.localeCompare(right, "ru")).forEach((articleName) => {
+                const articleRows = articleGroups[articleName];
+                const articleKey = `${operationKey}-article-${cashSlug(articleName)}`;
+
+                tableRows.push({
+                  key: articleKey,
+                  label: articleName,
+                  level: 2,
+                  monthValues: cashBuildMonthValueMap(articleRows, monthKeys, cashGetSignedTableAmount),
+                  details: articleRows.slice().sort(cashSortRowsForDetails)
+                });
+                detailMap[articleKey] = articleRows.slice().sort(cashSortRowsForDetails);
+              });
+            });
+          });
+
+          return {
+            months: monthKeys,
+            rows: tableRows,
+            detailMap,
+            balanceBaselineMissing: balanceDataset.balanceBaselineMissing
+          };
+        }
+
+        function cashBuildMonthValueMap(rows, monthKeys, getValue) {
+          return monthKeys.reduce((accumulator, monthKey) => {
+            accumulator[monthKey] = rows
+              .filter((row) => row.cashMonthKey === monthKey)
+              .reduce((sum, row) => sum + getValue(row), 0);
+            return accumulator;
+          }, {});
+        }
+
+        function cashBuildSectionFlowMetrics(rows) {
+          const sectionMap = {
+            operating: { label: "Основная деятельность", matcher: (value) => cashIsOperatingSection(value) },
+            investing: { label: "Инвестиционная деятельность", matcher: (value) => cashIncludesWord(value, "инвест") },
+            financing: { label: "Финансовая деятельность", matcher: (value) => cashIncludesWord(value, "финанс") }
+          };
+
+          const flowRows = cashGetFlowRows(rows);
+          const metrics = Object.values(sectionMap).map((item) => {
+            const value = flowRows
+              .filter((row) => item.matcher(row.cashSection))
+              .reduce((sum, row) => sum + cashGetSignedFlowAmount(row), 0);
+            return {
+              label: item.label,
+              value
+            };
+          });
+
+          const absoluteTotal = metrics.reduce((sum, item) => sum + Math.abs(item.value), 0) || 1;
+          return metrics.map((item) => ({
+            ...item,
+            share: Math.abs(item.value) / absoluteTotal
+          }));
+        }
+
+        function cashApplyFilters(rows) {
+          const startDate = cashParseDate(cashState.filters.startDate);
+          const endDate = cashParseDate(cashState.filters.endDate);
+
+          return rows.filter((row) => {
+            if (!(row.cashDate instanceof Date)) {
+              return false;
+            }
+
+            if (startDate && row.cashDate < cashStartOfDay(startDate)) {
+              return false;
+            }
+
+            if (endDate && row.cashDate > cashEndOfDay(endDate)) {
+              return false;
+            }
+
+            if (!cashMatchesSetFilter(row.cashAccount, cashState.filters.account)) {
+              return false;
+            }
+
+            if (!cashMatchesSetFilter(row.cashCounterparty, cashState.filters.counterparty)) {
+              return false;
+            }
+
+            if (!cashMatchesSetFilter(row.cashArticle, cashState.filters.article)) {
+              return false;
+            }
+
+            if (!cashMatchesSetFilter(row.cashDirection, cashState.filters.direction)) {
+              return false;
+            }
+
+            return true;
+          });
+        }
+
+        function cashMatchesSetFilter(rowValue, selectedSet) {
+          if (!(selectedSet instanceof Set) || selectedSet.size === 0) {
+            return true;
+          }
+
+          return selectedSet.has(rowValue || "");
+        }
+
+        function cashToggleFilterValue(filterName, optionValue, checked) {
+          if (!(cashState.filters[filterName] instanceof Set)) {
+            return;
+          }
+
+          if (checked) {
+            cashState.filters[filterName].add(optionValue);
+          } else {
+            cashState.filters[filterName].delete(optionValue);
+          }
+
+          cashRenderAll();
+        }
+
+        function cashResetFilters() {
+          cashState.filters.account.clear();
+          cashState.filters.counterparty.clear();
+          cashState.filters.article.clear();
+          cashState.filters.direction.clear();
+          cashInitializePeriodBounds();
+          cashState.expandedKey = null;
+          cashRenderAll();
+        }
+
+        function cashCountActiveFilters() {
+          let count = 0;
+          if (cashState.filters.startDate) {
+            count += 1;
+          }
+          if (cashState.filters.endDate) {
+            count += 1;
+          }
+
+          ["account", "counterparty", "article", "direction"].forEach((filterName) => {
+            count += cashState.filters[filterName].size;
+          });
+
+          return count;
+        }
+
+        function cashDescribeCurrentPeriod() {
+          const startDate = cashParseDate(cashState.filters.startDate);
+          const endDate = cashParseDate(cashState.filters.endDate);
+
+          if (startDate && endDate) {
+            return `${cashFormatters.day.format(startDate)} — ${cashFormatters.day.format(endDate)}`;
+          }
+
+          if (startDate) {
+            return `с ${cashFormatters.day.format(startDate)}`;
+          }
+
+          if (endDate) {
+            return `по ${cashFormatters.day.format(endDate)}`;
+          }
+
+          return "Без ограничения";
+        }
+
+        function cashCalculateNetFlow(rows) {
+          return cashGetFlowRows(rows).reduce((sum, row) => sum + cashGetSignedFlowAmount(row), 0);
+        }
+
+        function cashCalculateCashBuffer(rows) {
+          const netFlow = cashCalculateNetFlow(rows);
+          const expenseTotal = rows
+            .filter((row) => row.cashOperationKind === "expense")
+            .reduce((sum, row) => sum + Math.abs(row.cashAmount), 0);
+
+          if (expenseTotal === 0) {
+            return null;
+          }
+
+          const daysCount = cashGetCalendarDays(rows);
+          if (daysCount <= 0) {
+            return null;
+          }
+
+          const averageDailyExpense = expenseTotal / daysCount;
+          return averageDailyExpense === 0 ? null : netFlow / averageDailyExpense;
+        }
+
+        function cashGetCalendarDays(rows) {
+          const startDate = cashParseDate(cashState.filters.startDate);
+          const endDate = cashParseDate(cashState.filters.endDate);
+
+          if (startDate && endDate) {
+            return Math.max(1, Math.round((cashEndOfDay(endDate) - cashStartOfDay(startDate)) / 86400000) + 1);
+          }
+
+          const bounds = cashGetDateBounds(rows);
+          if (!bounds.minDate || !bounds.maxDate) {
+            return 0;
+          }
+
+          return Math.max(1, Math.round((cashEndOfDay(bounds.maxDate) - cashStartOfDay(bounds.minDate)) / 86400000) + 1);
+        }
+
+        function cashGetFlowRows(rows) {
+          return rows.filter((row) => row.cashOperationKind === "income" || row.cashOperationKind === "expense");
+        }
+
+        function cashGetSignedFlowAmount(row) {
+          if (row.cashOperationKind === "income") {
+            return Math.abs(row.cashAmount);
+          }
+
+          if (row.cashOperationKind === "expense") {
+            return -Math.abs(row.cashAmount);
+          }
+
+          return 0;
+        }
+
+        function cashGetSignedTableAmount(row) {
+          if (row.cashOperationKind === "balance") {
+            return Math.abs(row.cashAmount);
+          }
+
+          return cashGetSignedFlowAmount(row);
+        }
+
+        function cashBuildDetailPanelMarkup(details) {
+          return `
+            <div class="cash-detail-panel">
+              <h4 class="cash-detail-panel__title">Операции внутри выбранной строки</h4>
+              <div class="cash-detail-wrap">
+                <table class="cash-detail-table">
+                  <thead>
+                    <tr>
+                      <th>Дата</th>
+                      <th>Раздел ОДДС</th>
+                      <th>Вид операции</th>
+                      <th>Статья</th>
+                      <th>Контрагент</th>
+                      <th>Счет</th>
+                      <th>Направление</th>
+                      <th>Сумма</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${details.map((row) => `
+                      <tr>
+                        <td>${cashEscapeHtml(row.cashDateLabel || "—")}</td>
+                        <td>${cashEscapeHtml(row.cashSection || "—")}</td>
+                        <td>${cashEscapeHtml(row.cashOperationType || "—")}</td>
+                        <td>${cashEscapeHtml(row.cashArticle || "—")}</td>
+                        <td>${cashEscapeHtml(row.cashCounterparty || "—")}</td>
+                        <td>${cashEscapeHtml(row.cashAccount || "—")}</td>
+                        <td>${cashEscapeHtml(row.cashDirection || "—")}</td>
+                        <td>${cashEscapeHtml(cashFormatCurrency(cashGetSignedTableAmount(row)))}</td>
+                      </tr>
+                    `).join("")}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          `;
+        }
+
+        function cashCreateLineChartSvg(dataset, options) {
+          const width = 980;
+          const height = 320;
+          const padding = { top: 24, right: 24, bottom: 54, left: 72 };
+          const chartWidth = width - padding.left - padding.right;
+          const chartHeight = height - padding.top - padding.bottom;
+          const values = dataset.map((item) => item.value);
+          const minValue = Math.min(...values, 0);
+          const maxValue = Math.max(...values, 0);
+          const valueRange = maxValue - minValue || 1;
+          const stepX = dataset.length > 1 ? chartWidth / (dataset.length - 1) : 0;
+
+          const points = dataset.map((item, index) => {
+            const x = padding.left + stepX * index;
+            const y = padding.top + chartHeight - ((item.value - minValue) / valueRange) * chartHeight;
+            return { x, y, ...item };
+          });
+
+          const polyline = points.map((point) => `${point.x},${point.y}`).join(" ");
+          const areaPoints = `${padding.left},${padding.top + chartHeight} ${polyline} ${padding.left + chartWidth},${padding.top + chartHeight}`;
+          const zeroY = padding.top + chartHeight - ((0 - minValue) / valueRange) * chartHeight;
+          const yTicks = 4;
+
+          return `
+            <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${cashEscapeAttribute(options.title)}">
+              <defs>
+                <linearGradient id="cashFlowGradient" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stop-color="rgba(0,217,255,0.35)"></stop>
+                  <stop offset="100%" stop-color="rgba(0,217,255,0.02)"></stop>
+                </linearGradient>
+              </defs>
+              ${Array.from({ length: yTicks + 1 }, (_, index) => {
+                const ratio = index / yTicks;
+                const y = padding.top + chartHeight * ratio;
+                const tickValue = maxValue - (valueRange * ratio);
+                return `
+                  <line x1="${padding.left}" y1="${y}" x2="${padding.left + chartWidth}" y2="${y}" stroke="rgba(138,164,214,0.14)" stroke-width="1"></line>
+                  <text x="${padding.left - 12}" y="${y + 4}" fill="#8fa3cc" font-size="12" text-anchor="end">${cashEscapeHtml(cashFormatCompactCurrency(tickValue))}</text>
+                `;
+              }).join("")}
+              <line x1="${padding.left}" y1="${zeroY}" x2="${padding.left + chartWidth}" y2="${zeroY}" stroke="rgba(255,255,255,0.18)" stroke-dasharray="4 4"></line>
+              <polygon points="${areaPoints}" fill="url(#cashFlowGradient)"></polygon>
+              <polyline points="${polyline}" fill="none" stroke="${dataset.some((item) => item.value < 0) ? options.stroke : options.stroke}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></polyline>
+              ${points.map((point) => `
+                <g>
+                  <circle cx="${point.x}" cy="${point.y}" r="5.5" fill="#111a31" stroke="${point.value < 0 ? options.negativeStroke : options.stroke}" stroke-width="3"></circle>
+                  <text x="${point.x}" y="${height - 18}" fill="#8fa3cc" font-size="12" text-anchor="middle">${cashEscapeHtml(point.label)}</text>
+                </g>
+              `).join("")}
+            </svg>
+          `;
+        }
+
+        function cashCreateBalanceChartSvg(dataset) {
+          const width = 980;
+          const height = 340;
+          const padding = { top: 24, right: 24, bottom: 58, left: 72 };
+          const chartWidth = width - padding.left - padding.right;
+          const chartHeight = height - padding.top - padding.bottom;
+          const barWidth = dataset.months.length > 0 ? Math.min(72, chartWidth / Math.max(dataset.months.length * 1.4, 1)) : 48;
+          const maxBalance = Math.max(...dataset.months.map((month) => month.openingBalance), dataset.lineValue, 0, 1);
+          const valueRange = maxBalance || 1;
+          const stepX = dataset.months.length > 1 ? chartWidth / (dataset.months.length - 1) : 0;
+
+          const linePoints = dataset.months.map((month, index) => {
+            const x = padding.left + stepX * index;
+            const y = padding.top + chartHeight - (dataset.lineValue / valueRange) * chartHeight;
+            return `${x},${y}`;
+          }).join(" ");
+
+          return `
+            <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Динамика остатков">
+              ${Array.from({ length: 5 }, (_, index) => {
+                const ratio = index / 4;
+                const y = padding.top + chartHeight * ratio;
+                const tickValue = maxBalance - maxBalance * ratio;
+                return `
+                  <line x1="${padding.left}" y1="${y}" x2="${padding.left + chartWidth}" y2="${y}" stroke="rgba(138,164,214,0.14)" stroke-width="1"></line>
+                  <text x="${padding.left - 12}" y="${y + 4}" fill="#8fa3cc" font-size="12" text-anchor="end">${cashEscapeHtml(cashFormatCompactCurrency(tickValue))}</text>
+                `;
+              }).join("")}
+              ${dataset.months.map((month, index) => {
+                const xCenter = padding.left + stepX * index;
+                const barHeight = (month.openingBalance / valueRange) * chartHeight;
+                const y = padding.top + chartHeight - barHeight;
+                return `
+                  <g>
+                    <rect x="${xCenter - barWidth / 2}" y="${y}" width="${barWidth}" height="${barHeight}" rx="14" fill="rgba(0,217,255,0.72)"></rect>
+                    <text x="${xCenter}" y="${height - 20}" fill="#8fa3cc" font-size="12" text-anchor="middle">${cashEscapeHtml(month.label)}</text>
+                  </g>
+                `;
+              }).join("")}
+              <polyline points="${linePoints}" fill="none" stroke="#8f7dff" stroke-width="3.5" stroke-linecap="round"></polyline>
+            </svg>
+          `;
+        }
+
+        function cashBuildEmptyChart(message) {
+          return `<div class="cash-empty-chart">${cashEscapeHtml(message)}</div>`;
+        }
+
+        function cashParseDate(value) {
+          if (cashCore.parseDate) {
+            return cashCore.parseDate(value);
+          }
+
+          if (value instanceof Date && !Number.isNaN(value.getTime())) {
+            return new Date(value.getTime());
+          }
+
+          if (typeof value !== "string") {
+            return null;
+          }
+
+          const input = value.trim();
+          if (!input) {
+            return null;
+          }
+
+          const isoMatch = input.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+          if (isoMatch) {
+            const parsed = new Date(Number(isoMatch[1]), Number(isoMatch[2]) - 1, Number(isoMatch[3]));
+            return Number.isNaN(parsed.getTime()) ? null : parsed;
+          }
+
+          const ruMatch = input.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+          if (ruMatch) {
+            const parsed = new Date(Number(ruMatch[3]), Number(ruMatch[2]) - 1, Number(ruMatch[1]));
+            return Number.isNaN(parsed.getTime()) ? null : parsed;
+          }
+
+          return null;
+        }
+
+        function cashToNumber(value) {
+          if (typeof value === "number") {
+            return Number.isFinite(value) ? value : 0;
+          }
+
+          if (typeof value === "string") {
+            const sanitized = value.replace(/\s+/g, "").replace(",", ".");
+            const parsed = Number(sanitized);
+            return Number.isFinite(parsed) ? parsed : 0;
+          }
+
+          return 0;
+        }
+
+        function cashPickField(row, candidateKeys) {
+          for (const key of candidateKeys) {
+            if (Object.prototype.hasOwnProperty.call(row, key)) {
+              return row[key];
+            }
+          }
+
+          return null;
+        }
+
+        function cashNormalizeText(value) {
+          if (typeof value === "undefined" || value === null) {
+            return "";
+          }
+
+          return String(value).trim();
+        }
+
+        function cashClassifyOperation(operationType) {
+          const value = operationType.toLowerCase();
+
+          if (value.includes("приход")) {
+            return "income";
+          }
+
+          if (value.includes("расход")) {
+            return "expense";
+          }
+
+          if (value.includes("остат")) {
+            return "balance";
+          }
+
+          return "other";
+        }
+
+        function cashIsTransferRow(row) {
+          return [row.cashSection, row.cashArticle, row.cashDirection].some((value) => cashIncludesWord(value, "перемещ"));
+        }
+
+        function cashIsDepositAccount(row) {
+          return cashIncludesWord(row.cashAccount, "депозит");
+        }
+
+        function cashIsOperatingSection(sectionName) {
+          return cashIncludesWord(sectionName, "основ");
+        }
+
+        function cashIncludesWord(value, search) {
+          return cashNormalizeText(value).toLowerCase().includes(search);
+        }
+
+        function cashGetMonthKey(dateValue) {
+          const year = dateValue.getFullYear();
+          const month = String(dateValue.getMonth() + 1).padStart(2, "0");
+          return `${year}-${month}`;
+        }
+
+        function cashGetMonthLabel(dateValue) {
+          return cashFormatters.month.format(dateValue).replace(".", "");
+        }
+
+        function cashGetMonthLabelFromKey(monthKey) {
+          const [year, month] = monthKey.split("-").map(Number);
+          return cashGetMonthLabel(new Date(year, month - 1, 1));
+        }
+
+        function cashSortMonthKeys(monthKeys) {
+          return monthKeys.slice().sort((left, right) => left.localeCompare(right));
+        }
+
+        function cashFormatDateInput(dateValue) {
+          return `${dateValue.getFullYear()}-${String(dateValue.getMonth() + 1).padStart(2, "0")}-${String(dateValue.getDate()).padStart(2, "0")}`;
+        }
+
+        function cashStartOfDay(dateValue) {
+          return new Date(dateValue.getFullYear(), dateValue.getMonth(), dateValue.getDate(), 0, 0, 0, 0);
+        }
+
+        function cashEndOfDay(dateValue) {
+          return new Date(dateValue.getFullYear(), dateValue.getMonth(), dateValue.getDate(), 23, 59, 59, 999);
+        }
+
+        function cashFormatCurrency(value) {
+          if (cashCore.formatCurrency) {
+            return cashCore.formatCurrency(value);
+          }
+
+          const amount = Number.isFinite(value) ? value : 0;
+          const sign = amount < 0 ? "-" : "";
+          const absolute = Math.abs(amount).toFixed(2);
+          const [integerPart, decimalPart] = absolute.split(".");
+          return `${sign}${integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, " ")},${decimalPart} ₽`;
+        }
+
+        function cashFormatCompactCurrency(value) {
+          const absolute = Math.abs(value);
+          if (absolute >= 1000000) {
+            return `${cashFormatNumber(value / 1000000, 1)} млн`;
+          }
+          if (absolute >= 1000) {
+            return `${cashFormatNumber(value / 1000, 1)} тыс`;
+          }
+          return cashFormatNumber(value, 0);
+        }
+
+        function cashFormatNumber(value, fractionDigits = 2) {
+          if (!Number.isFinite(value)) {
+            return "0";
+          }
+
+          return new Intl.NumberFormat("ru-RU", {
+            minimumFractionDigits: fractionDigits,
+            maximumFractionDigits: fractionDigits
+          }).format(value);
+        }
+
+        function cashFormatPercent(value) {
+          if (!Number.isFinite(value)) {
+            return "0%";
+          }
+
+          return `${cashFormatNumber(value * 100, 1)}%`;
+        }
+
+        function cashFormatInteger(value) {
+          return new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 0 }).format(value);
+        }
+
+        function cashGroupBy(rows, selector) {
+          return rows.reduce((groups, row) => {
+            const key = selector(row);
+            if (!groups[key]) {
+              groups[key] = [];
+            }
+            groups[key].push(row);
+            return groups;
+          }, {});
+        }
+
+        function cashSortSections(left, right) {
+          const leftRank = cashNormalizeText(left).toLowerCase().includes("остат") ? 0 : 1;
+          const rightRank = cashNormalizeText(right).toLowerCase().includes("остат") ? 0 : 1;
+
+          if (leftRank !== rightRank) {
+            return leftRank - rightRank;
+          }
+
+          return left.localeCompare(right, "ru");
+        }
+
+        function cashSortOperations(left, right) {
+          const leftIndex = cashOperationOrder.indexOf(left);
+          const rightIndex = cashOperationOrder.indexOf(right);
+
+          if (leftIndex !== -1 || rightIndex !== -1) {
+            return (leftIndex === -1 ? 99 : leftIndex) - (rightIndex === -1 ? 99 : rightIndex);
+          }
+
+          return left.localeCompare(right, "ru");
+        }
+
+        function cashSortRowsForDetails(left, right) {
+          const leftTime = left.cashDate instanceof Date ? left.cashDate.getTime() : 0;
+          const rightTime = right.cashDate instanceof Date ? right.cashDate.getTime() : 0;
+          return leftTime - rightTime;
+        }
+
+        function cashFilterDisplayName(filterName) {
+          const displayMap = {
+            account: "Счет",
+            counterparty: "Контрагент",
+            article: "Статья",
+            direction: "Направление"
+          };
+
+          return displayMap[filterName] || filterName;
+        }
+
+        function cashSyncCounterpartyToggles() {
+          document.querySelectorAll("[data-cash-mode]").forEach((button) => {
+            button.classList.toggle("is-active", button.getAttribute("data-cash-mode") === cashState.counterpartyMode);
+          });
+        }
+
+        function cashSlug(value) {
+          return cashNormalizeText(value)
+            .toLowerCase()
+            .replace(/[^a-zа-яё0-9]+/gi, "-")
+            .replace(/^-+|-+$/g, "") || "item";
+        }
+
+        function cashEscapeHtml(value) {
+          return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+        }
+
+        function cashEscapeAttribute(value) {
+          return cashEscapeHtml(value);
+        }
+      })();
+    </script>
+  </body>
+</html>

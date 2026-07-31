@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Капитал</title>
+    <meta
+      name="description"
+      content="Раздел Капитал в оболочке финансового веб-приложения."
+    >
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    >
+    <link rel="stylesheet" href="assets/css/layout.css">
+    <style>
+      .capital-page {
+        gap: 24px;
+      }
+
+      .capital-hero {
+        display: grid;
+        gap: 26px;
+      }
+
+      .capital-hero__header,
+      .capital-card__header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+        flex-wrap: wrap;
+      }
+
+      .capital-hero__actions,
+      .capital-pill-stack,
+      .capital-legend,
+      .capital-filter-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .capital-hero__badge,
+      .capital-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(0, 217, 255, 0.16);
+        background: rgba(0, 217, 255, 0.08);
+        color: var(--accent);
+        font-size: 0.84rem;
+        font-weight: 700;
+      }
+
+      .capital-hero__meta {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .capital-meta-card,
+      .capital-kpi-card,
+      .capital-filter-card,
+      .capital-chart-card {
+        border: 1px solid rgba(138, 164, 214, 0.16);
+        border-radius: 22px;
+        background: linear-gradient(180deg, rgba(22, 34, 64, 0.95), rgba(17, 27, 50, 0.92));
+        box-shadow: var(--shadow-panel);
+      }
+
+      .capital-meta-card {
+        padding: 18px 20px;
+        background: rgba(7, 15, 30, 0.34);
+      }
+
+      .capital-meta-card__label,
+      .capital-kpi-card__label,
+      .capital-filter-label {
+        display: block;
+        color: var(--text-muted);
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+      }
+
+      .capital-meta-card__value,
+      .capital-kpi-card__value {
+        display: block;
+        margin-top: 12px;
+        font-family: "Manrope", sans-serif;
+        font-size: clamp(1.2rem, 2vw, 1.95rem);
+        font-weight: 800;
+        letter-spacing: -0.05em;
+        line-height: 1.08;
+      }
+
+      .capital-meta-card__hint,
+      .capital-kpi-card__hint,
+      .capital-card__text,
+      .capital-empty-state__text,
+      .capital-error-state__text {
+        margin-top: 10px;
+        color: var(--text-secondary);
+        font-size: 0.92rem;
+        line-height: 1.62;
+      }
+
+      .capital-filter-card,
+      .capital-chart-card {
+        padding: 26px 28px;
+      }
+
+      .capital-filter-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 280px));
+        gap: 16px;
+      }
+
+      .capital-filter-block {
+        display: grid;
+        gap: 10px;
+      }
+
+      .capital-filter-input {
+        width: 100%;
+        min-height: 48px;
+        padding: 12px 14px;
+        border: 1px solid rgba(138, 164, 214, 0.16);
+        border-radius: 15px;
+        color: var(--text-primary);
+        background: rgba(7, 15, 30, 0.42);
+        outline: none;
+        transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+      }
+
+      .capital-filter-input:focus {
+        border-color: rgba(0, 217, 255, 0.32);
+        box-shadow: 0 0 0 4px rgba(0, 217, 255, 0.1);
+        background: rgba(7, 15, 30, 0.6);
+      }
+
+      .capital-filter-actions {
+        margin-top: 18px;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .capital-filter-note {
+        color: var(--text-secondary);
+        font-size: 0.92rem;
+      }
+
+      .capital-ghost-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 11px 14px;
+        border: 1px solid rgba(138, 164, 214, 0.18);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--text-primary);
+        cursor: pointer;
+        transition: transform var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+      }
+
+      .capital-ghost-btn:hover {
+        transform: translateY(-1px);
+        border-color: rgba(0, 217, 255, 0.24);
+        background: rgba(0, 217, 255, 0.08);
+      }
+
+      .capital-kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .capital-kpi-card {
+        position: relative;
+        overflow: hidden;
+        padding: 22px;
+      }
+
+      .capital-kpi-card::after {
+        content: "";
+        position: absolute;
+        inset: auto -22% -48% auto;
+        width: 160px;
+        height: 160px;
+        background: radial-gradient(circle, rgba(0, 217, 255, 0.08), transparent 68%);
+        pointer-events: none;
+      }
+
+      .capital-kpi-card__delta {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 14px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 700;
+      }
+
+      .capital-kpi-card__delta--positive {
+        color: #d6ffe7;
+        background: rgba(68, 214, 124, 0.12);
+        border: 1px solid rgba(68, 214, 124, 0.22);
+      }
+
+      .capital-kpi-card__delta--negative {
+        color: #ffd9d9;
+        background: rgba(255, 107, 107, 0.12);
+        border: 1px solid rgba(255, 107, 107, 0.22);
+      }
+
+      .capital-kpi-card__delta--neutral {
+        color: #dafbff;
+        background: rgba(0, 217, 255, 0.12);
+        border: 1px solid rgba(0, 217, 255, 0.22);
+      }
+
+      .capital-chart-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 22px;
+      }
+
+      .capital-chart-card {
+        display: grid;
+        gap: 18px;
+      }
+
+      .capital-chart-card--full {
+        grid-column: 1 / -1;
+      }
+
+      .capital-card__title {
+        margin: 0;
+        font-family: "Manrope", sans-serif;
+        font-size: 1.28rem;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+      }
+
+      .capital-pie-layout {
+        display: grid;
+        grid-template-columns: 240px minmax(0, 1fr);
+        gap: 22px;
+        align-items: center;
+      }
+
+      .capital-pie-chart {
+        position: relative;
+        width: 220px;
+        height: 220px;
+        margin: 0 auto;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .capital-pie-chart::after {
+        content: "";
+        position: absolute;
+        inset: 28px;
+        border-radius: 50%;
+        background: #111a31;
+        border: 1px solid rgba(138, 164, 214, 0.12);
+      }
+
+      .capital-pie-center {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        z-index: 1;
+        text-align: center;
+      }
+
+      .capital-pie-center__value {
+        font-family: "Manrope", sans-serif;
+        font-size: 1.08rem;
+        font-weight: 800;
+      }
+
+      .capital-pie-center__label {
+        margin-top: 6px;
+        color: var(--text-secondary);
+        font-size: 0.83rem;
+      }
+
+      .capital-pie-legend {
+        display: grid;
+        gap: 10px;
+      }
+
+      .capital-pie-legend__row {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto auto;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .capital-pie-legend__swatch {
+        width: 12px;
+        height: 12px;
+        border-radius: 4px;
+      }
+
+      .capital-pie-legend__label {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: var(--text-secondary);
+      }
+
+      .capital-pie-legend__share,
+      .capital-pie-legend__value {
+        white-space: nowrap;
+        font-weight: 600;
+      }
+
+      .capital-legend {
+        color: var(--text-secondary);
+        font-size: 0.87rem;
+      }
+
+      .capital-legend__item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .capital-legend__swatch {
+        width: 12px;
+        height: 12px;
+        border-radius: 4px;
+        background: var(--accent);
+      }
+
+      .capital-legend__swatch--line {
+        width: 22px;
+        height: 3px;
+        border-radius: 999px;
+        background: #8f7dff;
+      }
+
+      .capital-svg-wrap {
+        width: 100%;
+        min-height: 270px;
+      }
+
+      .capital-svg-wrap svg {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      .capital-empty-state,
+      .capital-error-state,
+      .capital-empty-chart {
+        display: grid;
+        place-items: center;
+        gap: 12px;
+        min-height: 220px;
+        padding: 28px;
+        border: 1px dashed rgba(138, 164, 214, 0.22);
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.02);
+        text-align: center;
+      }
+
+      .capital-empty-state__title,
+      .capital-error-state__title {
+        margin: 0;
+        font-family: "Manrope", sans-serif;
+        font-size: 1.45rem;
+        font-weight: 800;
+      }
+
+      .capital-empty-state__list,
+      .capital-error-state__list {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--text-secondary);
+        line-height: 1.7;
+        text-align: left;
+      }
+
+      @media (max-width: 1320px) {
+        .capital-hero__meta {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 1024px) {
+        .capital-chart-grid,
+        .capital-kpi-grid,
+        .capital-hero__meta,
+        .capital-pie-layout {
+          grid-template-columns: 1fr;
+        }
+
+        .capital-chart-card--full {
+          grid-column: auto;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .capital-filter-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .capital-filter-card,
+        .capital-chart-card {
+          padding: 22px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell" data-shell>
+      <div class="app-overlay" data-overlay></div>
+
+      <aside class="app-sidebar" aria-label="Основная навигация">
+        <div class="brand-panel">
+          <span class="brand-kicker">Finance Control Layer</span>
+          <h1 class="brand-title">Управление финансовым состоянием компании</h1>
+          <p class="brand-subtitle">Управляй финансами прозрачно и просто</p>
+        </div>
+
+        <nav class="sidebar-nav">
+          <p class="nav-label">Разделы приложения</p>
+          <a class="nav-link" href="dashboard.html" data-nav-link data-page="dashboard">
+            <span class="nav-link__icon">◈</span>
+            <span class="nav-link__body">
+              <span class="nav-link__title">Дэшборд</span>
+              <span class="nav-link__meta">Общий обзор</span>
+            </span>
+            <span class="nav-link__chevron">›</span>
+          </a>
+          <a class="nav-link" href="money.html" data-nav-link data-page="money">
+            <span class="nav-link__icon">₽</span>
+            <span class="nav-link__body">
+              <span class="nav-link__title">Деньги</span>
+              <span class="nav-link__meta">Движение и ликвидность</span>
+            </span>
+            <span class="nav-link__chevron">›</span>
+          </a>
+          <a class="nav-link" href="capital.html" data-nav-link data-page="capital">
+            <span class="nav-link__icon">◆</span>
+            <span class="nav-link__body">
+              <span class="nav-link__title">Капитал</span>
+              <span class="nav-link__meta">Устойчивость структуры</span>
+            </span>
+            <span class="nav-link__chevron">›</span>
+          </a>
+          <a class="nav-link" href="profit.html" data-nav-link data-page="profit">
+            <span class="nav-link__icon">◌</span>
+            <span class="nav-link__body">
+              <span class="nav-link__title">Прибыль</span>
+              <span class="nav-link__meta">Результат и маржинальность</span>
+            </span>
+            <span class="nav-link__chevron">›</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-foot">
+          <span class="sidebar-foot__label">Источник модуля</span>
+          <p class="sidebar-foot__value">Раздел рассчитывается в браузере и ожидает клиентские данные листа <code>Капитал</code> в диапазоне <code>rangeequity</code>.</p>
+        </div>
+      </aside>
+
+      <main class="app-main">
+        <header class="app-topbar">
+          <div class="topbar-group">
+            <button class="sidebar-toggle" type="button" aria-label="Открыть меню" data-sidebar-toggle>
+              ☰
+            </button>
+            <div class="topbar-title-wrap">
+              <p class="topbar-kicker">Раздел системы</p>
+              <h2 class="topbar-title" data-page-title>Капитал</h2>
+              <p class="topbar-subtitle">Балансовые срезы, структура активов и пассивов, долговая динамика и коэффициенты устойчивости на клиентской стороне.</p>
+            </div>
+          </div>
+
+          <div class="topbar-actions">
+            <button class="action-btn action-btn--primary" type="button" data-capital-refresh>Обновить</button>
+            <button class="action-btn" type="button">Настройки</button>
+            <button class="action-btn" type="button">Выход</button>
+          </div>
+        </header>
+
+        <div class="app-content">
+          <div class="page-grid capital-page" id="capitalPage" data-capital-page>
+            <section class="hero-panel capital-hero">
+              <div class="capital-hero__header">
+                <div class="hero-panel__head">
+                  <span class="hero-panel__eyebrow">Модуль баланса</span>
+                  <h3 class="hero-panel__title">Структура активов и пассивов, долговая нагрузка и коэффициенты устойчивости</h3>
+                  <p class="hero-panel__text">
+                    Страница работает полностью в браузере: ожидает клиентский набор <code>rangeequity</code>, проверяет обязательные колонки, фильтрует отчетные даты и строит KPI по последнему доступному срезу внутри выбранного периода.
+                  </p>
+                </div>
+
+                <div class="capital-hero__actions">
+                  <span class="capital-hero__badge" id="capitalSourceBadge">Источник не подключен</span>
+                  <button class="capital-ghost-btn" type="button" data-capital-reset-all>Сбросить период</button>
+                </div>
+              </div>
+
+              <div class="capital-hero__meta">
+                <div class="capital-meta-card">
+                  <span class="capital-meta-card__label">Период страницы</span>
+                  <span class="capital-meta-card__value" id="capitalHeroPeriod">—</span>
+                  <span class="capital-meta-card__hint">Балансовые срезы строятся только по отчетным датам внутри периода.</span>
+                </div>
+                <div class="capital-meta-card">
+                  <span class="capital-meta-card__label">Строк после фильтрации</span>
+                  <span class="capital-meta-card__value" id="capitalHeroRows">0</span>
+                  <span class="capital-meta-card__hint">Считаются только строки с валидной датой и обязательными колонками.</span>
+                </div>
+                <div class="capital-meta-card">
+                  <span class="capital-meta-card__label">Последний срез</span>
+                  <span class="capital-meta-card__value" id="capitalHeroSnapshot">—</span>
+                  <span class="capital-meta-card__hint">Для карточек и структурных диаграмм используется последняя дата ≤ границе периода.</span>
+                </div>
+                <div class="capital-meta-card">
+                  <span class="capital-meta-card__label">Покрытие дат</span>
+                  <span class="capital-meta-card__value" id="capitalHeroCoverage">—</span>
+                  <span class="capital-meta-card__hint">Покрытие всех отчетных дат из клиентского источника.</span>
+                </div>
+              </div>
+            </section>
+
+            <section class="capital-filter-card">
+              <div class="section-head">
+                <span class="section-eyebrow">Управление выборкой</span>
+                <h3 class="section-title">Период анализа</h3>
+                <p class="section-text">Других фильтров нет. Если точной даты среза на конец периода нет, система берет последнюю доступную дату, которая не превышает выбранную границу.</p>
+              </div>
+
+              <div class="capital-filter-grid">
+                <div class="capital-filter-block">
+                  <label class="capital-filter-label" for="capitalPeriodStart">Дата начала</label>
+                  <input class="capital-filter-input" id="capitalPeriodStart" type="date" data-capital-period-start>
+                </div>
+
+                <div class="capital-filter-block">
+                  <label class="capital-filter-label" for="capitalPeriodEnd">Дата окончания</label>
+                  <input class="capital-filter-input" id="capitalPeriodEnd" type="date" data-capital-period-end>
+                </div>
+              </div>
+
+              <div class="capital-filter-actions">
+                <div class="capital-pill-stack">
+                  <span class="capital-pill" id="capitalActivePeriod">Период не задан</span>
+                </div>
+                <span class="capital-filter-note" id="capitalFilterNote">Фильтр по периоду ещё не применён.</span>
+              </div>
+            </section>
+
+            <section class="capital-empty-state" id="capitalEmptyState" hidden>
+              <h3 class="capital-empty-state__title">Источник данных для раздела “Капитал” пока не найден</h3>
+              <p class="capital-empty-state__text">
+                Модуль ожидает browser-side данные листа <code>Капитал</code>. Здесь не используется Apps Script и нет серверной логики.
+              </p>
+              <ul class="capital-empty-state__list">
+                <li>Поддерживается <code>window.capitalData</code> как массив объектов или строк диапазона.</li>
+                <li>Поддерживается <code>window.rangeequity</code> с тем же принципом.</li>
+                <li>Поддерживается <code>window.workbookData</code>, если лист <code>Капитал</code> доступен в клиентском runtime.</li>
+              </ul>
+            </section>
+
+            <section class="capital-error-state" id="capitalErrorState" hidden>
+              <h3 class="capital-error-state__title">Невозможно построить модуль “Капитал”</h3>
+              <p class="capital-error-state__text" id="capitalErrorText">—</p>
+              <ul class="capital-error-state__list" id="capitalErrorList"></ul>
+            </section>
+
+            <section id="capitalDashboard" hidden>
+              <div class="capital-kpi-grid" id="capitalKpiGrid"></div>
+
+              <div class="capital-chart-grid">
+                <article class="capital-chart-card">
+                  <div class="capital-card__header">
+                    <div>
+                      <h3 class="capital-card__title">Структура активов</h3>
+                      <p class="capital-card__text">Круговая диаграмма по последнему доступному срезу внутри периода. Доли считаются по <code>Раздел 3</code> внутри <code>Раздел 1 = Активы</code>.</p>
+                    </div>
+                  </div>
+
+                  <div id="capitalAssetsPie"></div>
+                </article>
+
+                <article class="capital-chart-card">
+                  <div class="capital-card__header">
+                    <div>
+                      <h3 class="capital-card__title">Структура пассивов</h3>
+                      <p class="capital-card__text">Круговая диаграмма по последнему доступному срезу внутри периода. Доли считаются по <code>Раздел 3</code> внутри <code>Раздел 1 = Пассивы</code>.</p>
+                    </div>
+                  </div>
+
+                  <div id="capitalLiabilitiesPie"></div>
+                </article>
+
+                <article class="capital-chart-card">
+                  <div class="capital-card__header">
+                    <div>
+                      <h3 class="capital-card__title">Динамика дебиторской задолженности</h3>
+                      <p class="capital-card__text">График строится только по фактическим отчетным датам из источника.</p>
+                    </div>
+                  </div>
+
+                  <div class="capital-svg-wrap" id="capitalReceivablesChart"></div>
+                </article>
+
+                <article class="capital-chart-card">
+                  <div class="capital-card__header">
+                    <div>
+                      <h3 class="capital-card__title">Динамика кредиторской задолженности</h3>
+                      <p class="capital-card__text">График строится только по фактическим отчетным датам из источника.</p>
+                    </div>
+                  </div>
+
+                  <div class="capital-svg-wrap" id="capitalPayablesChart"></div>
+                </article>
+
+                <article class="capital-chart-card capital-chart-card--full">
+                  <div class="capital-card__header">
+                    <div>
+                      <h3 class="capital-card__title">Заемный и собственный капитал</h3>
+                      <p class="capital-card__text">100% = <code>Капитал + Обязательства</code>. График строится только по реальным отчетным датам, а доли доступны во всплывающей подсказке.</p>
+                    </div>
+                  </div>
+
+                  <div class="capital-legend">
+                    <span class="capital-legend__item"><span class="capital-legend__swatch"></span>Капитал</span>
+                    <span class="capital-legend__item"><span class="capital-legend__swatch" style="background:#19c4b5"></span>Обязательства</span>
+                  </div>
+                  <div class="capital-svg-wrap" id="capitalFundingMixChart"></div>
+                </article>
+
+                <article class="capital-chart-card">
+                  <div class="capital-card__header">
+                    <div>
+                      <h3 class="capital-card__title">Коэффициент текущей ликвидности</h3>
+                      <p class="capital-card__text">Формула: <code>Оборотные активы / Краткосрочные обязательства</code>. Норма 1,5–2.</p>
+                    </div>
+                  </div>
+
+                  <div class="capital-legend">
+                    <span class="capital-legend__item"><span class="capital-legend__swatch capital-legend__swatch--line"></span>Норма 1,5–2</span>
+                  </div>
+                  <div class="capital-svg-wrap" id="capitalLiquidityChart"></div>
+                </article>
+
+                <article class="capital-chart-card">
+                  <div class="capital-card__header">
+                    <div>
+                      <h3 class="capital-card__title">Коэффициент финансовой независимости</h3>
+                      <p class="capital-card__text">Формула: <code>Капитал / Активы</code>. График строится только по фактическим отчетным датам.</p>
+                    </div>
+                  </div>
+
+                  <div class="capital-svg-wrap" id="capitalIndependenceChart"></div>
+                </article>
+              </div>
+            </section>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="assets/xlsx.full.min.js"></script>
+    <script src="assets/js/gscore.js"></script>
+    <script src="assets/js/layout.js"></script>
+    <script>
+      (() => {
+        "use strict";
+
+        const capitalCore = window.GSCore || {};
+        const capitalRequiredColumns = ["Дата", "Раздел 1", "Раздел 2", "Раздел 3", "Раздел 4", "Сумма"];
+        const capitalPalette = ["#00d9ff", "#19c4b5", "#8f7dff", "#4fd37d", "#ffd166", "#ff9d9d", "#74e4ff", "#2de1cb"];
+        const capitalFormatters = {
+          month: new Intl.DateTimeFormat("ru-RU", { month: "short", year: "numeric" }),
+          day: new Intl.DateTimeFormat("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" })
+        };
+
+        const capitalState = {
+          rawRows: [],
+          normalizedRows: [],
+          validRows: [],
+          filteredRows: [],
+          latestSnapshotRows: [],
+          sourceName: null,
+          validationErrors: [],
+          timelineMetrics: [],
+          latestSnapshotDate: null,
+          filters: {
+            startDate: "",
+            endDate: ""
+          }
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+          capitalInitPage().catch((error) => {
+            console.error("[capital] init failed", error);
+            capitalLoadData();
+          });
+        });
+
+        async function capitalInitPage() {
+          capitalBindEvents();
+          await capitalEnsureWorkbookData();
+          capitalLoadData();
+        }
+
+        function capitalBindEvents() {
+          const capitalPage = document.getElementById("capitalPage");
+          const refreshButton = document.querySelector("[data-capital-refresh]");
+          const resetButton = document.querySelector("[data-capital-reset-all]");
+
+          if (refreshButton) {
+            refreshButton.addEventListener("click", async () => {
+              await capitalEnsureWorkbookData(true);
+              capitalLoadData();
+            });
+          }
+
+          if (resetButton) {
+            resetButton.addEventListener("click", capitalResetPeriod);
+          }
+
+          if (!capitalPage) {
+            return;
+          }
+
+          capitalPage.addEventListener("change", (event) => {
+            const target = event.target;
+
+            if (target.matches("[data-capital-period-start]")) {
+              capitalState.filters.startDate = target.value || "";
+              capitalRenderAll();
+              return;
+            }
+
+            if (target.matches("[data-capital-period-end]")) {
+              capitalState.filters.endDate = target.value || "";
+              capitalRenderAll();
+            }
+          });
+        }
+
+        async function capitalEnsureWorkbookData(forceRefresh = false) {
+          if (!capitalCore.loadWorkbookData) {
+            return;
+          }
+
+          try {
+            await capitalCore.loadWorkbookData({ forceRefresh });
+          } catch (error) {
+            console.error("[capital] workbook loader failed", error);
+          }
+        }
+
+        function capitalLoadData() {
+          const resolved = capitalResolveDataset();
+          capitalState.rawRows = resolved.rows;
+          capitalState.sourceName = resolved.sourceName;
+          capitalState.validationErrors = capitalValidateColumns(resolved.headers);
+
+          if (capitalState.validationErrors.length > 0) {
+            capitalState.normalizedRows = [];
+            capitalState.validRows = [];
+            capitalState.filteredRows = [];
+            capitalState.latestSnapshotRows = [];
+            capitalRenderAll();
+            return;
+          }
+
+          capitalState.normalizedRows = capitalNormalizeRows(resolved.rows);
+          capitalState.validRows = capitalState.normalizedRows.filter((row) => row.capitalDate instanceof Date);
+          capitalInitializePeriodBounds();
+          capitalRenderAll();
+        }
+
+        function capitalResolveDataset() {
+          const candidates = [
+            { sourceName: "window.capitalData", value: window.capitalData },
+            { sourceName: "window.rangeequity", value: window.rangeequity },
+            { sourceName: "window.workbookData", value: window.workbookData }
+          ];
+
+          for (const candidate of candidates) {
+            const extracted = capitalExtractRows(candidate.value, candidate.sourceName);
+            if (extracted.rows.length > 0) {
+              return extracted;
+            }
+          }
+
+          return {
+            sourceName: null,
+            rows: [],
+            headers: []
+          };
+        }
+
+        function capitalExtractRows(candidateValue, sourceName) {
+          if (!candidateValue) {
+            return { sourceName, rows: [], headers: [] };
+          }
+
+          if (sourceName === "window.workbookData" && capitalCore.readSheetAsObjects && capitalCore.CONFIG && capitalCore.CONFIG.SHEETS) {
+            const sheetRows = capitalCore.readSheetAsObjects(candidateValue, capitalCore.CONFIG.SHEETS.CAPITAL);
+            return {
+              sourceName,
+              rows: sheetRows,
+              headers: capitalCollectHeadersFromObjects(sheetRows)
+            };
+          }
+
+          if (Array.isArray(candidateValue)) {
+            return capitalExtractRowsFromArray(candidateValue, sourceName);
+          }
+
+          if (typeof candidateValue === "object") {
+            if (Array.isArray(candidateValue.rows)) {
+              return capitalExtractRowsFromArray(candidateValue.rows, sourceName);
+            }
+            if (Array.isArray(candidateValue.data)) {
+              return capitalExtractRowsFromArray(candidateValue.data, sourceName);
+            }
+            if (Array.isArray(candidateValue.rangeequity)) {
+              return capitalExtractRowsFromArray(candidateValue.rangeequity, sourceName);
+            }
+            if (Array.isArray(candidateValue.capitalData)) {
+              return capitalExtractRowsFromArray(candidateValue.capitalData, sourceName);
+            }
+          }
+
+          return { sourceName, rows: [], headers: [] };
+        }
+
+        function capitalExtractRowsFromArray(value, sourceName) {
+          if (value.length === 0) {
+            return { sourceName, rows: [], headers: [] };
+          }
+
+          if (Array.isArray(value[0])) {
+            return capitalConvertMatrixToObjects(value, sourceName);
+          }
+
+          if (typeof value[0] === "object" && value[0] !== null) {
+            return {
+              sourceName,
+              rows: value.slice(),
+              headers: capitalCollectHeadersFromObjects(value)
+            };
+          }
+
+          return { sourceName, rows: [], headers: [] };
+        }
+
+        function capitalConvertMatrixToObjects(matrix, sourceName) {
+          if (!Array.isArray(matrix) || matrix.length === 0 || !Array.isArray(matrix[0])) {
+            return { sourceName, rows: [], headers: [] };
+          }
+
+          const [headerRow, ...dataRows] = matrix;
+          const headers = headerRow.map((header) => String(header).trim());
+          const rows = dataRows.reduce((accumulator, dataRow) => {
+            if (!Array.isArray(dataRow)) {
+              return accumulator;
+            }
+
+            const rowObject = {};
+            headers.forEach((header, index) => {
+              rowObject[header] = dataRow[index];
+            });
+
+            accumulator.push(rowObject);
+            return accumulator;
+          }, []);
+
+          return {
+            sourceName,
+            rows,
+            headers
+          };
+        }
+
+        function capitalCollectHeadersFromObjects(rows) {
+          return Array.from(
+            new Set(
+              rows.flatMap((row) => Object.keys(row || {}))
+            )
+          );
+        }
+
+        function capitalValidateColumns(headers) {
+          const headerSet = new Set(headers.map((header) => String(header).trim()));
+          return capitalRequiredColumns
+            .filter((requiredColumn) => !headerSet.has(requiredColumn))
+            .map((requiredColumn) => `В источнике отсутствует обязательная колонка «${requiredColumn}».`);
+        }
+
+        function capitalNormalizeRows(rows) {
+          return rows.reduce((accumulator, rawRow, index) => {
+            if (!rawRow || typeof rawRow !== "object") {
+              return accumulator;
+            }
+
+            const dateValue = capitalParseLocalDate(rawRow["Дата"]);
+            accumulator.push({
+              capitalId: `capital-row-${index + 1}`,
+              capitalDate: dateValue,
+              capitalDateLabel: dateValue ? capitalFormatters.day.format(dateValue) : "—",
+              capitalMonthLabel: dateValue ? capitalGetMonthLabel(dateValue) : "—",
+              capitalSection1: capitalNormalizeText(rawRow["Раздел 1"]),
+              capitalSection2: capitalNormalizeText(rawRow["Раздел 2"]),
+              capitalSection3: capitalNormalizeText(rawRow["Раздел 3"]),
+              capitalSection4: capitalNormalizeText(rawRow["Раздел 4"]),
+              capitalAmount: capitalToNumber(rawRow["Сумма"])
+            });
+
+            return accumulator;
+          }, []);
+        }
+
+        function capitalInitializePeriodBounds() {
+          const bounds = capitalGetDateBounds(capitalState.validRows);
+          capitalState.filters.startDate = bounds.minDate ? capitalFormatDateInput(bounds.minDate) : "";
+          capitalState.filters.endDate = bounds.maxDate ? capitalFormatDateInput(bounds.maxDate) : "";
+        }
+
+        function capitalResetPeriod() {
+          capitalInitializePeriodBounds();
+          capitalRenderAll();
+        }
+
+        function capitalRenderAll() {
+          const emptyState = document.getElementById("capitalEmptyState");
+          const errorState = document.getElementById("capitalErrorState");
+          const dashboard = document.getElementById("capitalDashboard");
+          const sourceBadge = document.getElementById("capitalSourceBadge");
+
+          document.getElementById("capitalPeriodStart").value = capitalState.filters.startDate;
+          document.getElementById("capitalPeriodEnd").value = capitalState.filters.endDate;
+
+          if (capitalState.rawRows.length === 0) {
+            if (emptyState) {
+              emptyState.hidden = false;
+            }
+            if (errorState) {
+              errorState.hidden = true;
+            }
+            if (dashboard) {
+              dashboard.hidden = true;
+            }
+            if (sourceBadge) {
+              sourceBadge.textContent = "Источник не подключен";
+            }
+            capitalRenderHeroMeta();
+            capitalRenderFilterMeta("Источник данных не найден.");
+            return;
+          }
+
+          if (capitalState.validationErrors.length > 0) {
+            if (emptyState) {
+              emptyState.hidden = true;
+            }
+            if (errorState) {
+              errorState.hidden = false;
+            }
+            if (dashboard) {
+              dashboard.hidden = true;
+            }
+            if (sourceBadge) {
+              sourceBadge.textContent = capitalState.sourceName ? `Источник: ${capitalState.sourceName}` : "Источник найден";
+            }
+            capitalRenderErrorState(capitalState.validationErrors);
+            capitalRenderHeroMeta();
+            capitalRenderFilterMeta("Построение остановлено из-за отсутствующих колонок.");
+            return;
+          }
+
+          capitalState.filteredRows = capitalApplyPeriodFilter(capitalState.validRows);
+          capitalState.latestSnapshotDate = capitalFindLatestSnapshotDate(capitalState.filteredRows);
+          capitalState.latestSnapshotRows = capitalState.latestSnapshotDate
+            ? capitalState.filteredRows.filter((row) => row.capitalDate.getTime() === capitalState.latestSnapshotDate.getTime())
+            : [];
+          capitalState.timelineMetrics = capitalBuildTimelineMetrics(capitalState.filteredRows);
+
+          if (emptyState) {
+            emptyState.hidden = true;
+          }
+          if (errorState) {
+            errorState.hidden = true;
+          }
+          if (dashboard) {
+            dashboard.hidden = false;
+          }
+          if (sourceBadge) {
+            sourceBadge.textContent = capitalState.sourceName ? `Источник: ${capitalState.sourceName}` : "Источник: клиентский runtime";
+          }
+
+          capitalRenderHeroMeta();
+          capitalRenderFilterMeta(
+            capitalState.filteredRows.length > 0
+              ? `После фильтрации доступно ${capitalFormatInteger(capitalState.filteredRows.length)} строк(и) и ${capitalFormatInteger(capitalState.timelineMetrics.length)} отчетных дат.`
+              : "В выбранном периоде нет отчетных дат."
+          );
+          capitalRenderKpis();
+          capitalRenderAssetsPie();
+          capitalRenderLiabilitiesPie();
+          capitalRenderReceivablesChart();
+          capitalRenderPayablesChart();
+          capitalRenderFundingMixChart();
+          capitalRenderLiquidityChart();
+          capitalRenderIndependenceChart();
+        }
+
+        function capitalRenderHeroMeta() {
+          const periodNode = document.getElementById("capitalHeroPeriod");
+          const rowsNode = document.getElementById("capitalHeroRows");
+          const snapshotNode = document.getElementById("capitalHeroSnapshot");
+          const coverageNode = document.getElementById("capitalHeroCoverage");
+          const bounds = capitalGetDateBounds(capitalState.validRows);
+
+          if (periodNode) {
+            periodNode.textContent = capitalDescribeCurrentPeriod();
+          }
+          if (rowsNode) {
+            rowsNode.textContent = capitalFormatInteger(capitalState.filteredRows.length);
+          }
+          if (snapshotNode) {
+            snapshotNode.textContent = capitalState.latestSnapshotDate
+              ? capitalFormatters.day.format(capitalState.latestSnapshotDate)
+              : "Нет среза";
+          }
+          if (coverageNode) {
+            coverageNode.textContent = bounds.minDate && bounds.maxDate
+              ? `${capitalFormatters.day.format(bounds.minDate)} — ${capitalFormatters.day.format(bounds.maxDate)}`
+              : "Нет дат";
+          }
+        }
+
+        function capitalRenderFilterMeta(message) {
+          const activePeriodNode = document.getElementById("capitalActivePeriod");
+          const filterNoteNode = document.getElementById("capitalFilterNote");
+
+          if (activePeriodNode) {
+            activePeriodNode.textContent = `Период: ${capitalDescribeCurrentPeriod()}`;
+          }
+          if (filterNoteNode) {
+            filterNoteNode.textContent = message;
+          }
+        }
+
+        function capitalRenderErrorState(errors) {
+          const errorTextNode = document.getElementById("capitalErrorText");
+          const errorListNode = document.getElementById("capitalErrorList");
+
+          if (errorTextNode) {
+            errorTextNode.textContent = "Страница не может быть построена, потому что в диапазоне rangeequity отсутствуют обязательные колонки для модуля “Капитал”.";
+          }
+          if (errorListNode) {
+            errorListNode.innerHTML = errors.map((errorMessage) => `<li>${capitalEscapeHtml(errorMessage)}</li>`).join("");
+          }
+        }
+
+        function capitalRenderKpis() {
+          const target = document.getElementById("capitalKpiGrid");
+          if (!target) {
+            return;
+          }
+
+          if (!capitalState.latestSnapshotDate || capitalState.latestSnapshotRows.length === 0) {
+            target.innerHTML = capitalBuildEmptyChart("В выбранном периоде нет среза для расчета карточек.");
+            return;
+          }
+
+          const snapshotMetrics = capitalCalculateSnapshotMetrics(capitalState.latestSnapshotRows);
+          const cards = [
+            {
+              label: "Собственный капитал",
+              value: capitalFormatCurrency(snapshotMetrics.equity),
+              hint: "Сумма строк, где Раздел 2 = Капитал, на последнюю доступную отчетную дату.",
+              deltaLabel: `Срез: ${capitalFormatters.day.format(capitalState.latestSnapshotDate)}`,
+              deltaType: snapshotMetrics.equity >= 0 ? "positive" : "negative"
+            },
+            {
+              label: "Коэффициент текущей ликвидности",
+              value: snapshotMetrics.currentLiquidity === null ? "Ошибка" : capitalFormatNumber(snapshotMetrics.currentLiquidity, 2),
+              hint: snapshotMetrics.currentLiquidityError || "Формула: Оборотные активы / Краткосрочные обязательства. Норма 1,5–2.",
+              deltaLabel: snapshotMetrics.currentLiquidity === null
+                ? "Требуется строка Раздел 3 = Краткосрочные обязательства"
+                : "Норма 1,5–2",
+              deltaType: snapshotMetrics.currentLiquidity === null
+                ? "neutral"
+                : snapshotMetrics.currentLiquidity >= 1.5 && snapshotMetrics.currentLiquidity <= 2 ? "positive" : "negative"
+            },
+            {
+              label: "Коэффициент финансовой независимости",
+              value: snapshotMetrics.financialIndependence === null ? "Ошибка" : capitalFormatPercent(snapshotMetrics.financialIndependence),
+              hint: snapshotMetrics.financialIndependenceError || "Формула: Капитал / Активы на последнюю доступную отчетную дату.",
+              deltaLabel: snapshotMetrics.financialIndependence === null
+                ? "Невозможно рассчитать по текущему срезу"
+                : "Доля собственного капитала в активах",
+              deltaType: snapshotMetrics.financialIndependence === null
+                ? "neutral"
+                : snapshotMetrics.financialIndependence >= 0.5 ? "positive" : "negative"
+            }
+          ];
+
+          target.innerHTML = cards.map((card) => `
+            <article class="capital-kpi-card">
+              <span class="capital-kpi-card__label">${capitalEscapeHtml(card.label)}</span>
+              <span class="capital-kpi-card__value">${capitalEscapeHtml(card.value)}</span>
+              <span class="capital-kpi-card__hint">${capitalEscapeHtml(card.hint)}</span>
+              <span class="capital-kpi-card__delta capital-kpi-card__delta--${card.deltaType}">${capitalEscapeHtml(card.deltaLabel)}</span>
+            </article>
+          `).join("");
+        }
+
+        function capitalRenderAssetsPie() {
+          const target = document.getElementById("capitalAssetsPie");
+          if (!target) {
+            return;
+          }
+
+          const dataset = capitalBuildPieDataset(capitalState.latestSnapshotRows, "Активы");
+          target.innerHTML = capitalBuildPieMarkup(
+            dataset,
+            "Активы",
+            "Нет данных по разделу “Активы” на последнюю доступную дату."
+          );
+        }
+
+        function capitalRenderLiabilitiesPie() {
+          const target = document.getElementById("capitalLiabilitiesPie");
+          if (!target) {
+            return;
+          }
+
+          const dataset = capitalBuildPieDataset(capitalState.latestSnapshotRows, "Пассивы");
+          target.innerHTML = capitalBuildPieMarkup(
+            dataset,
+            "Пассивы",
+            "Нет данных по разделу “Пассивы” на последнюю доступную дату."
+          );
+        }
+
+        function capitalRenderReceivablesChart() {
+          const target = document.getElementById("capitalReceivablesChart");
+          if (!target) {
+            return;
+          }
+
+          const dataset = capitalBuildSingleMetricTimeline("Дебиторская задолженность", "receivables");
+          target.innerHTML = dataset.length > 0
+            ? capitalCreateLineChartSvg(dataset, {
+                ariaLabel: "Динамика дебиторской задолженности",
+                stroke: "#00d9ff"
+              })
+            : capitalBuildEmptyChart("В данных нет строк с точным значением Раздел 3 = “Дебиторская задолженность”.");
+        }
+
+        function capitalRenderPayablesChart() {
+          const target = document.getElementById("capitalPayablesChart");
+          if (!target) {
+            return;
+          }
+
+          const dataset = capitalBuildSingleMetricTimeline("Кредиторская задолженность", "payables");
+          target.innerHTML = dataset.length > 0
+            ? capitalCreateLineChartSvg(dataset, {
+                ariaLabel: "Динамика кредиторской задолженности",
+                stroke: "#19c4b5"
+              })
+            : capitalBuildEmptyChart("В данных нет строк с точным значением Раздел 3 = “Кредиторская задолженность”.");
+        }
+
+        function capitalRenderFundingMixChart() {
+          const target = document.getElementById("capitalFundingMixChart");
+          if (!target) {
+            return;
+          }
+
+          target.innerHTML = capitalState.timelineMetrics.length > 0
+            ? capitalCreateFundingMixChartSvg(capitalState.timelineMetrics)
+            : capitalBuildEmptyChart("В выбранном периоде нет отчетных дат для структуры капитала и обязательств.");
+        }
+
+        function capitalRenderLiquidityChart() {
+          const target = document.getElementById("capitalLiquidityChart");
+          if (!target) {
+            return;
+          }
+
+          const dataset = capitalState.timelineMetrics.filter((item) => item.currentLiquidity !== null);
+          target.innerHTML = dataset.length > 0
+            ? capitalCreateLineChartSvg(dataset.map((item) => ({
+                label: item.label,
+                value: item.currentLiquidity
+              })), {
+                ariaLabel: "Коэффициент текущей ликвидности",
+                stroke: "#8f7dff",
+                benchmark: { min: 1.5, max: 2 }
+              })
+            : capitalBuildEmptyChart("Невозможно построить коэффициент текущей ликвидности: нет данных по “Краткосрочные обязательства”.");
+        }
+
+        function capitalRenderIndependenceChart() {
+          const target = document.getElementById("capitalIndependenceChart");
+          if (!target) {
+            return;
+          }
+
+          const dataset = capitalState.timelineMetrics.filter((item) => item.financialIndependence !== null);
+          target.innerHTML = dataset.length > 0
+            ? capitalCreateLineChartSvg(dataset.map((item) => ({
+                label: item.label,
+                value: item.financialIndependence
+              })), {
+                ariaLabel: "Коэффициент финансовой независимости",
+                stroke: "#00d9ff",
+                percent: true
+              })
+            : capitalBuildEmptyChart("Невозможно построить коэффициент финансовой независимости: недостаточно данных по капиталу или активам.");
+        }
+
+        function capitalBuildPieDataset(rows, section1Value) {
+          const grouped = {};
+          rows
+            .filter((row) => row.capitalSection1 === section1Value)
+            .forEach((row) => {
+              const key = row.capitalSection3 || "Без подгруппы";
+              grouped[key] = (grouped[key] || 0) + row.capitalAmount;
+            });
+
+          const total = Object.values(grouped).reduce((sum, value) => sum + Math.abs(value), 0);
+          if (total === 0) {
+            return [];
+          }
+
+          return Object.entries(grouped)
+            .map(([label, value]) => ({
+              label,
+              value,
+              share: Math.abs(value) / total
+            }))
+            .sort((left, right) => Math.abs(right.value) - Math.abs(left.value));
+        }
+
+        function capitalBuildPieMarkup(dataset, centerLabel, emptyMessage) {
+          if (dataset.length === 0) {
+            return capitalBuildEmptyChart(emptyMessage);
+          }
+
+          const total = dataset.reduce((sum, item) => sum + Math.abs(item.value), 0);
+          let cursor = 0;
+          const gradientParts = dataset.map((item, index) => {
+            const nextCursor = cursor + item.share * 360;
+            const color = capitalPalette[index % capitalPalette.length];
+            const part = `${color} ${cursor.toFixed(2)}deg ${nextCursor.toFixed(2)}deg`;
+            cursor = nextCursor;
+            return part;
+          });
+
+          return `
+            <div class="capital-pie-layout">
+              <div class="capital-pie-chart" style="background: conic-gradient(${gradientParts.join(", ")})">
+                <div class="capital-pie-center">
+                  <div>
+                    <div class="capital-pie-center__value">${capitalEscapeHtml(capitalFormatCurrency(total))}</div>
+                    <div class="capital-pie-center__label">${capitalEscapeHtml(centerLabel)}</div>
+                  </div>
+                </div>
+              </div>
+              <div class="capital-pie-legend">
+                ${dataset.map((item, index) => `
+                  <div class="capital-pie-legend__row">
+                    <span class="capital-pie-legend__swatch" style="background:${capitalPalette[index % capitalPalette.length]}"></span>
+                    <span class="capital-pie-legend__label">${capitalEscapeHtml(item.label)}</span>
+                    <span class="capital-pie-legend__share">${capitalEscapeHtml(capitalFormatPercent(item.share))}</span>
+                    <span class="capital-pie-legend__value">${capitalEscapeHtml(capitalFormatCurrency(item.value))}</span>
+                  </div>
+                `).join("")}
+              </div>
+            </div>
+          `;
+        }
+
+        function capitalCalculateSnapshotMetrics(rows) {
+          const equity = capitalSumRows(rows, (row) => row.capitalSection2 === "Капитал");
+          const currentAssets = capitalSumRows(rows, (row) => row.capitalSection2 === "Оборотные активы");
+          const assets = capitalSumRows(rows, (row) => row.capitalSection1 === "Активы");
+          const shortTermLiabilitiesRows = rows.filter((row) => row.capitalSection3 === "Краткосрочные обязательства");
+          const shortTermLiabilities = shortTermLiabilitiesRows.reduce((sum, row) => sum + row.capitalAmount, 0);
+
+          return {
+            equity,
+            currentLiquidity: shortTermLiabilitiesRows.length === 0 || shortTermLiabilities === 0
+              ? null
+              : currentAssets / shortTermLiabilities,
+            currentLiquidityError: shortTermLiabilitiesRows.length === 0
+              ? "В данных отсутствует точное значение Раздел 3 = “Краткосрочные обязательства”."
+              : shortTermLiabilities === 0
+                ? "Краткосрочные обязательства равны 0, коэффициент не может быть рассчитан."
+                : null,
+            financialIndependence: assets === 0 ? null : equity / assets,
+            financialIndependenceError: assets === 0
+              ? "Активы на выбранную отчетную дату равны 0, коэффициент финансовой независимости не может быть рассчитан."
+              : null
+          };
+        }
+
+        function capitalBuildTimelineMetrics(rows) {
+          const grouped = capitalGroupRowsByDate(rows);
+          return grouped.map((group) => {
+            const snapshotMetrics = capitalCalculateSnapshotMetrics(group.rows);
+            const equity = capitalSumRows(group.rows, (row) => row.capitalSection2 === "Капитал");
+            const liabilities = capitalSumRows(group.rows, (row) => row.capitalSection2 === "Обязательства");
+            const receivables = capitalSumRows(group.rows, (row) => row.capitalSection3 === "Дебиторская задолженность");
+            const payables = capitalSumRows(group.rows, (row) => row.capitalSection3 === "Кредиторская задолженность");
+
+            return {
+              date: group.date,
+              label: capitalFormatters.day.format(group.date),
+              equity,
+              liabilities,
+              receivables,
+              payables,
+              currentLiquidity: snapshotMetrics.currentLiquidity,
+              financialIndependence: snapshotMetrics.financialIndependence
+            };
+          });
+        }
+
+        function capitalBuildSingleMetricTimeline(section3Value, metricKey) {
+          return capitalState.timelineMetrics
+            .filter((item) => item[metricKey] !== 0)
+            .map((item) => ({
+              label: item.label,
+              value: item[metricKey]
+            }));
+        }
+
+        function capitalCreateLineChartSvg(dataset, options) {
+          const width = 980;
+          const height = 320;
+          const padding = { top: 24, right: 24, bottom: 56, left: 72 };
+          const chartWidth = width - padding.left - padding.right;
+          const chartHeight = height - padding.top - padding.bottom;
+          const values = dataset.map((item) => item.value);
+          const benchmarkValues = [];
+
+          if (options.benchmark) {
+            benchmarkValues.push(options.benchmark.min, options.benchmark.max);
+          }
+
+          const minValue = Math.min(...values, ...benchmarkValues, 0);
+          const maxValue = Math.max(...values, ...benchmarkValues, 1);
+          const valueRange = maxValue - minValue || 1;
+          const stepX = dataset.length > 1 ? chartWidth / (dataset.length - 1) : 0;
+          const points = dataset.map((item, index) => {
+            const x = padding.left + stepX * index;
+            const y = padding.top + chartHeight - ((item.value - minValue) / valueRange) * chartHeight;
+            return { x, y, ...item };
+          });
+          const polyline = points.map((point) => `${point.x},${point.y}`).join(" ");
+
+          return `
+            <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${capitalEscapeAttribute(options.ariaLabel)}">
+              ${Array.from({ length: 5 }, (_, index) => {
+                const ratio = index / 4;
+                const y = padding.top + chartHeight * ratio;
+                const tickValue = maxValue - valueRange * ratio;
+                const tickLabel = options.percent
+                  ? capitalFormatPercent(tickValue)
+                  : capitalFormatNumber(tickValue, options.benchmark ? 2 : 0);
+                return `
+                  <line x1="${padding.left}" y1="${y}" x2="${padding.left + chartWidth}" y2="${y}" stroke="rgba(138,164,214,0.14)" stroke-width="1"></line>
+                  <text x="${padding.left - 12}" y="${y + 4}" fill="#8fa3cc" font-size="12" text-anchor="end">${capitalEscapeHtml(tickLabel)}</text>
+                `;
+              }).join("")}
+              ${options.benchmark ? `
+                <rect
+                  x="${padding.left}"
+                  y="${padding.top + chartHeight - ((options.benchmark.max - minValue) / valueRange) * chartHeight}"
+                  width="${chartWidth}"
+                  height="${((options.benchmark.max - options.benchmark.min) / valueRange) * chartHeight}"
+                  fill="rgba(0,217,255,0.06)"
+                ></rect>
+              ` : ""}
+              <polyline points="${polyline}" fill="none" stroke="${options.stroke}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></polyline>
+              ${points.map((point) => `
+                <g>
+                  <circle cx="${point.x}" cy="${point.y}" r="5.5" fill="#111a31" stroke="${options.stroke}" stroke-width="3"></circle>
+                  <text x="${point.x}" y="${height - 20}" fill="#8fa3cc" font-size="12" text-anchor="middle">${capitalEscapeHtml(point.label)}</text>
+                </g>
+              `).join("")}
+            </svg>
+          `;
+        }
+
+        function capitalCreateFundingMixChartSvg(dataset) {
+          const width = 980;
+          const height = 320;
+          const padding = { top: 24, right: 24, bottom: 56, left: 72 };
+          const chartWidth = width - padding.left - padding.right;
+          const chartHeight = height - padding.top - padding.bottom;
+          const barSlot = dataset.length > 0 ? chartWidth / dataset.length : chartWidth;
+          const barWidth = Math.min(68, barSlot * 0.58);
+
+          return `
+            <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Заемный и собственный капитал">
+              ${Array.from({ length: 5 }, (_, index) => {
+                const ratio = index / 4;
+                const y = padding.top + chartHeight * ratio;
+                const tickValue = 100 - ratio * 100;
+                return `
+                  <line x1="${padding.left}" y1="${y}" x2="${padding.left + chartWidth}" y2="${y}" stroke="rgba(138,164,214,0.14)" stroke-width="1"></line>
+                  <text x="${padding.left - 12}" y="${y + 4}" fill="#8fa3cc" font-size="12" text-anchor="end">${tickValue.toFixed(0)}%</text>
+                `;
+              }).join("")}
+              ${dataset.map((item, index) => {
+                const x = padding.left + barSlot * index + (barSlot - barWidth) / 2;
+                const total = item.equity + item.liabilities;
+                const equityShare = total === 0 ? 0 : item.equity / total;
+                const liabilitiesShare = total === 0 ? 0 : item.liabilities / total;
+                const equityHeight = equityShare * chartHeight;
+                const liabilitiesHeight = liabilitiesShare * chartHeight;
+                const liabilitiesY = padding.top + chartHeight - liabilitiesHeight;
+                const equityY = liabilitiesY - equityHeight;
+
+                return `
+                  <g>
+                    <rect x="${x}" y="${liabilitiesY}" width="${barWidth}" height="${liabilitiesHeight}" rx="10" fill="#19c4b5">
+                      <title>Обязательства: ${capitalFormatCurrency(item.liabilities)} (${capitalFormatPercent(liabilitiesShare)})</title>
+                    </rect>
+                    <rect x="${x}" y="${equityY}" width="${barWidth}" height="${equityHeight}" rx="10" fill="#00d9ff">
+                      <title>Капитал: ${capitalFormatCurrency(item.equity)} (${capitalFormatPercent(equityShare)})</title>
+                    </rect>
+                    <text x="${x + barWidth / 2}" y="${height - 20}" fill="#8fa3cc" font-size="12" text-anchor="middle">${capitalEscapeHtml(item.label)}</text>
+                  </g>
+                `;
+              }).join("")}
+            </svg>
+          `;
+        }
+
+        function capitalApplyPeriodFilter(rows) {
+          const startDate = capitalParseLocalDate(capitalState.filters.startDate);
+          const endDate = capitalParseLocalDate(capitalState.filters.endDate);
+
+          return rows.filter((row) => {
+            if (!(row.capitalDate instanceof Date)) {
+              return false;
+            }
+
+            if (startDate && row.capitalDate < capitalStartOfDay(startDate)) {
+              return false;
+            }
+
+            if (endDate && row.capitalDate > capitalEndOfDay(endDate)) {
+              return false;
+            }
+
+            return true;
+          });
+        }
+
+        function capitalFindLatestSnapshotDate(rows) {
+          const dates = rows.map((row) => row.capitalDate).filter((date) => date instanceof Date);
+          if (dates.length === 0) {
+            return null;
+          }
+          return new Date(Math.max(...dates.map((date) => date.getTime())));
+        }
+
+        function capitalGroupRowsByDate(rows) {
+          const groups = new Map();
+          rows.forEach((row) => {
+            const key = row.capitalDate.getTime();
+            if (!groups.has(key)) {
+              groups.set(key, {
+                date: row.capitalDate,
+                rows: []
+              });
+            }
+            groups.get(key).rows.push(row);
+          });
+
+          return Array.from(groups.values()).sort((left, right) => left.date - right.date);
+        }
+
+        function capitalGetDateBounds(rows) {
+          const dates = rows.map((row) => row.capitalDate).filter((date) => date instanceof Date);
+          if (dates.length === 0) {
+            return { minDate: null, maxDate: null };
+          }
+
+          return {
+            minDate: new Date(Math.min(...dates.map((date) => date.getTime()))),
+            maxDate: new Date(Math.max(...dates.map((date) => date.getTime())))
+          };
+        }
+
+        function capitalDescribeCurrentPeriod() {
+          const startDate = capitalParseLocalDate(capitalState.filters.startDate);
+          const endDate = capitalParseLocalDate(capitalState.filters.endDate);
+
+          if (startDate && endDate) {
+            return `${capitalFormatters.day.format(startDate)} — ${capitalFormatters.day.format(endDate)}`;
+          }
+          if (startDate) {
+            return `с ${capitalFormatters.day.format(startDate)}`;
+          }
+          if (endDate) {
+            return `по ${capitalFormatters.day.format(endDate)}`;
+          }
+          return "Без ограничения";
+        }
+
+        function capitalSumRows(rows, predicate) {
+          return rows.filter(predicate).reduce((sum, row) => sum + row.capitalAmount, 0);
+        }
+
+        function capitalParseLocalDate(value) {
+          if (value instanceof Date && !Number.isNaN(value.getTime())) {
+            return new Date(value.getFullYear(), value.getMonth(), value.getDate(), 0, 0, 0, 0);
+          }
+
+          if (typeof value !== "string") {
+            return null;
+          }
+
+          const input = value.trim();
+          if (!input) {
+            return null;
+          }
+
+          const russianMatch = input.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+          if (russianMatch) {
+            return capitalCreateValidatedDate(Number(russianMatch[3]), Number(russianMatch[2]), Number(russianMatch[1]));
+          }
+
+          const isoMatch = input.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+          if (isoMatch) {
+            return capitalCreateValidatedDate(Number(isoMatch[1]), Number(isoMatch[2]), Number(isoMatch[3]));
+          }
+
+          const isoDateTimeMatch = input.match(/^(\d{4})-(\d{2})-(\d{2})T/);
+          if (isoDateTimeMatch) {
+            return capitalCreateValidatedDate(Number(isoDateTimeMatch[1]), Number(isoDateTimeMatch[2]), Number(isoDateTimeMatch[3]));
+          }
+
+          return null;
+        }
+
+        function capitalCreateValidatedDate(year, month, day) {
+          const dateValue = new Date(year, month - 1, day, 0, 0, 0, 0);
+          if (
+            Number.isNaN(dateValue.getTime()) ||
+            dateValue.getFullYear() !== year ||
+            dateValue.getMonth() !== month - 1 ||
+            dateValue.getDate() !== day
+          ) {
+            return null;
+          }
+          return dateValue;
+        }
+
+        function capitalNormalizeText(value) {
+          if (typeof value === "undefined" || value === null) {
+            return "";
+          }
+          return String(value).trim();
+        }
+
+        function capitalToNumber(value) {
+          if (typeof value === "number") {
+            return Number.isFinite(value) ? value : 0;
+          }
+          if (typeof value === "string") {
+            const parsed = Number(value.replace(/\s+/g, "").replace(",", "."));
+            return Number.isFinite(parsed) ? parsed : 0;
+          }
+          return 0;
+        }
+
+        function capitalStartOfDay(dateValue) {
+          return new Date(dateValue.getFullYear(), dateValue.getMonth(), dateValue.getDate(), 0, 0, 0, 0);
+        }
+
+        function capitalEndOfDay(dateValue) {
+          return new Date(dateValue.getFullYear(), dateValue.getMonth(), dateValue.getDate(), 23, 59, 59, 999);
+        }
+
+        function capitalFormatDateInput(dateValue) {
+          return `${dateValue.getFullYear()}-${String(dateValue.getMonth() + 1).padStart(2, "0")}-${String(dateValue.getDate()).padStart(2, "0")}`;
+        }
+
+        function capitalGetMonthLabel(dateValue) {
+          return capitalFormatters.month.format(dateValue).replace(".", "");
+        }
+
+        function capitalFormatCurrency(value) {
+          if (capitalCore.formatCurrency) {
+            return capitalCore.formatCurrency(value);
+          }
+          return `${capitalFormatNumber(value, 2)} ₽`;
+        }
+
+        function capitalFormatNumber(value, digits = 2) {
+          if (!Number.isFinite(value)) {
+            return "0";
+          }
+          return new Intl.NumberFormat("ru-RU", {
+            minimumFractionDigits: digits,
+            maximumFractionDigits: digits
+          }).format(value);
+        }
+
+        function capitalFormatInteger(value) {
+          return new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 0 }).format(value);
+        }
+
+        function capitalFormatPercent(value) {
+          return `${capitalFormatNumber((Number.isFinite(value) ? value : 0) * 100, 1)}%`;
+        }
+
+        function capitalBuildEmptyChart(message) {
+          return `<div class="capital-empty-chart">${capitalEscapeHtml(message)}</div>`;
+        }
+
+        function capitalEscapeHtml(value) {
+          return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+        }
+
+        function capitalEscapeAttribute(value) {
+          return capitalEscapeHtml(value);
+        }
+      })();
+    </script>
+  </body>
+</html>

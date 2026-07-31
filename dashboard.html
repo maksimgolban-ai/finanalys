@@ -1,0 +1,2802 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Финансовый дашборд</title>
+    <meta
+      name="description"
+      content="Сводная аналитическая страница финансового дашборда компании на основе данных листов Деньги, Прибыль и Капитал."
+    >
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    >
+    <link rel="stylesheet" href="assets/css/layout.css">
+    <style>
+      .dashboard-page {
+        display: grid;
+        gap: 24px;
+      }
+
+      .dashboard-hero {
+        position: relative;
+        overflow: hidden;
+        display: grid;
+        gap: 22px;
+        padding: 28px;
+        border: 1px solid rgba(71, 99, 164, 0.38);
+        border-radius: 28px;
+        background:
+          radial-gradient(circle at top right, rgba(0, 217, 255, 0.18), transparent 30%),
+          linear-gradient(145deg, rgba(14, 24, 51, 0.98), rgba(8, 13, 31, 0.94));
+        box-shadow: 0 24px 70px rgba(3, 8, 22, 0.44);
+      }
+
+      .dashboard-hero::after {
+        content: "";
+        position: absolute;
+        inset: auto -80px -120px auto;
+        width: 240px;
+        height: 240px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(0, 217, 255, 0.2), transparent 72%);
+        pointer-events: none;
+      }
+
+      .dashboard-hero__header {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.9fr);
+        gap: 22px;
+        align-items: start;
+      }
+
+      .dashboard-hero__eyebrow,
+      .dashboard-section__eyebrow,
+      .dashboard-card__eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: rgba(153, 180, 236, 0.84);
+      }
+
+      .dashboard-hero__title {
+        margin: 10px 0 12px;
+        font-family: "Manrope", "Inter", sans-serif;
+        font-size: clamp(2rem, 4vw, 2.9rem);
+        line-height: 1.04;
+        letter-spacing: -0.04em;
+        color: #f5fbff;
+      }
+
+      .dashboard-hero__text,
+      .dashboard-card__text,
+      .dashboard-chart-card__text,
+      .dashboard-empty-state__text,
+      .dashboard-error-state__text,
+      .dashboard-warning-state__text,
+      .dashboard-source-card__text,
+      .dashboard-meta-card__text {
+        margin: 0;
+        color: #9fb0d7;
+        line-height: 1.65;
+      }
+
+      .dashboard-filter-card,
+      .dashboard-source-card,
+      .dashboard-meta-card,
+      .dashboard-chart-card,
+      .dashboard-empty-state,
+      .dashboard-error-state,
+      .dashboard-warning-state {
+        border: 1px solid rgba(69, 97, 159, 0.34);
+        border-radius: 24px;
+        background: rgba(12, 19, 40, 0.88);
+        box-shadow: 0 18px 40px rgba(3, 8, 22, 0.25);
+      }
+
+      .dashboard-filter-card {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        gap: 18px;
+        padding: 22px;
+      }
+
+      .dashboard-filter-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .dashboard-field {
+        display: grid;
+        gap: 8px;
+      }
+
+      .dashboard-field__label {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #c8d7f6;
+      }
+
+      .dashboard-field__input,
+      .dashboard-source-card__input {
+        width: 100%;
+        min-height: 50px;
+        padding: 0 16px;
+        border: 1px solid rgba(84, 117, 186, 0.4);
+        border-radius: 16px;
+        outline: none;
+        background: rgba(7, 13, 29, 0.9);
+        color: #f5fbff;
+        font: inherit;
+        transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
+      }
+
+      .dashboard-field__input:focus,
+      .dashboard-source-card__input:focus {
+        border-color: rgba(0, 217, 255, 0.84);
+        box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.16), 0 0 24px rgba(0, 217, 255, 0.14);
+      }
+
+      .dashboard-filter-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .dashboard-filter-chip-row,
+      .dashboard-meta-grid,
+      .dashboard-kpi-grid,
+      .dashboard-chart-grid {
+        display: grid;
+        gap: 18px;
+      }
+
+      .dashboard-filter-chip-row {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .dashboard-chip,
+      .dashboard-meta-card {
+        padding: 18px 20px;
+      }
+
+      .dashboard-chip {
+        display: grid;
+        gap: 8px;
+        min-height: 122px;
+        border: 1px solid rgba(74, 104, 170, 0.32);
+        border-radius: 22px;
+        background: rgba(11, 18, 36, 0.82);
+      }
+
+      .dashboard-chip--accent {
+        border-color: rgba(0, 217, 255, 0.36);
+        background: linear-gradient(155deg, rgba(6, 35, 48, 0.92), rgba(10, 18, 36, 0.9));
+      }
+
+      .dashboard-chip__label,
+      .dashboard-meta-card__label,
+      .dashboard-kpi-card__label {
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #8fa3cc;
+      }
+
+      .dashboard-chip__value,
+      .dashboard-meta-card__value {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #f5fbff;
+      }
+
+      .dashboard-chip__hint,
+      .dashboard-meta-card__hint,
+      .dashboard-kpi-card__hint,
+      .dashboard-chart-card__meta,
+      .dashboard-source-card__note {
+        color: #8fa3cc;
+        line-height: 1.55;
+      }
+
+      .dashboard-content {
+        display: grid;
+        gap: 24px;
+      }
+
+      .dashboard-meta-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .dashboard-kpi-grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+      }
+
+      .dashboard-kpi-card {
+        position: relative;
+        overflow: hidden;
+        display: grid;
+        gap: 10px;
+        min-height: 190px;
+        padding: 20px;
+        border: 1px solid rgba(69, 96, 159, 0.34);
+        border-radius: 24px;
+        background: linear-gradient(160deg, rgba(16, 24, 50, 0.95), rgba(9, 15, 32, 0.94));
+        box-shadow: 0 18px 44px rgba(3, 8, 22, 0.22);
+      }
+
+      .dashboard-kpi-card::after {
+        content: "";
+        position: absolute;
+        inset: auto -30px -60px auto;
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(0, 217, 255, 0.1), transparent 72%);
+        pointer-events: none;
+      }
+
+      .dashboard-kpi-card__value {
+        font-family: "Manrope", "Inter", sans-serif;
+        font-size: clamp(1.45rem, 2.2vw, 2.3rem);
+        line-height: 1.08;
+        letter-spacing: -0.04em;
+        color: #f5fbff;
+      }
+
+      .dashboard-kpi-card__delta {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        width: fit-content;
+        padding: 7px 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.05);
+        font-size: 0.82rem;
+        font-weight: 700;
+      }
+
+      .dashboard-kpi-card__delta--positive {
+        color: #65e5a7;
+        background: rgba(27, 76, 56, 0.28);
+      }
+
+      .dashboard-kpi-card__delta--negative {
+        color: #ff7a7a;
+        background: rgba(86, 25, 39, 0.3);
+      }
+
+      .dashboard-kpi-card__delta--warning {
+        color: #ffd76e;
+        background: rgba(86, 65, 16, 0.34);
+      }
+
+      .dashboard-kpi-card__delta--neutral {
+        color: #b9c8ea;
+      }
+
+      .dashboard-chart-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .dashboard-chart-card {
+        display: grid;
+        gap: 16px;
+        padding: 22px;
+      }
+
+      .dashboard-chart-card--full {
+        grid-column: 1 / -1;
+      }
+
+      .dashboard-chart-card__header {
+        display: grid;
+        gap: 8px;
+      }
+
+      .dashboard-chart-card__title {
+        margin: 0;
+        font-size: 1.14rem;
+        color: #f5fbff;
+      }
+
+      .dashboard-chart-card__text code,
+      .dashboard-source-card__text code,
+      .dashboard-chip__hint code {
+        padding: 2px 6px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.06);
+        color: #d8e6ff;
+      }
+
+      .dashboard-chart-card__legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 12px;
+      }
+
+      .dashboard-legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #c6d6f5;
+        font-size: 0.84rem;
+      }
+
+      .dashboard-legend-item__swatch {
+        width: 12px;
+        height: 12px;
+        border-radius: 4px;
+      }
+
+      .dashboard-svg-wrap {
+        min-height: 300px;
+      }
+
+      .dashboard-svg-wrap svg {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      .dashboard-empty-state,
+      .dashboard-error-state,
+      .dashboard-warning-state {
+        padding: 26px;
+      }
+
+      .dashboard-empty-state__title,
+      .dashboard-error-state__title,
+      .dashboard-warning-state__title {
+        margin: 0 0 10px;
+        font-size: 1.24rem;
+        color: #f5fbff;
+      }
+
+      .dashboard-empty-state__list,
+      .dashboard-error-state__list,
+      .dashboard-warning-state__list {
+        margin: 14px 0 0;
+        padding-left: 18px;
+        color: #9fb0d7;
+        line-height: 1.65;
+      }
+
+      .dashboard-warning-state {
+        border-color: rgba(255, 215, 110, 0.28);
+        background: rgba(37, 27, 6, 0.56);
+      }
+
+      .dashboard-warning-state__title {
+        color: #ffe38f;
+      }
+
+      .dashboard-error-state {
+        border-color: rgba(255, 122, 122, 0.24);
+        background: rgba(58, 13, 25, 0.42);
+      }
+
+      .dashboard-empty-chart {
+        display: grid;
+        place-items: center;
+        min-height: 280px;
+        border: 1px dashed rgba(94, 124, 186, 0.42);
+        border-radius: 22px;
+        color: #94a8d1;
+        text-align: center;
+        padding: 24px;
+      }
+
+      .dashboard-source-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+        gap: 18px;
+      }
+
+      .dashboard-source-card {
+        display: grid;
+        gap: 16px;
+        padding: 22px;
+      }
+
+      .dashboard-source-card__header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      .dashboard-source-card__title,
+      .dashboard-section__title {
+        margin: 6px 0 0;
+        font-size: 1.18rem;
+        color: #f5fbff;
+      }
+
+      .dashboard-source-card__badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 34px;
+        padding: 0 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(0, 217, 255, 0.32);
+        color: #74efff;
+        background: rgba(0, 217, 255, 0.08);
+        font-size: 0.78rem;
+        font-weight: 700;
+      }
+
+      .dashboard-source-card__link {
+        color: #74efff;
+        word-break: break-all;
+      }
+
+      .dashboard-source-card__link:hover {
+        color: #9ff5ff;
+      }
+
+      .dashboard-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .dashboard-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        padding: 0 16px;
+        border: 1px solid rgba(87, 118, 188, 0.36);
+        border-radius: 16px;
+        background: rgba(10, 16, 33, 0.92);
+        color: #edf7ff;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.22s ease, border-color 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
+      }
+
+      .dashboard-btn:hover {
+        transform: translateY(-1px);
+        border-color: rgba(112, 146, 221, 0.48);
+      }
+
+      .dashboard-btn--primary {
+        border-color: rgba(0, 217, 255, 0.44);
+        background: linear-gradient(135deg, rgba(0, 217, 255, 0.14), rgba(9, 18, 39, 0.94));
+        box-shadow: 0 0 22px rgba(0, 217, 255, 0.16);
+      }
+
+      .dashboard-btn--primary:hover {
+        box-shadow: 0 0 28px rgba(0, 217, 255, 0.22);
+      }
+
+      @media (max-width: 1360px) {
+        .dashboard-kpi-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 1180px) {
+        .dashboard-hero__header,
+        .dashboard-source-layout {
+          grid-template-columns: 1fr;
+        }
+
+        .dashboard-meta-grid,
+        .dashboard-filter-chip-row,
+        .dashboard-chart-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 900px) {
+        .dashboard-kpi-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 768px) {
+        .dashboard-hero,
+        .dashboard-filter-card,
+        .dashboard-chart-card,
+        .dashboard-source-card,
+        .dashboard-meta-card,
+        .dashboard-empty-state,
+        .dashboard-error-state,
+        .dashboard-warning-state {
+          padding: 20px;
+          border-radius: 22px;
+        }
+
+        .dashboard-filter-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .dashboard-kpi-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .dashboard-chart-card--full {
+          grid-column: auto;
+        }
+
+        .dashboard-svg-wrap {
+          min-height: 260px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .dashboard-hero {
+          padding: 18px;
+        }
+
+        .dashboard-hero__title {
+          font-size: 1.72rem;
+        }
+
+        .dashboard-chip,
+        .dashboard-kpi-card {
+          min-height: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell" data-shell>
+      <div class="app-overlay" data-overlay></div>
+
+      <aside class="app-sidebar" aria-label="Основная навигация">
+        <div class="brand-panel">
+          <span class="brand-kicker">Finance Control Layer</span>
+          <h1 class="brand-title">Управление финансовым состоянием компании</h1>
+          <p class="brand-subtitle">Управляй финансами прозрачно и просто</p>
+        </div>
+
+        <nav class="sidebar-nav">
+          <p class="nav-label">Разделы приложения</p>
+          <a class="nav-link" href="dashboard.html" data-nav-link data-page="dashboard">
+            <span class="nav-link__icon">◈</span>
+            <span class="nav-link__body">
+              <span class="nav-link__title">Дэшборд</span>
+              <span class="nav-link__meta">Общий обзор</span>
+            </span>
+            <span class="nav-link__chevron">›</span>
+          </a>
+          <a class="nav-link" href="money.html" data-nav-link data-page="money">
+            <span class="nav-link__icon">₽</span>
+            <span class="nav-link__body">
+              <span class="nav-link__title">Деньги</span>
+              <span class="nav-link__meta">Движение и ликвидность</span>
+            </span>
+            <span class="nav-link__chevron">›</span>
+          </a>
+          <a class="nav-link" href="capital.html" data-nav-link data-page="capital">
+            <span class="nav-link__icon">◆</span>
+            <span class="nav-link__body">
+              <span class="nav-link__title">Капитал</span>
+              <span class="nav-link__meta">Устойчивость структуры</span>
+            </span>
+            <span class="nav-link__chevron">›</span>
+          </a>
+          <a class="nav-link" href="profit.html" data-nav-link data-page="profit">
+            <span class="nav-link__icon">◌</span>
+            <span class="nav-link__body">
+              <span class="nav-link__title">Прибыль</span>
+              <span class="nav-link__meta">Результат и маржинальность</span>
+            </span>
+            <span class="nav-link__chevron">›</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-foot">
+          <span class="sidebar-foot__label">Логика страницы</span>
+          <p class="sidebar-foot__value">
+            Главный дэшборд агрегирует клиентские данные листов <code>Деньги</code>, <code>Прибыль</code> и
+            <code>Капитал</code> без <code>Apps Script</code>.
+          </p>
+        </div>
+      </aside>
+
+      <main class="app-main">
+        <header class="app-topbar">
+          <div class="topbar-group">
+            <button class="sidebar-toggle" type="button" aria-label="Открыть меню" data-sidebar-toggle>
+              ☰
+            </button>
+            <div class="topbar-title-wrap">
+              <p class="topbar-kicker">Сводная аналитика</p>
+              <h2 class="topbar-title" data-page-title>Финансовый дашборд</h2>
+              <p class="topbar-subtitle">
+                Единый клиентский слой расчета показателей на основе данных из трех финансовых листов.
+              </p>
+            </div>
+          </div>
+
+          <div class="topbar-actions">
+            <button class="action-btn action-btn--primary" type="button" id="dashboardReloadButton">Обновить</button>
+            <button class="action-btn" type="button" id="dashboardResetButton">Сбросить период</button>
+            <button class="action-btn" type="button" id="dashboardScrollButton">К показателям</button>
+          </div>
+        </header>
+
+        <div class="app-content">
+          <div class="dashboard-page">
+            <section class="dashboard-hero">
+              <div class="dashboard-hero__header">
+                <div>
+                  <span class="dashboard-hero__eyebrow">YTD-агрегация по snapshotDate</span>
+                  <h3 class="dashboard-hero__title">Сводная страница для ликвидности, прибыли и капитала</h3>
+                  <p class="dashboard-hero__text">
+                    Страница автоматически ищет последнюю доступную дату на листе <code>Капитал</code>, привязывает к ней
+                    расчеты и пересчитывает показатели <code>Деньги</code> и <code>Прибыль</code> в режиме
+                    <code>с 1 января года snapshotDate по snapshotDate</code>.
+                  </p>
+                </div>
+
+                <section class="dashboard-filter-card">
+                  <div>
+                    <span class="dashboard-card__eyebrow">Период пользователя</span>
+                    <h3 class="dashboard-section__title">Выбор даты для привязки к срезу капитала</h3>
+                  </div>
+
+                  <div class="dashboard-filter-grid">
+                    <label class="dashboard-field">
+                      <span class="dashboard-field__label">Дата начала</span>
+                      <input class="dashboard-field__input" id="dashboardStartDate" type="date">
+                    </label>
+                    <label class="dashboard-field">
+                      <span class="dashboard-field__label">Дата окончания</span>
+                      <input class="dashboard-field__input" id="dashboardEndDate" type="date">
+                    </label>
+                  </div>
+
+                  <div class="dashboard-filter-actions">
+                    <button class="dashboard-btn dashboard-btn--primary" type="button" id="dashboardApplyButton">Применить период</button>
+                    <button class="dashboard-btn" type="button" id="dashboardPresetYtdButton">Текущий YTD</button>
+                    <button class="dashboard-btn" type="button" id="dashboardPresetLatestButton">Последний срез капитала</button>
+                  </div>
+                </section>
+              </div>
+
+              <div class="dashboard-filter-chip-row">
+                <article class="dashboard-chip dashboard-chip--accent">
+                  <span class="dashboard-chip__label">Snapshot date</span>
+                  <span class="dashboard-chip__value" id="dashboardSnapshotDate">—</span>
+                  <span class="dashboard-chip__hint">Последняя дата листа <code>Капитал</code>, которая не позже выбранной даты окончания периода.</span>
+                </article>
+                <article class="dashboard-chip">
+                  <span class="dashboard-chip__label">Период пользователя</span>
+                  <span class="dashboard-chip__value" id="dashboardRequestedPeriod">—</span>
+                  <span class="dashboard-chip__hint">Фильтр в шапке управляет поиском актуального среза капитала.</span>
+                </article>
+                <article class="dashboard-chip">
+                  <span class="dashboard-chip__label">Фактический расчетный период</span>
+                  <span class="dashboard-chip__value" id="dashboardActualPeriod">—</span>
+                  <span class="dashboard-chip__hint">Для денег и прибыли всегда используется годовой период от 1 января до <code>snapshotDate</code>.</span>
+                </article>
+              </div>
+            </section>
+
+            <section class="dashboard-empty-state" id="dashboardEmptyState" hidden>
+              <h3 class="dashboard-empty-state__title">Источники данных для главного дэшборда не найдены</h3>
+              <p class="dashboard-empty-state__text">
+                Страница ожидает клиентские данные листов <code>Деньги</code>, <code>Прибыль</code> и <code>Капитал</code>.
+              </p>
+              <ul class="dashboard-empty-state__list">
+                <li>Поддерживается <code>window.workbookData</code>, если внутри есть листы с ожидаемыми названиями.</li>
+                <li>Поддерживаются отдельные переменные <code>window.rangecash</code>, <code>window.rangeprofit</code>, <code>window.rangeequity</code>.</li>
+                <li>Также поддерживаются <code>window.cashData</code>, <code>window.profitData</code>, <code>window.capitalData</code>.</li>
+              </ul>
+            </section>
+
+            <section class="dashboard-error-state" id="dashboardErrorState" hidden>
+              <h3 class="dashboard-error-state__title">Невозможно построить главный дэшборд</h3>
+              <p class="dashboard-error-state__text" id="dashboardErrorText">—</p>
+              <ul class="dashboard-error-state__list" id="dashboardErrorList"></ul>
+            </section>
+
+            <section class="dashboard-warning-state" id="dashboardWarningState" hidden>
+              <h3 class="dashboard-warning-state__title">Ограничения расчета</h3>
+              <p class="dashboard-warning-state__text">
+                Показатели построены, но есть условия, которые влияют на интерпретацию результата.
+              </p>
+              <ul class="dashboard-warning-state__list" id="dashboardWarningList"></ul>
+            </section>
+
+            <div class="dashboard-content" id="dashboardContent" hidden>
+              <div class="dashboard-source-layout">
+                <section class="dashboard-source-card">
+                  <div class="dashboard-source-card__header">
+                    <div>
+                      <span class="dashboard-card__eyebrow">Источник данных</span>
+                      <h3 class="dashboard-source-card__title">Excel-файл по публичной ссылке</h3>
+                    </div>
+                    <span class="dashboard-source-card__badge">Клиентский runtime</span>
+                  </div>
+
+                  <p class="dashboard-source-card__text">
+                    Если адрес Excel-источника изменится, новый адрес нужно внести в это поле. Синхронизация ссылки
+                    выполняется прямо на странице.
+                  </p>
+
+                  <label class="dashboard-field">
+                    <span class="dashboard-field__label">Поле источника данных</span>
+                    <input
+                      class="dashboard-source-card__input"
+                      id="dashboardSourceUrl"
+                      type="url"
+                      value="https://disk.yandex.ru/i/ZJVZH2zabEKqpg"
+                      data-source-field
+                    >
+                  </label>
+
+                  <a
+                    class="dashboard-source-card__link"
+                    href="https://disk.yandex.ru/i/ZJVZH2zabEKqpg"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-source-link
+                  >
+                    https://disk.yandex.ru/i/ZJVZH2zabEKqpg
+                  </a>
+
+                  <p class="dashboard-source-card__note" id="dashboardSourceSummary">
+                    —
+                  </p>
+                </section>
+
+                <div class="dashboard-meta-grid">
+                  <article class="dashboard-meta-card">
+                    <span class="dashboard-meta-card__label">Деньги и прибыль</span>
+                    <span class="dashboard-meta-card__value" id="dashboardMetaCoverage">—</span>
+                    <p class="dashboard-meta-card__hint">
+                      Для этих модулей применяется единый фактический период расчета от 1 января до <code>snapshotDate</code>.
+                    </p>
+                  </article>
+                  <article class="dashboard-meta-card">
+                    <span class="dashboard-meta-card__label">Капитал</span>
+                    <span class="dashboard-meta-card__value" id="dashboardMetaCapital">—</span>
+                    <p class="dashboard-meta-card__hint">
+                      Карточки и диаграммы капитала используют последнюю доступную отчетную дату, не превышающую период пользователя.
+                    </p>
+                  </article>
+                  <article class="dashboard-meta-card">
+                    <span class="dashboard-meta-card__label">Статус расчетов</span>
+                    <span class="dashboard-meta-card__value" id="dashboardMetaStatus">—</span>
+                    <p class="dashboard-meta-card__hint">
+                      Если фактический период отличается от пользовательского, на странице появится предупреждение.
+                    </p>
+                  </article>
+                </div>
+              </div>
+
+              <section>
+                <div>
+                  <span class="dashboard-section__eyebrow">KPI-панель</span>
+                  <h3 class="dashboard-section__title">Ключевые показатели на дату среза и в YTD-периоде</h3>
+                </div>
+                <div class="dashboard-kpi-grid" id="dashboardKpiGrid"></div>
+              </section>
+
+              <section>
+                <div>
+                  <span class="dashboard-section__eyebrow">Диаграммы</span>
+                  <h3 class="dashboard-section__title">Динамика потоков, прибыли, капитала и оборачиваемости</h3>
+                </div>
+                <div class="dashboard-chart-grid">
+                  <article class="dashboard-chart-card dashboard-chart-card--full">
+                    <div class="dashboard-chart-card__header">
+                      <h4 class="dashboard-chart-card__title">Чистый денежный поток по месяцам</h4>
+                      <p class="dashboard-chart-card__text">
+                        В график включены только <code>Приход</code> и <code>Расход</code>, без операций
+                        <code>Остаток</code> и без раздела <code>5. Перемещение</code>.
+                      </p>
+                    </div>
+                    <div class="dashboard-svg-wrap" id="dashboardCashMonthlyChart"></div>
+                  </article>
+
+                  <article class="dashboard-chart-card">
+                    <div class="dashboard-chart-card__header">
+                      <h4 class="dashboard-chart-card__title">Чистый денежный поток по направлениям</h4>
+                      <p class="dashboard-chart-card__text">
+                        Накопленные столбцы по месяцам показывают, за счет каких направлений формируется итоговый поток.
+                      </p>
+                    </div>
+                    <div class="dashboard-chart-card__legend" id="dashboardCashDirectionLegend"></div>
+                    <div class="dashboard-svg-wrap" id="dashboardCashDirectionChart"></div>
+                  </article>
+
+                  <article class="dashboard-chart-card">
+                    <div class="dashboard-chart-card__header">
+                      <h4 class="dashboard-chart-card__title">Выручка и MR валовой прибыли</h4>
+                      <p class="dashboard-chart-card__text">
+                        Столбцы показывают выручку, линия — <code>MR</code> по валовой прибыли в процентах.
+                      </p>
+                    </div>
+                    <div class="dashboard-chart-card__legend">
+                      <span class="dashboard-legend-item"><span class="dashboard-legend-item__swatch" style="background:#00d9ff"></span>Выручка</span>
+                      <span class="dashboard-legend-item"><span class="dashboard-legend-item__swatch" style="background:#8f7cff"></span>MR валовой прибыли</span>
+                    </div>
+                    <div class="dashboard-svg-wrap" id="dashboardRevenueMrChart"></div>
+                  </article>
+
+                  <article class="dashboard-chart-card dashboard-chart-card--full">
+                    <div class="dashboard-chart-card__header">
+                      <h4 class="dashboard-chart-card__title">Валовая прибыль по направлениям</h4>
+                      <p class="dashboard-chart-card__text">
+                        Валовая прибыль определяется как <code>Выручка - (Себестоимость + Общепроизводственные)</code>.
+                      </p>
+                    </div>
+                    <div class="dashboard-chart-card__legend" id="dashboardGrossDirectionLegend"></div>
+                    <div class="dashboard-svg-wrap" id="dashboardGrossDirectionChart"></div>
+                  </article>
+
+                  <article class="dashboard-chart-card">
+                    <div class="dashboard-chart-card__header">
+                      <h4 class="dashboard-chart-card__title">Чистая прибыль и рентабельность по ЧП</h4>
+                      <p class="dashboard-chart-card__text">
+                        Столбцы показывают чистую прибыль, линия — рентабельность по чистой прибыли.
+                      </p>
+                    </div>
+                    <div class="dashboard-chart-card__legend">
+                      <span class="dashboard-legend-item"><span class="dashboard-legend-item__swatch" style="background:#2dd4bf"></span>Чистая прибыль</span>
+                      <span class="dashboard-legend-item"><span class="dashboard-legend-item__swatch" style="background:#ffb85c"></span>Рентабельность по ЧП</span>
+                    </div>
+                    <div class="dashboard-svg-wrap" id="dashboardNetMarginChart"></div>
+                  </article>
+
+                  <article class="dashboard-chart-card">
+                    <div class="dashboard-chart-card__header">
+                      <h4 class="dashboard-chart-card__title">Динамика дебиторской задолженности</h4>
+                      <p class="dashboard-chart-card__text">
+                        Отражаются только отчетные даты, которые фактически присутствуют в данных листа <code>Капитал</code>.
+                      </p>
+                    </div>
+                    <div class="dashboard-svg-wrap" id="dashboardReceivablesChart"></div>
+                  </article>
+
+                  <article class="dashboard-chart-card">
+                    <div class="dashboard-chart-card__header">
+                      <h4 class="dashboard-chart-card__title">Динамика кредиторской задолженности</h4>
+                      <p class="dashboard-chart-card__text">
+                        Серия строится по значениям <code>Раздел 3 = Кредиторская задолженность</code> на отчетные даты.
+                      </p>
+                    </div>
+                    <div class="dashboard-svg-wrap" id="dashboardPayablesChart"></div>
+                  </article>
+
+                  <article class="dashboard-chart-card">
+                    <div class="dashboard-chart-card__header">
+                      <h4 class="dashboard-chart-card__title">Заемный и собственный капитал</h4>
+                      <p class="dashboard-chart-card__text">
+                        Диаграмма накопления показывает структуру <code>Капитал + Обязательства = 100%</code>.
+                      </p>
+                    </div>
+                    <div class="dashboard-svg-wrap" id="dashboardFundingMixChart"></div>
+                  </article>
+
+                  <article class="dashboard-chart-card dashboard-chart-card--full">
+                    <div class="dashboard-chart-card__header">
+                      <h4 class="dashboard-chart-card__title">Коэффициент финансовой независимости</h4>
+                      <p class="dashboard-chart-card__text">
+                        Рассчитывается как <code>Капитал / Активы</code> на каждую доступную отчетную дату листа <code>Капитал</code>.
+                      </p>
+                    </div>
+                    <div class="dashboard-svg-wrap" id="dashboardIndependenceChart"></div>
+                  </article>
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="assets/xlsx.full.min.js"></script>
+    <script src="assets/js/gscore.js"></script>
+    <script src="assets/js/layout.js"></script>
+    <script>
+      (() => {
+        "use strict";
+
+        const dashboardCore = window.GSCore || {};
+        const dashboardPalette = [
+          "#00d9ff",
+          "#8f7cff",
+          "#2dd4bf",
+          "#ffb85c",
+          "#ff7a7a",
+          "#74e2b5",
+          "#4ea3ff",
+          "#d4a5ff"
+        ];
+
+        const dashboardRequiredColumns = {
+          money: ["Дата", "Сумма", "Вид операции", "Раздел ОДДС", "Направление"],
+          profit: ["Дата", "Сумма", "Раздел ОПиУ", "Направление", "Вид операции"],
+          capital: ["Дата", "Раздел 1", "Раздел 2", "Раздел 3", "Сумма"]
+        };
+
+        const dashboardState = {
+          moneyRows: [],
+          profitRows: [],
+          capitalRows: [],
+          sources: {
+            money: null,
+            profit: null,
+            capital: null
+          },
+          latestCapitalDate: null
+        };
+
+        const dashboardElements = {
+          startDate: document.getElementById("dashboardStartDate"),
+          endDate: document.getElementById("dashboardEndDate"),
+          applyButton: document.getElementById("dashboardApplyButton"),
+          presetYtdButton: document.getElementById("dashboardPresetYtdButton"),
+          presetLatestButton: document.getElementById("dashboardPresetLatestButton"),
+          reloadButton: document.getElementById("dashboardReloadButton"),
+          resetButton: document.getElementById("dashboardResetButton"),
+          scrollButton: document.getElementById("dashboardScrollButton"),
+          requestedPeriod: document.getElementById("dashboardRequestedPeriod"),
+          actualPeriod: document.getElementById("dashboardActualPeriod"),
+          snapshotDate: document.getElementById("dashboardSnapshotDate"),
+          sourceSummary: document.getElementById("dashboardSourceSummary"),
+          metaCoverage: document.getElementById("dashboardMetaCoverage"),
+          metaCapital: document.getElementById("dashboardMetaCapital"),
+          metaStatus: document.getElementById("dashboardMetaStatus"),
+          emptyState: document.getElementById("dashboardEmptyState"),
+          errorState: document.getElementById("dashboardErrorState"),
+          errorText: document.getElementById("dashboardErrorText"),
+          errorList: document.getElementById("dashboardErrorList"),
+          warningState: document.getElementById("dashboardWarningState"),
+          warningList: document.getElementById("dashboardWarningList"),
+          content: document.getElementById("dashboardContent"),
+          kpiGrid: document.getElementById("dashboardKpiGrid"),
+          cashMonthlyChart: document.getElementById("dashboardCashMonthlyChart"),
+          cashDirectionLegend: document.getElementById("dashboardCashDirectionLegend"),
+          cashDirectionChart: document.getElementById("dashboardCashDirectionChart"),
+          revenueMrChart: document.getElementById("dashboardRevenueMrChart"),
+          grossDirectionLegend: document.getElementById("dashboardGrossDirectionLegend"),
+          grossDirectionChart: document.getElementById("dashboardGrossDirectionChart"),
+          netMarginChart: document.getElementById("dashboardNetMarginChart"),
+          receivablesChart: document.getElementById("dashboardReceivablesChart"),
+          payablesChart: document.getElementById("dashboardPayablesChart"),
+          fundingMixChart: document.getElementById("dashboardFundingMixChart"),
+          independenceChart: document.getElementById("dashboardIndependenceChart")
+        };
+
+        dashboardInit().catch((error) => {
+          console.error("[dashboard] init failed", error);
+          dashboardLoadData();
+        });
+
+        async function dashboardInit() {
+          dashboardBindEvents();
+          await dashboardEnsureWorkbookData();
+          dashboardLoadData();
+        }
+
+        function dashboardBindEvents() {
+          if (dashboardElements.applyButton) {
+            dashboardElements.applyButton.addEventListener("click", dashboardRenderAll);
+          }
+
+          if (dashboardElements.presetYtdButton) {
+            dashboardElements.presetYtdButton.addEventListener("click", () => {
+              const endDate = dashboardState.latestCapitalDate || new Date();
+              dashboardSetPeriodInputs(new Date(endDate.getFullYear(), 0, 1), endDate);
+              dashboardRenderAll();
+            });
+          }
+
+          if (dashboardElements.presetLatestButton) {
+            dashboardElements.presetLatestButton.addEventListener("click", () => {
+              if (!dashboardState.latestCapitalDate) {
+                return;
+              }
+
+              dashboardSetPeriodInputs(
+                new Date(dashboardState.latestCapitalDate.getFullYear(), 0, 1),
+                dashboardState.latestCapitalDate
+              );
+              dashboardRenderAll();
+            });
+          }
+
+          if (dashboardElements.reloadButton) {
+            dashboardElements.reloadButton.addEventListener("click", async () => {
+              await dashboardEnsureWorkbookData(true);
+              dashboardLoadData();
+            });
+          }
+
+          if (dashboardElements.resetButton) {
+            dashboardElements.resetButton.addEventListener("click", () => {
+              dashboardInitializeDefaultPeriod();
+              dashboardRenderAll();
+            });
+          }
+
+          if (dashboardElements.scrollButton) {
+            dashboardElements.scrollButton.addEventListener("click", () => {
+              dashboardElements.kpiGrid.scrollIntoView({ behavior: "smooth", block: "start" });
+            });
+          }
+
+          if (dashboardElements.startDate) {
+            dashboardElements.startDate.addEventListener("change", dashboardRenderAll);
+          }
+
+          if (dashboardElements.endDate) {
+            dashboardElements.endDate.addEventListener("change", dashboardRenderAll);
+          }
+        }
+
+        async function dashboardEnsureWorkbookData(forceRefresh = false) {
+          if (!dashboardCore.loadWorkbookData) {
+            return;
+          }
+
+          try {
+            await dashboardCore.loadWorkbookData({ forceRefresh });
+          } catch (error) {
+            console.error("[dashboard] workbook loader failed", error);
+          }
+        }
+
+        function dashboardLoadData() {
+          const moneyResolved = dashboardResolveDataset(
+            "money",
+            [
+              { sourceName: "window.cashData", value: window.cashData },
+              { sourceName: "window.rangecash", value: window.rangecash },
+              { sourceName: "window.moneyData", value: window.moneyData },
+              { sourceName: "window.workbookData", value: window.workbookData }
+            ],
+            dashboardCore.CONFIG && dashboardCore.CONFIG.SHEETS ? dashboardCore.CONFIG.SHEETS.MONEY : "Деньги"
+          );
+
+          const profitResolved = dashboardResolveDataset(
+            "profit",
+            [
+              { sourceName: "window.profitData", value: window.profitData },
+              { sourceName: "window.rangeprofit", value: window.rangeprofit },
+              { sourceName: "window.workbookData", value: window.workbookData }
+            ],
+            dashboardCore.CONFIG && dashboardCore.CONFIG.SHEETS ? dashboardCore.CONFIG.SHEETS.PROFIT : "Прибыль"
+          );
+
+          const capitalResolved = dashboardResolveDataset(
+            "capital",
+            [
+              { sourceName: "window.capitalData", value: window.capitalData },
+              { sourceName: "window.rangeequity", value: window.rangeequity },
+              { sourceName: "window.workbookData", value: window.workbookData }
+            ],
+            dashboardCore.CONFIG && dashboardCore.CONFIG.SHEETS ? dashboardCore.CONFIG.SHEETS.CAPITAL : "Капитал"
+          );
+
+          dashboardState.sources.money = moneyResolved.sourceName;
+          dashboardState.sources.profit = profitResolved.sourceName;
+          dashboardState.sources.capital = capitalResolved.sourceName;
+
+          const availabilityCount = [moneyResolved.rows.length, profitResolved.rows.length, capitalResolved.rows.length]
+            .filter((count) => count > 0)
+            .length;
+
+          if (availabilityCount === 0) {
+            const loaderState = dashboardCore.getWorkbookLoadState ? dashboardCore.getWorkbookLoadState() : null;
+            if (loaderState && loaderState.error) {
+              dashboardShowErrorState(
+                "Не удалось загрузить Excel-источник по ссылке.",
+                [loaderState.error]
+              );
+              return;
+            }
+            dashboardShowEmptyState();
+            return;
+          }
+
+          const missingSources = [
+            !moneyResolved.rows.length ? "Источник «Деньги» не найден или не содержит валидных строк." : null,
+            !profitResolved.rows.length ? "Источник «Прибыль» не найден или не содержит валидных строк." : null,
+            !capitalResolved.rows.length ? "Источник «Капитал» не найден или не содержит валидных строк." : null
+          ].filter(Boolean);
+
+          if (missingSources.length > 0) {
+            dashboardShowErrorState(
+              "Для сводного дэшборда нужны все три источника: «Деньги», «Прибыль» и «Капитал».",
+              missingSources
+            );
+            return;
+          }
+
+          const validationErrors = [
+            ...dashboardValidateColumns("money", moneyResolved.headers),
+            ...dashboardValidateColumns("profit", profitResolved.headers),
+            ...dashboardValidateColumns("capital", capitalResolved.headers)
+          ];
+
+          if (validationErrors.length > 0) {
+            dashboardShowErrorState(
+              "В одном или нескольких источниках отсутствуют обязательные колонки для построения сводной страницы.",
+              validationErrors
+            );
+            return;
+          }
+
+          dashboardState.moneyRows = dashboardNormalizeMoneyRows(moneyResolved.rows);
+          dashboardState.profitRows = dashboardNormalizeProfitRows(profitResolved.rows);
+          dashboardState.capitalRows = dashboardNormalizeCapitalRows(capitalResolved.rows);
+          dashboardState.latestCapitalDate = dashboardGetLatestDate(dashboardState.capitalRows.map((row) => row.dashboardDate));
+
+          if (!dashboardState.latestCapitalDate) {
+            dashboardShowErrorState(
+              "В листе «Капитал» не найдено ни одной валидной отчетной даты. Главный дэшборд не может определить snapshotDate.",
+              []
+            );
+            return;
+          }
+
+          dashboardInitializeDefaultPeriod();
+          dashboardRenderAll();
+        }
+
+        function dashboardResolveDataset(moduleName, candidates, workbookSheetName) {
+          for (const candidate of candidates) {
+            const extracted = dashboardExtractRows(candidate.value, candidate.sourceName, workbookSheetName, moduleName);
+            if (extracted.rows.length > 0) {
+              return extracted;
+            }
+          }
+
+          return {
+            sourceName: null,
+            rows: [],
+            headers: []
+          };
+        }
+
+        function dashboardExtractRows(candidateValue, sourceName, workbookSheetName, moduleName) {
+          if (!candidateValue) {
+            return { sourceName, rows: [], headers: [] };
+          }
+
+          if (sourceName === "window.workbookData" && dashboardCore.readSheetAsObjects) {
+            const sheetRows = dashboardCore.readSheetAsObjects(candidateValue, workbookSheetName);
+            return {
+              sourceName,
+              rows: sheetRows,
+              headers: dashboardCollectHeaders(sheetRows)
+            };
+          }
+
+          if (Array.isArray(candidateValue)) {
+            return dashboardExtractRowsFromArray(candidateValue, sourceName);
+          }
+
+          if (typeof candidateValue === "object") {
+            const directKeys = {
+              money: ["rows", "data", "rangecash", "cashData", "moneyData"],
+              profit: ["rows", "data", "rangeprofit", "profitData"],
+              capital: ["rows", "data", "rangeequity", "capitalData"]
+            };
+
+            for (const key of directKeys[moduleName] || []) {
+              if (Array.isArray(candidateValue[key])) {
+                return dashboardExtractRowsFromArray(candidateValue[key], sourceName);
+              }
+            }
+          }
+
+          return { sourceName, rows: [], headers: [] };
+        }
+
+        function dashboardExtractRowsFromArray(value, sourceName) {
+          if (!Array.isArray(value) || value.length === 0) {
+            return { sourceName, rows: [], headers: [] };
+          }
+
+          if (Array.isArray(value[0])) {
+            const rows = dashboardConvertMatrixToObjects(value);
+            return {
+              sourceName,
+              rows,
+              headers: dashboardCollectHeaders(rows)
+            };
+          }
+
+          if (typeof value[0] === "object" && value[0] !== null) {
+            const rows = value.slice();
+            return {
+              sourceName,
+              rows,
+              headers: dashboardCollectHeaders(rows)
+            };
+          }
+
+          return { sourceName, rows: [], headers: [] };
+        }
+
+        function dashboardConvertMatrixToObjects(matrix) {
+          if (!Array.isArray(matrix) || matrix.length < 2) {
+            return [];
+          }
+
+          const headers = matrix[0].map((header) => String(header || "").trim());
+          const rows = [];
+
+          for (let rowIndex = 1; rowIndex < matrix.length; rowIndex += 1) {
+            const row = matrix[rowIndex];
+            if (!Array.isArray(row)) {
+              continue;
+            }
+
+            const objectRow = {};
+            let hasValue = false;
+
+            for (let columnIndex = 0; columnIndex < headers.length; columnIndex += 1) {
+              const header = headers[columnIndex];
+              if (!header) {
+                continue;
+              }
+
+              const value = row[columnIndex];
+              if (value !== null && typeof value !== "undefined" && String(value).trim() !== "") {
+                hasValue = true;
+              }
+              objectRow[header] = value;
+            }
+
+            if (hasValue) {
+              rows.push(objectRow);
+            }
+          }
+
+          return rows;
+        }
+
+        function dashboardCollectHeaders(rows) {
+          if (!Array.isArray(rows) || rows.length === 0) {
+            return [];
+          }
+
+          const headers = new Set();
+          rows.forEach((row) => {
+            if (row && typeof row === "object") {
+              Object.keys(row).forEach((key) => headers.add(key));
+            }
+          });
+          return Array.from(headers);
+        }
+
+        function dashboardValidateColumns(moduleName, headers) {
+          const missing = (dashboardRequiredColumns[moduleName] || []).filter((name) => !headers.includes(name));
+          return missing.map((columnName) => `Модуль «${dashboardModuleLabel(moduleName)}»: отсутствует колонка «${columnName}».`);
+        }
+
+        function dashboardModuleLabel(moduleName) {
+          if (moduleName === "money") {
+            return "Деньги";
+          }
+          if (moduleName === "profit") {
+            return "Прибыль";
+          }
+          if (moduleName === "capital") {
+            return "Капитал";
+          }
+          return moduleName;
+        }
+
+        function dashboardNormalizeMoneyRows(rows) {
+          return rows
+            .map((row, index) => {
+              const operation = dashboardNormalizeText(row["Вид операции"]);
+              const rawAmount = dashboardToNumber(row["Сумма"]);
+              let amount = rawAmount;
+
+              if (dashboardIsExpenseOperation(operation)) {
+                amount = -Math.abs(rawAmount);
+              } else if (dashboardIsIncomeOperation(operation)) {
+                amount = Math.abs(rawAmount);
+              } else if (dashboardIsBalanceOperation(operation)) {
+                amount = Math.abs(rawAmount);
+              }
+
+              return {
+                dashboardIndex: index,
+                dashboardDate: dashboardParseDate(row["Дата"]),
+                dashboardDirection: dashboardNormalizeText(row["Направление"]),
+                dashboardOperation: operation,
+                dashboardSection: dashboardNormalizeText(row["Раздел ОДДС"]),
+                dashboardAccount: dashboardNormalizeText(row["Счет"]),
+                dashboardAmount: amount,
+                dashboardRaw: row
+              };
+            })
+            .filter((row) => row.dashboardDate instanceof Date);
+        }
+
+        function dashboardNormalizeProfitRows(rows) {
+          return rows
+            .map((row, index) => {
+              const operation = dashboardNormalizeText(row["Вид операции"]);
+              const rawAmount = dashboardToNumber(row["Сумма"]);
+              let amount = rawAmount;
+
+              if (dashboardIsExpenseOperation(operation)) {
+                amount = -Math.abs(rawAmount);
+              } else if (dashboardIsIncomeOperation(operation)) {
+                amount = Math.abs(rawAmount);
+              }
+
+              return {
+                dashboardIndex: index,
+                dashboardDate: dashboardParseDate(row["Дата"]),
+                dashboardDirection: dashboardNormalizeText(row["Направление"]),
+                dashboardOperation: operation,
+                dashboardSection: dashboardNormalizeText(row["Раздел ОПиУ"]),
+                dashboardProject: dashboardNormalizeText(row["Наименование проекта"]),
+                dashboardAmount: amount,
+                dashboardRaw: row
+              };
+            })
+            .filter((row) => row.dashboardDate instanceof Date);
+        }
+
+        function dashboardNormalizeCapitalRows(rows) {
+          return rows
+            .map((row, index) => ({
+              dashboardIndex: index,
+              dashboardDate: dashboardParseDate(row["Дата"]),
+              dashboardSection1: dashboardNormalizeText(row["Раздел 1"]),
+              dashboardSection2: dashboardNormalizeText(row["Раздел 2"]),
+              dashboardSection3: dashboardNormalizeText(row["Раздел 3"]),
+              dashboardSection4: dashboardNormalizeText(row["Раздел 4"]),
+              dashboardAmount: dashboardToNumber(row["Сумма"]),
+              dashboardRaw: row
+            }))
+            .filter((row) => row.dashboardDate instanceof Date);
+        }
+
+        function dashboardInitializeDefaultPeriod() {
+          if (!dashboardState.latestCapitalDate) {
+            return;
+          }
+
+          const endDate = new Date(dashboardState.latestCapitalDate.getTime());
+          const startDate = new Date(endDate.getFullYear(), 0, 1);
+          dashboardSetPeriodInputs(startDate, endDate);
+        }
+
+        function dashboardSetPeriodInputs(startDate, endDate) {
+          if (dashboardElements.startDate) {
+            dashboardElements.startDate.value = dashboardFormatInputDate(startDate);
+          }
+          if (dashboardElements.endDate) {
+            dashboardElements.endDate.value = dashboardFormatInputDate(endDate);
+          }
+        }
+
+        function dashboardRenderAll() {
+          const model = dashboardBuildModel();
+
+          if (model.state === "empty") {
+            dashboardShowEmptyState();
+            return;
+          }
+
+          if (model.state === "error") {
+            dashboardShowErrorState(model.message, model.errors);
+            return;
+          }
+
+          dashboardShowContentState(model.warnings);
+          dashboardRenderSummary(model);
+          dashboardRenderKpis(model.kpis);
+          dashboardRenderCharts(model.charts);
+        }
+
+        function dashboardBuildModel() {
+          const period = dashboardReadRequestedPeriod();
+          if (!period.valid) {
+            return {
+              state: "error",
+              message: period.message,
+              errors: []
+            };
+          }
+
+          if (!dashboardState.moneyRows.length || !dashboardState.profitRows.length || !dashboardState.capitalRows.length) {
+            return {
+              state: "error",
+              message: "Для сводного дэшборда нужны данные всех трех листов: «Деньги», «Прибыль» и «Капитал».",
+              errors: [
+                !dashboardState.moneyRows.length ? "Источник «Деньги» не найден или не содержит валидных строк." : null,
+                !dashboardState.profitRows.length ? "Источник «Прибыль» не найден или не содержит валидных строк." : null,
+                !dashboardState.capitalRows.length ? "Источник «Капитал» не найден или не содержит валидных строк." : null
+              ].filter(Boolean)
+            };
+          }
+
+          const snapshotDate = dashboardFindLatestCapitalDateOnOrBefore(period.endDate);
+          if (!snapshotDate) {
+            return {
+              state: "error",
+              message: "Не найдена отчетная дата листа «Капитал», которая была бы не позже выбранной даты окончания периода.",
+              errors: []
+            };
+          }
+
+          const actualStartDate = new Date(snapshotDate.getFullYear(), 0, 1, 0, 0, 0, 0);
+          const actualEndDate = dashboardEndOfDay(snapshotDate);
+          const warnings = [];
+
+          if (dashboardDateKey(actualStartDate) !== dashboardDateKey(period.startDate) || dashboardDateKey(actualEndDate) !== dashboardDateKey(period.endDate)) {
+            warnings.push(
+              `Фактический расчетный период отличается от периода пользователя. Запрошено: ${dashboardFormatDateRange(period.startDate, period.endDate)}. Использовано: ${dashboardFormatDateRange(actualStartDate, actualEndDate)}.`
+            );
+          }
+
+          if (period.endDate.getTime() > actualEndDate.getTime()) {
+            warnings.push(
+              `Данные капитала доступны только по ${dashboardFormatDate(snapshotDate)}. Более поздний пользовательский конец периода не покрыт исходными данными.`
+            );
+          }
+
+          const moneyPeriodRows = dashboardFilterRowsByPeriod(dashboardState.moneyRows, actualStartDate, actualEndDate);
+          const profitPeriodRows = dashboardFilterRowsByPeriod(dashboardState.profitRows, actualStartDate, actualEndDate);
+          const capitalSeriesRows = dashboardFilterRowsByPeriod(dashboardState.capitalRows, actualStartDate, actualEndDate);
+          const capitalSnapshotRows = capitalSeriesRows.filter((row) => dashboardDateKey(row.dashboardDate) === dashboardDateKey(snapshotDate));
+
+          const startCapitalSnapshot = dashboardFindCapitalSnapshotOnOrBefore(actualStartDate);
+          if (!startCapitalSnapshot) {
+            warnings.push("Для показателей ROE и оборачиваемости не найден стартовый срез капитала на 1 января или ранее. Эти KPI будут помечены как ограниченные.");
+          } else if (dashboardDateKey(startCapitalSnapshot.date) !== dashboardDateKey(actualStartDate)) {
+            warnings.push(
+              `Для стартовой базы капитала использована ближайшая предыдущая дата ${dashboardFormatDate(startCapitalSnapshot.date)}, потому что точного среза на 1 января нет.`
+            );
+          }
+
+          const cashMetrics = dashboardBuildCashMetrics(moneyPeriodRows, actualStartDate, actualEndDate, warnings);
+          const profitMetrics = dashboardBuildProfitMetrics(profitPeriodRows);
+          const capitalMetrics = dashboardBuildCapitalMetrics(capitalSnapshotRows, capitalSeriesRows);
+          const turnoverMetrics = dashboardBuildTurnoverMetrics(
+            profitPeriodRows,
+            capitalSnapshotRows,
+            startCapitalSnapshot,
+            snapshotDate,
+            actualStartDate,
+            actualEndDate
+          );
+
+          const kpis = dashboardBuildKpis({
+            cashMetrics,
+            profitMetrics,
+            capitalMetrics,
+            turnoverMetrics
+          });
+
+          const charts = dashboardBuildCharts({
+            cashMetrics,
+            profitMetrics,
+            capitalMetrics
+          });
+
+          return {
+            state: "ready",
+            requestedPeriod: period,
+            actualPeriod: {
+              startDate: actualStartDate,
+              endDate: actualEndDate
+            },
+            snapshotDate,
+            warnings,
+            kpis,
+            charts,
+            meta: {
+              startCapitalSnapshot,
+              rows: {
+                money: moneyPeriodRows.length,
+                profit: profitPeriodRows.length,
+                capital: capitalSeriesRows.length
+              }
+            }
+          };
+        }
+
+        function dashboardReadRequestedPeriod() {
+          const startDate = dashboardStartOfDay(dashboardParseDate(dashboardElements.startDate ? dashboardElements.startDate.value : ""));
+          const endDate = dashboardEndOfDay(dashboardParseDate(dashboardElements.endDate ? dashboardElements.endDate.value : ""));
+
+          if (!(startDate instanceof Date) || !(endDate instanceof Date)) {
+            return {
+              valid: false,
+              message: "Укажите обе даты периода в корректном формате."
+            };
+          }
+
+          if (startDate.getTime() > endDate.getTime()) {
+            return {
+              valid: false,
+              message: "Дата начала периода не может быть позже даты окончания."
+            };
+          }
+
+          return {
+            valid: true,
+            startDate,
+            endDate
+          };
+        }
+
+        function dashboardBuildCashMetrics(rows, startDate, endDate, warnings) {
+          const filteredRows = rows.filter((row) => !dashboardIsBalanceOperation(row.dashboardOperation) && !dashboardIsTransferSection(row.dashboardSection));
+          const operatingExpenseRows = filteredRows.filter(
+            (row) => dashboardIsExpenseOperation(row.dashboardOperation) && dashboardIsOperatingSection(row.dashboardSection)
+          );
+          const daysInPeriod = dashboardCountDaysInclusive(startDate, endDate);
+          const netCashFlow = filteredRows.reduce((sum, row) => sum + row.dashboardAmount, 0);
+          const expenseAbs = operatingExpenseRows.reduce((sum, row) => sum + Math.abs(row.dashboardAmount), 0);
+
+          if (filteredRows.length === 0) {
+            warnings.push("В расчетном периоде не найдено ни одной строки ДДС после исключения «Остаток» и «5. Перемещение».");
+          }
+
+          if (operatingExpenseRows.length === 0) {
+            warnings.push("Для расчета Cash Buffer не найдены расходы по основной деятельности в колонке «Раздел ОДДС». Показатель принят равным 0.");
+          }
+
+          const averageDailyExpense = daysInPeriod > 0 ? expenseAbs / daysInPeriod : 0;
+          const cashBufferDays = averageDailyExpense === 0 ? 0 : netCashFlow / averageDailyExpense;
+
+          const monthlyNet = dashboardBuildMonthlySeries(startDate, endDate, filteredRows, (row) => row.dashboardAmount);
+          const monthlyByDirection = dashboardBuildMonthlyDirectionSeries(startDate, endDate, filteredRows, (row) => row.dashboardAmount);
+
+          return {
+            netCashFlow,
+            cashBufferDays,
+            averageDailyExpense,
+            daysInPeriod,
+            monthlyNet,
+            monthlyByDirection
+          };
+        }
+
+        function dashboardBuildProfitMetrics(rows) {
+          const summary = {
+            revenue: 0,
+            cost: 0,
+            overhead: 0,
+            commercial: 0,
+            admin: 0,
+            belowIncome: 0,
+            belowExpense: 0
+          };
+
+          rows.forEach((row) => {
+            const sectionType = dashboardMapProfitSection(row.dashboardSection);
+            if (sectionType && Object.prototype.hasOwnProperty.call(summary, sectionType)) {
+              summary[sectionType] += row.dashboardAmount;
+            }
+          });
+
+          const grossProfit = summary.revenue + summary.cost + summary.overhead;
+          const netProfit =
+            summary.revenue +
+            summary.cost +
+            summary.overhead +
+            summary.commercial +
+            summary.admin +
+            summary.belowIncome +
+            summary.belowExpense;
+
+          const grossMargin = summary.revenue === 0 ? 0 : grossProfit / summary.revenue;
+          const netMargin = summary.revenue === 0 ? 0 : netProfit / summary.revenue;
+
+          const monthlyRevenueMargin = dashboardBuildMonthlySeries(
+            dashboardGetSeriesStart(rows),
+            dashboardGetSeriesEnd(rows),
+            rows,
+            null,
+            (bucket) => {
+              const revenue = bucket.rows
+                .filter((row) => dashboardMapProfitSection(row.dashboardSection) === "revenue")
+                .reduce((sum, row) => sum + row.dashboardAmount, 0);
+              const grossProfitValue = bucket.rows
+                .filter((row) => ["revenue", "cost", "overhead"].includes(dashboardMapProfitSection(row.dashboardSection)))
+                .reduce((sum, row) => sum + row.dashboardAmount, 0);
+
+              return {
+                revenue,
+                grossMargin: revenue === 0 ? 0 : grossProfitValue / revenue
+              };
+            }
+          );
+
+          const monthlyNetMargin = dashboardBuildMonthlySeries(
+            dashboardGetSeriesStart(rows),
+            dashboardGetSeriesEnd(rows),
+            rows,
+            null,
+            (bucket) => {
+              const revenue = bucket.rows
+                .filter((row) => dashboardMapProfitSection(row.dashboardSection) === "revenue")
+                .reduce((sum, row) => sum + row.dashboardAmount, 0);
+              const netProfitValue = bucket.rows
+                .filter((row) =>
+                  [
+                    "revenue",
+                    "cost",
+                    "overhead",
+                    "commercial",
+                    "admin",
+                    "belowIncome",
+                    "belowExpense"
+                  ].includes(dashboardMapProfitSection(row.dashboardSection))
+                )
+                .reduce((sum, row) => sum + row.dashboardAmount, 0);
+
+              return {
+                netProfit: netProfitValue,
+                netMargin: revenue === 0 ? 0 : netProfitValue / revenue
+              };
+            }
+          );
+
+          const grossByDirection = dashboardBuildMonthlyDirectionSeries(
+            dashboardGetSeriesStart(rows),
+            dashboardGetSeriesEnd(rows),
+            rows.filter((row) => ["revenue", "cost", "overhead"].includes(dashboardMapProfitSection(row.dashboardSection))),
+            (row) => row.dashboardAmount
+          );
+
+          return {
+            ...summary,
+            grossProfit,
+            netProfit,
+            grossMargin,
+            netMargin,
+            monthlyRevenueMargin,
+            monthlyNetMargin,
+            grossByDirection
+          };
+        }
+
+        function dashboardBuildCapitalMetrics(snapshotRows, seriesRows) {
+          const equity = snapshotRows
+            .filter((row) => dashboardTextMatches(row.dashboardSection2, "капитал"))
+            .reduce((sum, row) => sum + row.dashboardAmount, 0);
+
+          const workingAssets = snapshotRows
+            .filter((row) => dashboardTextMatches(row.dashboardSection2, "оборотные активы"))
+            .reduce((sum, row) => sum + row.dashboardAmount, 0);
+
+          const shortLiabilities = snapshotRows
+            .filter((row) => dashboardTextMatches(row.dashboardSection3, "краткосрочные обязательства"))
+            .reduce((sum, row) => sum + row.dashboardAmount, 0);
+
+          const assets = snapshotRows
+            .filter((row) => dashboardTextMatches(row.dashboardSection1, "активы"))
+            .reduce((sum, row) => sum + row.dashboardAmount, 0);
+
+          const currentLiquidity = shortLiabilities === 0 ? null : workingAssets / shortLiabilities;
+          const financialIndependence = assets === 0 ? null : equity / assets;
+
+          const capitalTimeline = dashboardGroupCapitalByDate(seriesRows);
+          const receivablesTimeline = capitalTimeline.map((point) => ({
+            label: dashboardFormatDate(point.date),
+            value: point.receivables,
+            rawDate: point.date
+          }));
+          const payablesTimeline = capitalTimeline.map((point) => ({
+            label: dashboardFormatDate(point.date),
+            value: point.payables,
+            rawDate: point.date
+          }));
+          const fundingTimeline = capitalTimeline.map((point) => ({
+            label: dashboardFormatDate(point.date),
+            equity: point.equity,
+            liabilities: point.liabilities,
+            rawDate: point.date
+          }));
+          const independenceTimeline = capitalTimeline.map((point) => ({
+            label: dashboardFormatDate(point.date),
+            value: point.assets === 0 ? 0 : point.equity / point.assets,
+            rawDate: point.date
+          }));
+
+          return {
+            equity,
+            workingAssets,
+            shortLiabilities,
+            assets,
+            currentLiquidity,
+            financialIndependence,
+            receivablesTimeline,
+            payablesTimeline,
+            fundingTimeline,
+            independenceTimeline
+          };
+        }
+
+        function dashboardBuildTurnoverMetrics(profitRows, capitalSnapshotRows, startCapitalSnapshot, snapshotDate, startDate, endDate) {
+          const revenue = profitRows
+            .filter((row) => dashboardMapProfitSection(row.dashboardSection) === "revenue")
+            .reduce((sum, row) => sum + row.dashboardAmount, 0);
+          const cost = Math.abs(
+            profitRows
+              .filter((row) => dashboardMapProfitSection(row.dashboardSection) === "cost")
+              .reduce((sum, row) => sum + row.dashboardAmount, 0)
+          );
+          const endEquity = capitalSnapshotRows
+            .filter((row) => dashboardTextMatches(row.dashboardSection2, "капитал"))
+            .reduce((sum, row) => sum + row.dashboardAmount, 0);
+          const endReceivables = capitalSnapshotRows
+            .filter((row) => dashboardTextMatches(row.dashboardSection3, "дебиторская задолженность"))
+            .reduce((sum, row) => sum + row.dashboardAmount, 0);
+          const endPayables = capitalSnapshotRows
+            .filter((row) => dashboardTextMatches(row.dashboardSection3, "кредиторская задолженность"))
+            .reduce((sum, row) => sum + row.dashboardAmount, 0);
+
+          let startEquity = 0;
+          let startReceivables = 0;
+          let startPayables = 0;
+          let startSnapshotDate = null;
+
+          if (startCapitalSnapshot) {
+            startSnapshotDate = startCapitalSnapshot.date;
+            startEquity = startCapitalSnapshot.rows
+              .filter((row) => dashboardTextMatches(row.dashboardSection2, "капитал"))
+              .reduce((sum, row) => sum + row.dashboardAmount, 0);
+            startReceivables = startCapitalSnapshot.rows
+              .filter((row) => dashboardTextMatches(row.dashboardSection3, "дебиторская задолженность"))
+              .reduce((sum, row) => sum + row.dashboardAmount, 0);
+            startPayables = startCapitalSnapshot.rows
+              .filter((row) => dashboardTextMatches(row.dashboardSection3, "кредиторская задолженность"))
+              .reduce((sum, row) => sum + row.dashboardAmount, 0);
+          }
+
+          const averageEquity = (startEquity + endEquity) / 2;
+          const averageReceivables = (startReceivables + endReceivables) / 2;
+          const averagePayables = (startPayables + endPayables) / 2;
+          const days = dashboardCountDaysInclusive(startDate, endDate);
+
+          const roeRatio = averageEquity === 0 ? 0 : profitRows
+            .filter((row) =>
+              [
+                "revenue",
+                "cost",
+                "overhead",
+                "commercial",
+                "admin",
+                "belowIncome",
+                "belowExpense"
+              ].includes(dashboardMapProfitSection(row.dashboardSection))
+            )
+            .reduce((sum, row) => sum + row.dashboardAmount, 0) / averageEquity;
+
+          const receivablesTurns = averageReceivables === 0 || revenue === 0 ? 0 : revenue / averageReceivables;
+          const receivablesDays = receivablesTurns === 0 ? 0 : days / receivablesTurns;
+          const payablesTurns = averagePayables === 0 || cost === 0 ? 0 : cost / averagePayables;
+          const payablesDays = payablesTurns === 0 ? 0 : days / payablesTurns;
+
+          return {
+            roeRatio,
+            roePercent: roeRatio * 100,
+            startSnapshotDate,
+            endSnapshotDate: snapshotDate,
+            receivablesTurns,
+            receivablesDays,
+            payablesTurns,
+            payablesDays
+          };
+        }
+
+        function dashboardBuildKpis(payload) {
+          const { cashMetrics, profitMetrics, capitalMetrics, turnoverMetrics } = payload;
+
+          return [
+            {
+              label: "Чистый денежный поток",
+              value: dashboardFormatCurrencyCompact(cashMetrics.netCashFlow),
+              hint: "Все приходы и расходы без «Остаток» и без раздела «5. Перемещение».",
+              deltaLabel: cashMetrics.netCashFlow >= 0 ? "Положительный поток" : "Отрицательный поток",
+              deltaType: cashMetrics.netCashFlow >= 0 ? "positive" : "negative"
+            },
+            {
+              label: "Cash Buffer",
+              value: `${dashboardFormatNumber(cashMetrics.cashBufferDays, 1)} дн.`,
+              hint: `Среднедневной расход по основной деятельности: ${dashboardFormatCurrencyCompact(cashMetrics.averageDailyExpense)}.`,
+              deltaLabel: `${cashMetrics.daysInPeriod} календарных дней в периоде`,
+              deltaType: cashMetrics.cashBufferDays >= 0 ? "positive" : "negative"
+            },
+            {
+              label: "Коэффициент текущей ликвидности",
+              value: capitalMetrics.currentLiquidity === null ? "Ошибка" : dashboardFormatNumber(capitalMetrics.currentLiquidity, 2),
+              hint: capitalMetrics.currentLiquidity === null
+                ? "Не удалось разделить оборотные активы на краткосрочные обязательства."
+                : "Норма 1,5–2.",
+              deltaLabel: capitalMetrics.currentLiquidity === null
+                ? "Нет знаменателя"
+                : capitalMetrics.currentLiquidity >= 1.5 && capitalMetrics.currentLiquidity <= 2
+                  ? "В диапазоне нормы"
+                  : "Вне диапазона нормы",
+              deltaType: capitalMetrics.currentLiquidity === null
+                ? "warning"
+                : capitalMetrics.currentLiquidity >= 1.5 && capitalMetrics.currentLiquidity <= 2
+                  ? "positive"
+                  : "negative"
+            },
+            {
+              label: "Чистая прибыль",
+              value: dashboardFormatCurrencyCompact(profitMetrics.netProfit),
+              hint: "Формула учитывает разделы 1–7 ОПиУ с их знаками.",
+              deltaLabel: profitMetrics.netProfit >= 0 ? "Прибыль" : "Убыток",
+              deltaType: profitMetrics.netProfit >= 0 ? "positive" : "negative"
+            },
+            {
+              label: "Рентабельность по ЧП",
+              value: dashboardFormatPercent(profitMetrics.netMargin),
+              hint: "Чистая прибыль / Выручка.",
+              deltaLabel: profitMetrics.netMargin >= 0 ? "Положительная" : "Отрицательная",
+              deltaType: profitMetrics.netMargin >= 0 ? "positive" : "negative"
+            },
+            {
+              label: "MR по валовой прибыли",
+              value: dashboardFormatPercent(profitMetrics.grossMargin),
+              hint: "Выручка - (Себестоимость + Общепроизводственные) / Выручка.",
+              deltaLabel: dashboardFormatCurrencyCompact(profitMetrics.grossProfit),
+              deltaType: profitMetrics.grossProfit >= 0 ? "positive" : "negative"
+            },
+            {
+              label: "Собственный капитал",
+              value: dashboardFormatCurrencyCompact(capitalMetrics.equity),
+              hint: "Сумма строк, где Раздел 2 = «Капитал».",
+              deltaLabel: capitalMetrics.financialIndependence === null
+                ? "Доля не рассчитана"
+                : `Доля в активах: ${dashboardFormatPercent(capitalMetrics.financialIndependence)}`,
+              deltaType: capitalMetrics.equity >= 0 ? "positive" : "neutral"
+            },
+            {
+              label: "ROE",
+              value: dashboardFormatPercent(turnoverMetrics.roeRatio),
+              hint: dashboardBuildRoeHint(turnoverMetrics),
+              deltaLabel: `Доля: ${dashboardFormatNumber(turnoverMetrics.roeRatio, 2)}`,
+              deltaType: turnoverMetrics.roeRatio >= 0 ? "positive" : "negative"
+            },
+            {
+              label: "Оборачиваемость ДЗ",
+              value: `${dashboardFormatNumber(turnoverMetrics.receivablesDays, 1)} дн.`,
+              hint: turnoverMetrics.startSnapshotDate
+                ? `Старт: ${dashboardFormatDate(turnoverMetrics.startSnapshotDate)}. Конец: ${dashboardFormatDate(turnoverMetrics.endSnapshotDate)}.`
+                : "Нет стартового среза капитала для корректной базы.",
+              deltaLabel: `${dashboardFormatNumber(turnoverMetrics.receivablesTurns, 2)}x`,
+              deltaType: turnoverMetrics.receivablesTurns > 0 ? "positive" : "warning"
+            },
+            {
+              label: "Оборачиваемость КЗ",
+              value: `${dashboardFormatNumber(turnoverMetrics.payablesDays, 1)} дн.`,
+              hint: turnoverMetrics.startSnapshotDate
+                ? `Старт: ${dashboardFormatDate(turnoverMetrics.startSnapshotDate)}. Конец: ${dashboardFormatDate(turnoverMetrics.endSnapshotDate)}.`
+                : "Нет стартового среза капитала для корректной базы.",
+              deltaLabel: `${dashboardFormatNumber(turnoverMetrics.payablesTurns, 2)}x`,
+              deltaType: turnoverMetrics.payablesTurns > 0 ? "positive" : "warning"
+            }
+          ];
+        }
+
+        function dashboardBuildRoeHint(turnoverMetrics) {
+          if (!turnoverMetrics.startSnapshotDate) {
+            return "Стартовый срез капитала отсутствует. ROE рассчитан с нулевой стартовой базой.";
+          }
+
+          return `Период капитала: ${dashboardFormatDate(turnoverMetrics.startSnapshotDate)} → ${dashboardFormatDate(turnoverMetrics.endSnapshotDate)}.`;
+        }
+
+        function dashboardBuildCharts(payload) {
+          const { cashMetrics, profitMetrics, capitalMetrics } = payload;
+
+          return {
+            cashMonthly: cashMetrics.monthlyNet.map((item) => ({
+              label: item.label,
+              value: item.value
+            })),
+            cashDirection: cashMetrics.monthlyByDirection,
+            revenueMr: profitMetrics.monthlyRevenueMargin.map((item) => ({
+              label: item.label,
+              barValue: item.revenue,
+              lineValue: item.grossMargin
+            })),
+            grossDirection: profitMetrics.grossByDirection,
+            netMargin: profitMetrics.monthlyNetMargin.map((item) => ({
+              label: item.label,
+              barValue: item.netProfit,
+              lineValue: item.netMargin
+            })),
+            receivables: capitalMetrics.receivablesTimeline,
+            payables: capitalMetrics.payablesTimeline,
+            fundingMix: capitalMetrics.fundingTimeline,
+            independence: capitalMetrics.independenceTimeline
+          };
+        }
+
+        function dashboardRenderSummary(model) {
+          dashboardElements.snapshotDate.textContent = dashboardFormatDate(model.snapshotDate);
+          dashboardElements.requestedPeriod.textContent = dashboardFormatDateRange(
+            model.requestedPeriod.startDate,
+            model.requestedPeriod.endDate
+          );
+          dashboardElements.actualPeriod.textContent = dashboardFormatDateRange(
+            model.actualPeriod.startDate,
+            model.actualPeriod.endDate
+          );
+
+          const sourceTokens = [
+            dashboardState.sources.money ? `Деньги: ${dashboardState.sources.money}` : "Деньги: не найдено",
+            dashboardState.sources.profit ? `Прибыль: ${dashboardState.sources.profit}` : "Прибыль: не найдено",
+            dashboardState.sources.capital ? `Капитал: ${dashboardState.sources.capital}` : "Капитал: не найдено"
+          ];
+          dashboardElements.sourceSummary.textContent = sourceTokens.join(" • ");
+          dashboardElements.metaCoverage.textContent = dashboardFormatDateRange(
+            model.actualPeriod.startDate,
+            model.actualPeriod.endDate
+          );
+          dashboardElements.metaCapital.textContent = `Срез на ${dashboardFormatDate(model.snapshotDate)}`;
+          dashboardElements.metaStatus.textContent = model.warnings.length > 0 ? `Есть ${model.warnings.length} предупрежд.` : "Расчет без замечаний";
+        }
+
+        function dashboardRenderKpis(kpis) {
+          dashboardElements.kpiGrid.innerHTML = kpis
+            .map(
+              (kpi) => `
+                <article class="dashboard-kpi-card">
+                  <span class="dashboard-kpi-card__label">${dashboardEscapeHtml(kpi.label)}</span>
+                  <div class="dashboard-kpi-card__value">${dashboardEscapeHtml(kpi.value)}</div>
+                  <span class="dashboard-kpi-card__delta dashboard-kpi-card__delta--${dashboardEscapeAttribute(kpi.deltaType)}">
+                    ${dashboardEscapeHtml(kpi.deltaLabel)}
+                  </span>
+                  <p class="dashboard-kpi-card__hint">${dashboardEscapeHtml(kpi.hint)}</p>
+                </article>
+              `
+            )
+            .join("");
+        }
+
+        function dashboardRenderCharts(charts) {
+          dashboardElements.cashMonthlyChart.innerHTML = dashboardRenderLineChart(charts.cashMonthly, {
+            ariaLabel: "Чистый денежный поток по месяцам",
+            color: "#00d9ff",
+            fillColor: "rgba(0, 217, 255, 0.14)",
+            valueFormatter: dashboardFormatAxisMoney
+          });
+
+          dashboardRenderLegend(dashboardElements.cashDirectionLegend, charts.cashDirection.seriesKeys);
+          dashboardElements.cashDirectionChart.innerHTML = dashboardRenderStackedBarChart(charts.cashDirection, {
+            ariaLabel: "Чистый денежный поток по направлениям",
+            valueFormatter: dashboardFormatAxisMoney
+          });
+
+          dashboardElements.revenueMrChart.innerHTML = dashboardRenderComboChart(charts.revenueMr, {
+            ariaLabel: "Выручка и MR валовой прибыли",
+            barColor: "#00d9ff",
+            lineColor: "#8f7cff"
+          });
+
+          dashboardRenderLegend(dashboardElements.grossDirectionLegend, charts.grossDirection.seriesKeys);
+          dashboardElements.grossDirectionChart.innerHTML = dashboardRenderStackedBarChart(charts.grossDirection, {
+            ariaLabel: "Валовая прибыль по направлениям",
+            valueFormatter: dashboardFormatAxisMoney
+          });
+
+          dashboardElements.netMarginChart.innerHTML = dashboardRenderComboChart(charts.netMargin, {
+            ariaLabel: "Чистая прибыль и рентабельность по ЧП",
+            barColor: "#2dd4bf",
+            lineColor: "#ffb85c"
+          });
+
+          dashboardElements.receivablesChart.innerHTML = dashboardRenderBarChart(charts.receivables, {
+            ariaLabel: "Динамика дебиторской задолженности",
+            color: "#4ea3ff",
+            valueFormatter: dashboardFormatAxisMoney,
+            showLabels: true
+          });
+
+          dashboardElements.payablesChart.innerHTML = dashboardRenderBarChart(charts.payables, {
+            ariaLabel: "Динамика кредиторской задолженности",
+            color: "#ff7a7a",
+            valueFormatter: dashboardFormatAxisMoney,
+            showLabels: true
+          });
+
+          dashboardElements.fundingMixChart.innerHTML = dashboardRenderFundingMixChart(charts.fundingMix);
+          dashboardElements.independenceChart.innerHTML = dashboardRenderLineChart(charts.independence, {
+            ariaLabel: "Коэффициент финансовой независимости",
+            color: "#74e2b5",
+            fillColor: "rgba(116, 226, 181, 0.12)",
+            valueFormatter: dashboardFormatAxisPercent,
+            percentScale: true
+          });
+        }
+
+        function dashboardRenderLegend(container, seriesKeys) {
+          if (!container) {
+            return;
+          }
+
+          const keys = Array.isArray(seriesKeys) ? seriesKeys : [];
+          if (keys.length === 0) {
+            container.innerHTML = "";
+            return;
+          }
+
+          container.innerHTML = keys
+            .map(
+              (key, index) => `
+                <span class="dashboard-legend-item">
+                  <span class="dashboard-legend-item__swatch" style="background:${dashboardColorForIndex(index)}"></span>
+                  ${dashboardEscapeHtml(key)}
+                </span>
+              `
+            )
+            .join("");
+        }
+
+        function dashboardShowEmptyState() {
+          dashboardElements.emptyState.hidden = false;
+          dashboardElements.errorState.hidden = true;
+          dashboardElements.warningState.hidden = true;
+          dashboardElements.content.hidden = true;
+        }
+
+        function dashboardShowErrorState(message, errors) {
+          dashboardElements.emptyState.hidden = true;
+          dashboardElements.errorState.hidden = false;
+          dashboardElements.warningState.hidden = true;
+          dashboardElements.content.hidden = true;
+          dashboardElements.errorText.textContent = message || "Неизвестная ошибка.";
+          dashboardElements.errorList.innerHTML = (errors || [])
+            .map((item) => `<li>${dashboardEscapeHtml(item)}</li>`)
+            .join("");
+        }
+
+        function dashboardShowContentState(warnings) {
+          dashboardElements.emptyState.hidden = true;
+          dashboardElements.errorState.hidden = true;
+          dashboardElements.content.hidden = false;
+
+          if (warnings && warnings.length > 0) {
+            dashboardElements.warningState.hidden = false;
+            dashboardElements.warningList.innerHTML = warnings
+              .map((item) => `<li>${dashboardEscapeHtml(item)}</li>`)
+              .join("");
+          } else {
+            dashboardElements.warningState.hidden = true;
+            dashboardElements.warningList.innerHTML = "";
+          }
+        }
+
+        function dashboardBuildMonthlySeries(startDate, endDate, rows, reducer, aggregator) {
+          if (!(startDate instanceof Date) || !(endDate instanceof Date)) {
+            return [];
+          }
+
+          const monthKeys = dashboardGetMonthKeys(startDate, endDate);
+          return monthKeys.map((monthKey) => {
+            const monthRows = rows.filter((row) => dashboardMonthKey(row.dashboardDate) === monthKey);
+            const label = dashboardFormatMonthLabel(monthKey);
+
+            if (typeof aggregator === "function") {
+              const result = aggregator({ monthKey, label, rows: monthRows }) || {};
+              return { label, ...result };
+            }
+
+            return {
+              label,
+              value: monthRows.reduce((sum, row) => sum + reducer(row), 0)
+            };
+          });
+        }
+
+        function dashboardBuildMonthlyDirectionSeries(startDate, endDate, rows, valueGetter) {
+          if (!(startDate instanceof Date) || !(endDate instanceof Date)) {
+            return { items: [], seriesKeys: [] };
+          }
+
+          const monthKeys = dashboardGetMonthKeys(startDate, endDate);
+          const seriesKeySet = new Set();
+          const items = monthKeys.map((monthKey) => {
+            const bucket = {};
+            rows
+              .filter((row) => dashboardMonthKey(row.dashboardDate) === monthKey)
+              .forEach((row) => {
+                const key = row.dashboardDirection || "Не указано";
+                seriesKeySet.add(key);
+                bucket[key] = (bucket[key] || 0) + valueGetter(row);
+              });
+
+            return {
+              label: dashboardFormatMonthLabel(monthKey),
+              values: bucket
+            };
+          });
+
+          return {
+            items,
+            seriesKeys: Array.from(seriesKeySet)
+          };
+        }
+
+        function dashboardGroupCapitalByDate(rows) {
+          const groups = new Map();
+
+          rows.forEach((row) => {
+            const key = dashboardDateKey(row.dashboardDate);
+            if (!groups.has(key)) {
+              groups.set(key, {
+                date: new Date(row.dashboardDate.getTime()),
+                equity: 0,
+                liabilities: 0,
+                assets: 0,
+                receivables: 0,
+                payables: 0
+              });
+            }
+
+            const bucket = groups.get(key);
+
+            if (dashboardTextMatches(row.dashboardSection2, "капитал")) {
+              bucket.equity += row.dashboardAmount;
+            }
+
+            if (dashboardTextMatches(row.dashboardSection2, "обязательства")) {
+              bucket.liabilities += row.dashboardAmount;
+            }
+
+            if (dashboardTextMatches(row.dashboardSection1, "активы")) {
+              bucket.assets += row.dashboardAmount;
+            }
+
+            if (dashboardTextMatches(row.dashboardSection3, "дебиторская задолженность")) {
+              bucket.receivables += row.dashboardAmount;
+            }
+
+            if (dashboardTextMatches(row.dashboardSection3, "кредиторская задолженность")) {
+              bucket.payables += row.dashboardAmount;
+            }
+          });
+
+          return Array.from(groups.values()).sort((left, right) => left.date.getTime() - right.date.getTime());
+        }
+
+        function dashboardFindLatestCapitalDateOnOrBefore(targetDate) {
+          const targetKey = dashboardEndOfDay(targetDate).getTime();
+          const availableDates = dashboardUniqueDates(dashboardState.capitalRows.map((row) => row.dashboardDate));
+          let match = null;
+
+          availableDates.forEach((dateValue) => {
+            if (dateValue.getTime() <= targetKey) {
+              match = dateValue;
+            }
+          });
+
+          return match;
+        }
+
+        function dashboardFindCapitalSnapshotOnOrBefore(targetDate) {
+          const dateValue = dashboardFindLatestCapitalDateOnOrBefore(targetDate);
+          if (!dateValue) {
+            return null;
+          }
+
+          return {
+            date: dateValue,
+            rows: dashboardState.capitalRows.filter((row) => dashboardDateKey(row.dashboardDate) === dashboardDateKey(dateValue))
+          };
+        }
+
+        function dashboardFilterRowsByPeriod(rows, startDate, endDate) {
+          return rows.filter((row) => {
+            const time = row.dashboardDate.getTime();
+            return time >= startDate.getTime() && time <= endDate.getTime();
+          });
+        }
+
+        function dashboardGetMonthKeys(startDate, endDate) {
+          const keys = [];
+          const cursor = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+          const limit = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+
+          while (cursor.getTime() <= limit.getTime()) {
+            keys.push(dashboardMonthKey(cursor));
+            cursor.setMonth(cursor.getMonth() + 1);
+          }
+
+          return keys;
+        }
+
+        function dashboardMonthKey(dateValue) {
+          return `${dateValue.getFullYear()}-${String(dateValue.getMonth() + 1).padStart(2, "0")}`;
+        }
+
+        function dashboardDateKey(dateValue) {
+          return `${dateValue.getFullYear()}-${String(dateValue.getMonth() + 1).padStart(2, "0")}-${String(dateValue.getDate()).padStart(2, "0")}`;
+        }
+
+        function dashboardUniqueDates(dates) {
+          const map = new Map();
+          dates
+            .filter((dateValue) => dateValue instanceof Date)
+            .forEach((dateValue) => {
+              map.set(dashboardDateKey(dateValue), new Date(dateValue.getFullYear(), dateValue.getMonth(), dateValue.getDate()));
+            });
+          return Array.from(map.values()).sort((left, right) => left.getTime() - right.getTime());
+        }
+
+        function dashboardGetLatestDate(dates) {
+          const unique = dashboardUniqueDates(dates);
+          return unique.length ? unique[unique.length - 1] : null;
+        }
+
+        function dashboardGetSeriesStart(rows) {
+          if (!rows.length) {
+            return null;
+          }
+          return dashboardStartOfDay(rows.reduce((min, row) => row.dashboardDate < min ? row.dashboardDate : min, rows[0].dashboardDate));
+        }
+
+        function dashboardGetSeriesEnd(rows) {
+          if (!rows.length) {
+            return null;
+          }
+          return dashboardEndOfDay(rows.reduce((max, row) => row.dashboardDate > max ? row.dashboardDate : max, rows[0].dashboardDate));
+        }
+
+        function dashboardRenderLineChart(dataset, options) {
+          if (!Array.isArray(dataset) || dataset.length === 0) {
+            return dashboardRenderEmptyChart("Недостаточно данных для построения графика.");
+          }
+
+          const width = 860;
+          const height = 320;
+          const padding = { top: 24, right: 72, bottom: 56, left: 64 };
+          const chartWidth = width - padding.left - padding.right;
+          const chartHeight = height - padding.top - padding.bottom;
+          const values = dataset.map((item) => options.percentScale ? item.value * 100 : item.value);
+          const minValue = Math.min(0, ...values);
+          const maxValue = Math.max(...values, 0);
+          const valueRange = maxValue - minValue || 1;
+          const stepX = dataset.length > 1 ? chartWidth / (dataset.length - 1) : 0;
+
+          const points = dataset.map((item, index) => {
+            const currentValue = options.percentScale ? item.value * 100 : item.value;
+            const x = padding.left + index * stepX;
+            const y = padding.top + chartHeight - ((currentValue - minValue) / valueRange) * chartHeight;
+            return { x, y, value: currentValue, label: item.label };
+          });
+
+          const polyline = points.map((point) => `${point.x},${point.y}`).join(" ");
+          const areaPoints = `${padding.left},${padding.top + chartHeight} ${polyline} ${padding.left + chartWidth},${padding.top + chartHeight}`;
+          const zeroY = padding.top + chartHeight - ((0 - minValue) / valueRange) * chartHeight;
+
+          return `
+            <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${dashboardEscapeAttribute(options.ariaLabel)}">
+              <defs>
+                <linearGradient id="dashboard-line-fill" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stop-color="${dashboardEscapeAttribute(options.fillColor || "rgba(0, 217, 255, 0.18)")}" />
+                  <stop offset="100%" stop-color="rgba(0, 217, 255, 0)" />
+                </linearGradient>
+              </defs>
+              ${Array.from({ length: 5 }).map((_, index) => {
+                const ratio = index / 4;
+                const y = padding.top + chartHeight * ratio;
+                const value = maxValue - ratio * valueRange;
+                return `
+                  <line x1="${padding.left}" y1="${y}" x2="${padding.left + chartWidth}" y2="${y}" stroke="rgba(138,164,214,0.14)" stroke-width="1"></line>
+                  <text x="${padding.left - 12}" y="${y + 4}" fill="#8fa3cc" font-size="12" text-anchor="end">${dashboardEscapeHtml(options.valueFormatter(value))}</text>
+                `;
+              }).join("")}
+              <line x1="${padding.left}" y1="${zeroY}" x2="${padding.left + chartWidth}" y2="${zeroY}" stroke="rgba(255,255,255,0.16)" stroke-dasharray="4 4"></line>
+              <polygon points="${areaPoints}" fill="url(#dashboard-line-fill)"></polygon>
+              <polyline points="${polyline}" fill="none" stroke="${dashboardEscapeAttribute(options.color)}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></polyline>
+              ${points.map((point) => `
+                <g>
+                  <circle cx="${point.x}" cy="${point.y}" r="4.5" fill="${dashboardEscapeAttribute(options.color)}"></circle>
+                  <text x="${point.x}" y="${point.y - 12}" fill="#d7e7ff" font-size="12" text-anchor="middle">${dashboardEscapeHtml(options.valueFormatter(point.value))}</text>
+                  <title>${dashboardEscapeHtml(`${point.label}: ${options.valueFormatter(point.value)}`)}</title>
+                </g>
+              `).join("")}
+              ${dataset.map((item, index) => {
+                const x = padding.left + index * stepX;
+                return `<text x="${x}" y="${height - 18}" fill="#8fa3cc" font-size="12" text-anchor="middle">${dashboardEscapeHtml(item.label)}</text>`;
+              }).join("")}
+            </svg>
+          `;
+        }
+
+        function dashboardRenderComboChart(dataset, options) {
+          if (!Array.isArray(dataset) || dataset.length === 0) {
+            return dashboardRenderEmptyChart("Недостаточно данных для построения комбинированной диаграммы.");
+          }
+
+          const width = 860;
+          const height = 320;
+          const padding = { top: 24, right: 76, bottom: 56, left: 64 };
+          const chartWidth = width - padding.left - padding.right;
+          const chartHeight = height - padding.top - padding.bottom;
+          const barValues = dataset.map((item) => item.barValue);
+          const minValue = Math.min(0, ...barValues);
+          const maxValue = Math.max(...barValues, 0);
+          const barRange = maxValue - minValue || 1;
+          const stepX = dataset.length > 0 ? chartWidth / dataset.length : chartWidth;
+          const barWidth = Math.min(56, stepX * 0.52);
+          const linePoints = dataset.map((item, index) => {
+            const x = padding.left + stepX * index + stepX / 2;
+            const y = padding.top + chartHeight - item.lineValue * chartHeight;
+            return { x, y, label: item.label, value: item.lineValue };
+          });
+          const zeroY = padding.top + chartHeight - ((0 - minValue) / barRange) * chartHeight;
+
+          return `
+            <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${dashboardEscapeAttribute(options.ariaLabel)}">
+              ${Array.from({ length: 5 }).map((_, index) => {
+                const ratio = index / 4;
+                const y = padding.top + chartHeight * ratio;
+                const barAxisValue = maxValue - ratio * barRange;
+                return `
+                  <line x1="${padding.left}" y1="${y}" x2="${padding.left + chartWidth}" y2="${y}" stroke="rgba(138,164,214,0.14)" stroke-width="1"></line>
+                  <text x="${padding.left - 12}" y="${y + 4}" fill="#8fa3cc" font-size="12" text-anchor="end">${dashboardEscapeHtml(dashboardFormatAxisMoney(barAxisValue))}</text>
+                  <text x="${padding.left + chartWidth + 12}" y="${y + 4}" fill="#8fa3cc" font-size="12">${dashboardEscapeHtml(`${Math.round((1 - ratio) * 100)}%`)}</text>
+                `;
+              }).join("")}
+              <line x1="${padding.left}" y1="${zeroY}" x2="${padding.left + chartWidth}" y2="${zeroY}" stroke="rgba(255,255,255,0.18)" stroke-dasharray="4 4"></line>
+              ${dataset.map((item, index) => {
+                const x = padding.left + stepX * index + (stepX - barWidth) / 2;
+                const value = item.barValue;
+                const heightRatio = Math.abs(value / barRange) * chartHeight;
+                const y = value >= 0 ? zeroY - heightRatio : zeroY;
+                return `
+                  <g>
+                    <rect x="${x}" y="${y}" width="${barWidth}" height="${heightRatio}" rx="12" fill="${dashboardEscapeAttribute(options.barColor)}"></rect>
+                    <text x="${x + barWidth / 2}" y="${value >= 0 ? y - 10 : y + heightRatio + 16}" fill="#d7e7ff" font-size="12" text-anchor="middle">${dashboardEscapeHtml(dashboardFormatAxisMoney(value))}</text>
+                    <title>${dashboardEscapeHtml(`${item.label}: ${dashboardFormatAxisMoney(value)}`)}</title>
+                  </g>
+                `;
+              }).join("")}
+              <polyline
+                points="${linePoints.map((point) => `${point.x},${point.y}`).join(" ")}"
+                fill="none"
+                stroke="${dashboardEscapeAttribute(options.lineColor)}"
+                stroke-width="3.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></polyline>
+              ${linePoints.map((point) => `
+                <g>
+                  <circle cx="${point.x}" cy="${point.y}" r="4.5" fill="${dashboardEscapeAttribute(options.lineColor)}"></circle>
+                  <text x="${point.x}" y="${point.y - 12}" fill="#d7e7ff" font-size="12" text-anchor="middle">${dashboardEscapeHtml(dashboardFormatAxisPercent(point.value * 100))}</text>
+                  <title>${dashboardEscapeHtml(`${point.label}: ${dashboardFormatPercent(point.value)}`)}</title>
+                </g>
+              `).join("")}
+              ${dataset.map((item, index) => {
+                const x = padding.left + stepX * index + stepX / 2;
+                return `<text x="${x}" y="${height - 18}" fill="#8fa3cc" font-size="12" text-anchor="middle">${dashboardEscapeHtml(item.label)}</text>`;
+              }).join("")}
+            </svg>
+          `;
+        }
+
+        function dashboardRenderStackedBarChart(dataset, options) {
+          if (!dataset || !Array.isArray(dataset.items) || dataset.items.length === 0 || dataset.seriesKeys.length === 0) {
+            return dashboardRenderEmptyChart("Недостаточно данных для накопленной диаграммы.");
+          }
+
+          const width = 860;
+          const height = 330;
+          const padding = { top: 24, right: 24, bottom: 56, left: 64 };
+          const chartWidth = width - padding.left - padding.right;
+          const chartHeight = height - padding.top - padding.bottom;
+          const stepX = dataset.items.length > 0 ? chartWidth / dataset.items.length : chartWidth;
+          const barWidth = Math.min(62, stepX * 0.54);
+
+          let maxPositive = 0;
+          let minNegative = 0;
+          dataset.items.forEach((item) => {
+            const values = dataset.seriesKeys.map((key) => item.values[key] || 0);
+            const positive = values.filter((value) => value > 0).reduce((sum, value) => sum + value, 0);
+            const negative = values.filter((value) => value < 0).reduce((sum, value) => sum + value, 0);
+            maxPositive = Math.max(maxPositive, positive);
+            minNegative = Math.min(minNegative, negative);
+          });
+          const valueRange = maxPositive - minNegative || 1;
+          const zeroY = padding.top + chartHeight - ((0 - minNegative) / valueRange) * chartHeight;
+
+          return `
+            <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${dashboardEscapeAttribute(options.ariaLabel)}">
+              ${Array.from({ length: 5 }).map((_, index) => {
+                const ratio = index / 4;
+                const y = padding.top + chartHeight * ratio;
+                const value = maxPositive - ratio * valueRange;
+                return `
+                  <line x1="${padding.left}" y1="${y}" x2="${padding.left + chartWidth}" y2="${y}" stroke="rgba(138,164,214,0.14)" stroke-width="1"></line>
+                  <text x="${padding.left - 12}" y="${y + 4}" fill="#8fa3cc" font-size="12" text-anchor="end">${dashboardEscapeHtml(options.valueFormatter(value))}</text>
+                `;
+              }).join("")}
+              <line x1="${padding.left}" y1="${zeroY}" x2="${padding.left + chartWidth}" y2="${zeroY}" stroke="rgba(255,255,255,0.18)" stroke-dasharray="4 4"></line>
+              ${dataset.items.map((item, itemIndex) => {
+                const x = padding.left + stepX * itemIndex + (stepX - barWidth) / 2;
+                let positiveOffset = 0;
+                let negativeOffset = 0;
+
+                const segments = dataset.seriesKeys.map((key, keyIndex) => {
+                  const value = item.values[key] || 0;
+                  if (value === 0) {
+                    return "";
+                  }
+
+                  const segmentHeight = Math.abs(value / valueRange) * chartHeight;
+                  const color = dashboardColorForIndex(keyIndex);
+                  let y = zeroY;
+
+                  if (value > 0) {
+                    y = zeroY - positiveOffset - segmentHeight;
+                    positiveOffset += segmentHeight;
+                  } else {
+                    y = zeroY + negativeOffset;
+                    negativeOffset += segmentHeight;
+                  }
+
+                  return `
+                    <g>
+                      <rect x="${x}" y="${y}" width="${barWidth}" height="${segmentHeight}" rx="10" fill="${color}"></rect>
+                      <title>${dashboardEscapeHtml(`${item.label} • ${key}: ${options.valueFormatter(value)}`)}</title>
+                    </g>
+                  `;
+                }).join("");
+
+                return `
+                  <g>
+                    ${segments}
+                    <text x="${x + barWidth / 2}" y="${height - 18}" fill="#8fa3cc" font-size="12" text-anchor="middle">${dashboardEscapeHtml(item.label)}</text>
+                  </g>
+                `;
+              }).join("")}
+            </svg>
+          `;
+        }
+
+        function dashboardRenderBarChart(dataset, options) {
+          if (!Array.isArray(dataset) || dataset.length === 0) {
+            return dashboardRenderEmptyChart("Недостаточно данных для столбиковой диаграммы.");
+          }
+
+          const width = 860;
+          const height = 320;
+          const padding = { top: 24, right: 24, bottom: 56, left: 64 };
+          const chartWidth = width - padding.left - padding.right;
+          const chartHeight = height - padding.top - padding.bottom;
+          const stepX = dataset.length > 0 ? chartWidth / dataset.length : chartWidth;
+          const barWidth = Math.min(64, stepX * 0.56);
+          const maxValue = Math.max(...dataset.map((item) => item.value), 0);
+          const range = maxValue || 1;
+
+          return `
+            <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${dashboardEscapeAttribute(options.ariaLabel)}">
+              ${Array.from({ length: 5 }).map((_, index) => {
+                const ratio = index / 4;
+                const y = padding.top + chartHeight * ratio;
+                const value = maxValue - ratio * range;
+                return `
+                  <line x1="${padding.left}" y1="${y}" x2="${padding.left + chartWidth}" y2="${y}" stroke="rgba(138,164,214,0.14)" stroke-width="1"></line>
+                  <text x="${padding.left - 12}" y="${y + 4}" fill="#8fa3cc" font-size="12" text-anchor="end">${dashboardEscapeHtml(options.valueFormatter(value))}</text>
+                `;
+              }).join("")}
+              ${dataset.map((item, index) => {
+                const x = padding.left + stepX * index + (stepX - barWidth) / 2;
+                const barHeight = (item.value / range) * chartHeight;
+                const y = padding.top + chartHeight - barHeight;
+                return `
+                  <g>
+                    <rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" rx="12" fill="${dashboardEscapeAttribute(options.color)}"></rect>
+                    ${options.showLabels ? `<text x="${x + barWidth / 2}" y="${y - 10}" fill="#d7e7ff" font-size="12" text-anchor="middle">${dashboardEscapeHtml(options.valueFormatter(item.value))}</text>` : ""}
+                    <text x="${x + barWidth / 2}" y="${height - 18}" fill="#8fa3cc" font-size="12" text-anchor="middle">${dashboardEscapeHtml(item.label)}</text>
+                    <title>${dashboardEscapeHtml(`${item.label}: ${options.valueFormatter(item.value)}`)}</title>
+                  </g>
+                `;
+              }).join("")}
+            </svg>
+          `;
+        }
+
+        function dashboardRenderFundingMixChart(dataset) {
+          if (!Array.isArray(dataset) || dataset.length === 0) {
+            return dashboardRenderEmptyChart("Недостаточно данных для диаграммы структуры капитала.");
+          }
+
+          const width = 860;
+          const height = 320;
+          const padding = { top: 24, right: 24, bottom: 56, left: 56 };
+          const chartWidth = width - padding.left - padding.right;
+          const chartHeight = height - padding.top - padding.bottom;
+          const barSlot = dataset.length > 0 ? chartWidth / dataset.length : chartWidth;
+          const barWidth = Math.min(62, barSlot * 0.56);
+
+          return `
+            <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Заемный и собственный капитал">
+              ${Array.from({ length: 5 }).map((_, index) => {
+                const ratio = index / 4;
+                const y = padding.top + chartHeight * ratio;
+                return `
+                  <line x1="${padding.left}" y1="${y}" x2="${padding.left + chartWidth}" y2="${y}" stroke="rgba(138,164,214,0.14)" stroke-width="1"></line>
+                  <text x="${padding.left - 12}" y="${y + 4}" fill="#8fa3cc" font-size="12" text-anchor="end">${100 - ratio * 100}%</text>
+                `;
+              }).join("")}
+              ${dataset.map((item, index) => {
+                const total = item.equity + item.liabilities;
+                const equityShare = total === 0 ? 0 : item.equity / total;
+                const liabilitiesShare = total === 0 ? 0 : item.liabilities / total;
+                const x = padding.left + barSlot * index + (barSlot - barWidth) / 2;
+                const equityHeight = equityShare * chartHeight;
+                const liabilitiesHeight = liabilitiesShare * chartHeight;
+                const liabilitiesY = padding.top + chartHeight - liabilitiesHeight;
+                const equityY = liabilitiesY - equityHeight;
+
+                return `
+                  <g>
+                    <rect x="${x}" y="${liabilitiesY}" width="${barWidth}" height="${liabilitiesHeight}" rx="12" fill="#4ea3ff"></rect>
+                    <rect x="${x}" y="${equityY}" width="${barWidth}" height="${equityHeight}" rx="12" fill="#2dd4bf"></rect>
+                    <text x="${x + barWidth / 2}" y="${height - 18}" fill="#8fa3cc" font-size="12" text-anchor="middle">${dashboardEscapeHtml(item.label)}</text>
+                    <title>${dashboardEscapeHtml(`${item.label}: Капитал ${dashboardFormatPercent(equityShare)}, Обязательства ${dashboardFormatPercent(liabilitiesShare)}`)}</title>
+                  </g>
+                `;
+              }).join("")}
+              <g transform="translate(${padding.left}, 8)">
+                <rect x="0" y="0" width="12" height="12" rx="4" fill="#2dd4bf"></rect>
+                <text x="18" y="10" fill="#c6d6f5" font-size="12">Капитал</text>
+                <rect x="112" y="0" width="12" height="12" rx="4" fill="#4ea3ff"></rect>
+                <text x="130" y="10" fill="#c6d6f5" font-size="12">Обязательства</text>
+              </g>
+            </svg>
+          `;
+        }
+
+        function dashboardRenderEmptyChart(message) {
+          return `<div class="dashboard-empty-chart">${dashboardEscapeHtml(message)}</div>`;
+        }
+
+        function dashboardFormatDate(dateValue) {
+          if (!(dateValue instanceof Date)) {
+            return "—";
+          }
+
+          return `${String(dateValue.getDate()).padStart(2, "0")}.${String(dateValue.getMonth() + 1).padStart(2, "0")}.${dateValue.getFullYear()}`;
+        }
+
+        function dashboardFormatDateRange(startDate, endDate) {
+          return `${dashboardFormatDate(startDate)} — ${dashboardFormatDate(endDate)}`;
+        }
+
+        function dashboardFormatMonthLabel(monthKey) {
+          const [year, month] = monthKey.split("-").map(Number);
+          const dateValue = new Date(year, month - 1, 1);
+          return dateValue.toLocaleDateString("ru-RU", { month: "short", year: "2-digit" }).replace(".", "");
+        }
+
+        function dashboardFormatInputDate(dateValue) {
+          if (!(dateValue instanceof Date)) {
+            return "";
+          }
+
+          return `${dateValue.getFullYear()}-${String(dateValue.getMonth() + 1).padStart(2, "0")}-${String(dateValue.getDate()).padStart(2, "0")}`;
+        }
+
+        function dashboardFormatNumber(value, digits = 2) {
+          const numeric = Number.isFinite(value) ? value : 0;
+          return new Intl.NumberFormat("ru-RU", {
+            minimumFractionDigits: digits,
+            maximumFractionDigits: digits
+          }).format(numeric);
+        }
+
+        function dashboardFormatPercent(value) {
+          const numeric = Number.isFinite(value) ? value * 100 : 0;
+          return `${dashboardFormatNumber(numeric, 1)}%`;
+        }
+
+        function dashboardFormatCurrencyCompact(value) {
+          const numeric = Number.isFinite(value) ? value : 0;
+          const absoluteValue = Math.abs(numeric);
+
+          if (absoluteValue >= 1000000) {
+            return `${numeric < 0 ? "-" : ""}${dashboardFormatNumber(absoluteValue / 1000000, 1)} млн ₽`;
+          }
+
+          if (dashboardCore.formatCurrency) {
+            return dashboardCore.formatCurrency(numeric);
+          }
+
+          return `${dashboardFormatNumber(numeric, 0)} ₽`;
+        }
+
+        function dashboardFormatAxisMoney(value) {
+          const numeric = Number.isFinite(value) ? value : 0;
+          return `${dashboardFormatNumber(numeric / 1000000, 1)} млн ₽`;
+        }
+
+        function dashboardFormatAxisPercent(value) {
+          return `${dashboardFormatNumber(value, 0)}%`;
+        }
+
+        function dashboardColorForIndex(index) {
+          return dashboardPalette[index % dashboardPalette.length];
+        }
+
+        function dashboardParseDate(value) {
+          if (value instanceof Date && !Number.isNaN(value.getTime())) {
+            return new Date(value.getFullYear(), value.getMonth(), value.getDate());
+          }
+
+          if (typeof value !== "string") {
+            return null;
+          }
+
+          const input = value.trim();
+          if (!input) {
+            return null;
+          }
+
+          const directRuMatch = input.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+          if (directRuMatch) {
+            return dashboardBuildDate(Number(directRuMatch[3]), Number(directRuMatch[2]), Number(directRuMatch[1]));
+          }
+
+          const isoPrefixMatch = input.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ].*)?$/);
+          if (isoPrefixMatch) {
+            return dashboardBuildDate(Number(isoPrefixMatch[1]), Number(isoPrefixMatch[2]), Number(isoPrefixMatch[3]));
+          }
+
+          if (dashboardCore.parseDate) {
+            const parsed = dashboardCore.parseDate(input);
+            if (parsed instanceof Date && !Number.isNaN(parsed.getTime())) {
+              return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+            }
+          }
+
+          return null;
+        }
+
+        function dashboardBuildDate(year, month, day) {
+          const dateValue = new Date(year, month - 1, day);
+          if (
+            dateValue.getFullYear() !== year ||
+            dateValue.getMonth() !== month - 1 ||
+            dateValue.getDate() !== day
+          ) {
+            return null;
+          }
+
+          return dateValue;
+        }
+
+        function dashboardStartOfDay(dateValue) {
+          if (!(dateValue instanceof Date)) {
+            return null;
+          }
+          return new Date(dateValue.getFullYear(), dateValue.getMonth(), dateValue.getDate(), 0, 0, 0, 0);
+        }
+
+        function dashboardEndOfDay(dateValue) {
+          if (!(dateValue instanceof Date)) {
+            return null;
+          }
+          return new Date(dateValue.getFullYear(), dateValue.getMonth(), dateValue.getDate(), 23, 59, 59, 999);
+        }
+
+        function dashboardCountDaysInclusive(startDate, endDate) {
+          const diff = dashboardEndOfDay(endDate).getTime() - dashboardStartOfDay(startDate).getTime();
+          return Math.floor(diff / 86400000) + 1;
+        }
+
+        function dashboardNormalizeText(value) {
+          return String(value || "").trim();
+        }
+
+        function dashboardTextMatches(value, target) {
+          const left = dashboardNormalizeText(value).toLowerCase().replace(/\s+/g, " ");
+          const right = dashboardNormalizeText(target).toLowerCase();
+          return left === right || left.includes(right);
+        }
+
+        function dashboardMapProfitSection(sectionValue) {
+          const key = dashboardNormalizeText(sectionValue).toLowerCase().replace(/\s+/g, "");
+          if (key.startsWith("1.выручка") || key.startsWith("1выручка")) {
+            return "revenue";
+          }
+          if (key.startsWith("2.себестоимость") || key.startsWith("2себестоимость")) {
+            return "cost";
+          }
+          if (key.startsWith("3.общепроизводственные") || key.startsWith("3общепроизводственные")) {
+            return "overhead";
+          }
+          if (key.startsWith("4.коммерческиерасходы") || key.startsWith("4коммерческиерасходы")) {
+            return "commercial";
+          }
+          if (key.startsWith("5.административныерасходы") || key.startsWith("5административныерасходы")) {
+            return "admin";
+          }
+          if (key.startsWith("6.доходынижеоперационнойприбыли") || key.startsWith("6доходынижеоперационнойприбыли")) {
+            return "belowIncome";
+          }
+          if (key.startsWith("7.расходынижеоперационнойприбыли") || key.startsWith("7расходынижеоперационнойприбыли")) {
+            return "belowExpense";
+          }
+          return null;
+        }
+
+        function dashboardIsIncomeOperation(value) {
+          return dashboardNormalizeText(value).toLowerCase() === "приход";
+        }
+
+        function dashboardIsExpenseOperation(value) {
+          return dashboardNormalizeText(value).toLowerCase() === "расход";
+        }
+
+        function dashboardIsBalanceOperation(value) {
+          return dashboardNormalizeText(value).toLowerCase() === "остаток";
+        }
+
+        function dashboardIsTransferSection(value) {
+          const normalized = dashboardNormalizeText(value).toLowerCase().replace(/\s+/g, "");
+          return normalized.includes("перемещ");
+        }
+
+        function dashboardIsOperatingSection(value) {
+          const normalized = dashboardNormalizeText(value).toLowerCase();
+          return normalized.includes("основ") || normalized.includes("операцион");
+        }
+
+        function dashboardToNumber(value) {
+          if (typeof value === "number") {
+            return Number.isFinite(value) ? value : 0;
+          }
+
+          if (typeof value === "string") {
+            const sanitized = value.replace(/\s+/g, "").replace(",", ".");
+            const numeric = Number(sanitized);
+            return Number.isFinite(numeric) ? numeric : 0;
+          }
+
+          return 0;
+        }
+
+        function dashboardEscapeHtml(value) {
+          return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+        }
+
+        function dashboardEscapeAttribute(value) {
+          return dashboardEscapeHtml(value);
+        }
+      })();
+    </script>
+  </body>
+</html>

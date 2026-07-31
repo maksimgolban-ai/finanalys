@@ -1,0 +1,1938 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Прибыль</title>
+    <meta
+      name="description"
+      content="Раздел Прибыль в оболочке финансового веб-приложения."
+    >
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    >
+    <link rel="stylesheet" href="assets/css/layout.css">
+    <style>
+      .profit-page {
+        gap: 24px;
+      }
+
+      .profit-hero {
+        display: grid;
+        gap: 26px;
+      }
+
+      .profit-hero__header,
+      .profit-card__header,
+      .profit-projects__header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+        flex-wrap: wrap;
+      }
+
+      .profit-hero__actions,
+      .profit-pill-stack,
+      .profit-filter-panel__actions,
+      .profit-legend,
+      .profit-project-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .profit-hero__badge,
+      .profit-pill,
+      .profit-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(0, 217, 255, 0.16);
+        background: rgba(0, 217, 255, 0.08);
+        color: var(--accent);
+        font-size: 0.84rem;
+        font-weight: 700;
+      }
+
+      .profit-hero__meta {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .profit-meta-card,
+      .profit-kpi-card,
+      .profit-filter-card,
+      .profit-chart-card,
+      .profit-projects-card {
+        border: 1px solid rgba(138, 164, 214, 0.16);
+        border-radius: 22px;
+        background: linear-gradient(180deg, rgba(22, 34, 64, 0.95), rgba(17, 27, 50, 0.92));
+        box-shadow: var(--shadow-panel);
+      }
+
+      .profit-meta-card {
+        padding: 18px 20px;
+        background: rgba(7, 15, 30, 0.34);
+      }
+
+      .profit-meta-card__label,
+      .profit-filter-label,
+      .profit-kpi-card__label {
+        display: block;
+        color: var(--text-muted);
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+      }
+
+      .profit-meta-card__value,
+      .profit-kpi-card__value {
+        display: block;
+        margin-top: 12px;
+        font-family: "Manrope", sans-serif;
+        font-size: clamp(1.18rem, 2vw, 1.95rem);
+        font-weight: 800;
+        letter-spacing: -0.05em;
+        line-height: 1.08;
+      }
+
+      .profit-meta-card__hint,
+      .profit-kpi-card__hint,
+      .profit-card__text,
+      .profit-empty-state__text,
+      .profit-filter-note {
+        margin-top: 10px;
+        color: var(--text-secondary);
+        font-size: 0.92rem;
+        line-height: 1.62;
+      }
+
+      .profit-filter-card,
+      .profit-chart-card,
+      .profit-projects-card {
+        padding: 26px 28px;
+      }
+
+      .profit-filter-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .profit-filter-block {
+        display: grid;
+        gap: 10px;
+      }
+
+      .profit-filter-input {
+        width: 100%;
+        min-height: 48px;
+        padding: 12px 14px;
+        border: 1px solid rgba(138, 164, 214, 0.16);
+        border-radius: 15px;
+        color: var(--text-primary);
+        background: rgba(7, 15, 30, 0.42);
+        outline: none;
+        transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+      }
+
+      .profit-filter-input:focus {
+        border-color: rgba(0, 217, 255, 0.32);
+        box-shadow: 0 0 0 4px rgba(0, 217, 255, 0.1);
+        background: rgba(7, 15, 30, 0.6);
+      }
+
+      .profit-filter-details {
+        position: relative;
+      }
+
+      .profit-filter-details[open] .profit-filter-summary {
+        border-color: rgba(0, 217, 255, 0.28);
+        box-shadow: 0 0 0 4px rgba(0, 217, 255, 0.08);
+      }
+
+      .profit-filter-summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        min-height: 48px;
+        padding: 12px 14px;
+        border: 1px solid rgba(138, 164, 214, 0.16);
+        border-radius: 15px;
+        color: var(--text-primary);
+        background: rgba(7, 15, 30, 0.42);
+        cursor: pointer;
+        list-style: none;
+      }
+
+      .profit-filter-summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .profit-filter-summary__value {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .profit-filter-panel {
+        position: absolute;
+        top: calc(100% + 10px);
+        left: 0;
+        z-index: 30;
+        width: min(100%, 340px);
+        padding: 14px;
+        border: 1px solid rgba(138, 164, 214, 0.2);
+        border-radius: 18px;
+        background: rgba(10, 18, 37, 0.96);
+        box-shadow: 0 24px 50px rgba(2, 8, 23, 0.42);
+        backdrop-filter: blur(18px);
+      }
+
+      .profit-filter-search {
+        width: 100%;
+        min-height: 42px;
+        margin-bottom: 12px;
+        padding: 10px 12px;
+        border: 1px solid rgba(138, 164, 214, 0.16);
+        border-radius: 12px;
+        color: var(--text-primary);
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .profit-filter-search:focus {
+        outline: none;
+        border-color: rgba(0, 217, 255, 0.32);
+        box-shadow: 0 0 0 4px rgba(0, 217, 255, 0.08);
+      }
+
+      .profit-filter-options {
+        display: grid;
+        gap: 8px;
+        max-height: 220px;
+        overflow: auto;
+        padding-right: 4px;
+      }
+
+      .profit-filter-option {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 10px;
+        border-radius: 12px;
+        color: var(--text-secondary);
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .profit-filter-option:hover {
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .profit-filter-option input {
+        accent-color: var(--accent);
+      }
+
+      .profit-chip,
+      .profit-ghost-btn,
+      .profit-filter-btn {
+        border: 1px solid rgba(138, 164, 214, 0.18);
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--text-primary);
+        cursor: pointer;
+        transition: transform var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+      }
+
+      .profit-chip,
+      .profit-filter-btn {
+        padding: 8px 12px;
+      }
+
+      .profit-ghost-btn {
+        padding: 11px 14px;
+        border-radius: 14px;
+      }
+
+      .profit-chip:hover,
+      .profit-ghost-btn:hover,
+      .profit-filter-btn:hover {
+        transform: translateY(-1px);
+        border-color: rgba(0, 217, 255, 0.24);
+        background: rgba(0, 217, 255, 0.08);
+      }
+
+      .profit-kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .profit-kpi-card {
+        position: relative;
+        overflow: hidden;
+        padding: 22px;
+      }
+
+      .profit-kpi-card::after {
+        content: "";
+        position: absolute;
+        inset: auto -22% -48% auto;
+        width: 160px;
+        height: 160px;
+        background: radial-gradient(circle, rgba(0, 217, 255, 0.08), transparent 68%);
+        pointer-events: none;
+      }
+
+      .profit-kpi-card__delta {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 14px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 700;
+      }
+
+      .profit-kpi-card__delta--positive {
+        color: #d6ffe7;
+        background: rgba(68, 214, 124, 0.12);
+        border: 1px solid rgba(68, 214, 124, 0.22);
+      }
+
+      .profit-kpi-card__delta--negative {
+        color: #ffd9d9;
+        background: rgba(255, 107, 107, 0.12);
+        border: 1px solid rgba(255, 107, 107, 0.22);
+      }
+
+      .profit-kpi-card__delta--neutral {
+        color: #dafbff;
+        background: rgba(0, 217, 255, 0.12);
+        border: 1px solid rgba(0, 217, 255, 0.22);
+      }
+
+      .profit-chart-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 22px;
+      }
+
+      .profit-chart-card {
+        display: grid;
+        gap: 18px;
+      }
+
+      .profit-chart-card--full {
+        grid-column: 1 / -1;
+      }
+
+      .profit-card__title,
+      .profit-projects__title {
+        margin: 0;
+        font-family: "Manrope", sans-serif;
+        font-size: 1.28rem;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+      }
+
+      .profit-legend {
+        color: var(--text-secondary);
+        font-size: 0.87rem;
+      }
+
+      .profit-legend__item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .profit-legend__swatch {
+        width: 12px;
+        height: 12px;
+        border-radius: 4px;
+        background: var(--accent);
+      }
+
+      .profit-legend__swatch--line {
+        width: 22px;
+        height: 3px;
+        border-radius: 999px;
+        background: #8f7dff;
+      }
+
+      .profit-svg-wrap {
+        width: 100%;
+        min-height: 270px;
+      }
+
+      .profit-svg-wrap svg {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      .profit-project-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 22px;
+      }
+
+      .profit-project-table-wrap {
+        overflow: auto;
+        border: 1px solid rgba(138, 164, 214, 0.14);
+        border-radius: 18px;
+      }
+
+      .profit-project-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 560px;
+      }
+
+      .profit-project-table th,
+      .profit-project-table td {
+        padding: 12px 14px;
+        border-bottom: 1px solid rgba(138, 164, 214, 0.1);
+      }
+
+      .profit-project-table th {
+        color: var(--text-muted);
+        font-size: 0.77rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        background: rgba(11, 19, 36, 0.96);
+        text-align: left;
+      }
+
+      .profit-project-table td {
+        color: var(--text-secondary);
+      }
+
+      .profit-project-table td:not(:first-child) {
+        text-align: right;
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .profit-project-table tbody tr:hover {
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .profit-empty-state,
+      .profit-empty-chart {
+        display: grid;
+        place-items: center;
+        gap: 12px;
+        min-height: 220px;
+        padding: 28px;
+        border: 1px dashed rgba(138, 164, 214, 0.22);
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.02);
+        text-align: center;
+      }
+
+      .profit-empty-state__title {
+        margin: 0;
+        font-family: "Manrope", sans-serif;
+        font-size: 1.45rem;
+        font-weight: 800;
+      }
+
+      .profit-empty-state__list {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--text-secondary);
+        line-height: 1.7;
+        text-align: left;
+      }
+
+      .profit-no-data {
+        color: var(--text-muted);
+      }
+
+      @media (max-width: 1320px) {
+        .profit-hero__meta,
+        .profit-kpi-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .profit-filter-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 1024px) {
+        .profit-chart-grid,
+        .profit-project-grid,
+        .profit-kpi-grid,
+        .profit-hero__meta,
+        .profit-filter-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .profit-chart-card--full {
+          grid-column: auto;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .profit-filter-card,
+        .profit-chart-card,
+        .profit-projects-card {
+          padding: 22px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell" data-shell>
+      <div class="app-overlay" data-overlay></div>
+
+      <aside class="app-sidebar" aria-label="Основная навигация">
+        <div class="brand-panel">
+          <span class="brand-kicker">Finance Control Layer</span>
+          <h1 class="brand-title">Управление финансовым состоянием компании</h1>
+          <p class="brand-subtitle">Управляй финансами прозрачно и просто</p>
+        </div>
+
+        <nav class="sidebar-nav">
+          <p class="nav-label">Разделы приложения</p>
+          <a class="nav-link" href="dashboard.html" data-nav-link data-page="dashboard">
+            <span class="nav-link__icon">◈</span>
+            <span class="nav-link__body">
+              <span class="nav-link__title">Дэшборд</span>
+              <span class="nav-link__meta">Общий обзор</span>
+            </span>
+            <span class="nav-link__chevron">›</span>
+          </a>
+          <a class="nav-link" href="money.html" data-nav-link data-page="money">
+            <span class="nav-link__icon">₽</span>
+            <span class="nav-link__body">
+              <span class="nav-link__title">Деньги</span>
+              <span class="nav-link__meta">Движение и ликвидность</span>
+            </span>
+            <span class="nav-link__chevron">›</span>
+          </a>
+          <a class="nav-link" href="capital.html" data-nav-link data-page="capital">
+            <span class="nav-link__icon">◆</span>
+            <span class="nav-link__body">
+              <span class="nav-link__title">Капитал</span>
+              <span class="nav-link__meta">Устойчивость структуры</span>
+            </span>
+            <span class="nav-link__chevron">›</span>
+          </a>
+          <a class="nav-link" href="profit.html" data-nav-link data-page="profit">
+            <span class="nav-link__icon">◌</span>
+            <span class="nav-link__body">
+              <span class="nav-link__title">Прибыль</span>
+              <span class="nav-link__meta">Результат и маржинальность</span>
+            </span>
+            <span class="nav-link__chevron">›</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-foot">
+          <span class="sidebar-foot__label">Источник модуля</span>
+          <p class="sidebar-foot__value">Раздел рассчитывается в браузере и ожидает клиентские данные листа <code>Прибыль</code> в диапазоне <code>rangeprofit</code>.</p>
+        </div>
+      </aside>
+
+      <main class="app-main">
+        <header class="app-topbar">
+          <div class="topbar-group">
+            <button class="sidebar-toggle" type="button" aria-label="Открыть меню" data-sidebar-toggle>
+              ☰
+            </button>
+            <div class="topbar-title-wrap">
+              <p class="topbar-kicker">Раздел системы</p>
+              <h2 class="topbar-title" data-page-title>Прибыль</h2>
+              <p class="topbar-subtitle">Выручка, валовая прибыль, чистая прибыль и рентабельность по данным ОПиУ на клиентской стороне.</p>
+            </div>
+          </div>
+
+          <div class="topbar-actions">
+            <button class="action-btn action-btn--primary" type="button" data-profit-refresh>Обновить</button>
+            <button class="action-btn" type="button">Настройки</button>
+            <button class="action-btn" type="button">Выход</button>
+          </div>
+        </header>
+
+        <div class="app-content">
+          <div class="page-grid profit-page" id="profitPage" data-profit-page>
+            <section class="hero-panel profit-hero">
+              <div class="profit-hero__header">
+                <div class="hero-panel__head">
+                  <span class="hero-panel__eyebrow">Модуль ОПиУ</span>
+                  <h3 class="hero-panel__title">Прибыль по периодам, направлениям и проектам без серверной прослойки</h3>
+                  <p class="hero-panel__text">
+                    Страница работает полностью в браузере: ожидает клиентский набор <code>rangeprofit</code>, нормализует даты и знак суммы, фильтрует период и признаки, затем пересчитывает KPI, графики и проектные таблицы.
+                  </p>
+                </div>
+
+                <div class="profit-hero__actions">
+                  <span class="profit-hero__badge" id="profitSourceBadge">Источник не подключен</span>
+                  <button class="profit-ghost-btn" type="button" data-profit-reset-all>Сбросить фильтры</button>
+                </div>
+              </div>
+
+              <div class="profit-hero__meta">
+                <div class="profit-meta-card">
+                  <span class="profit-meta-card__label">Период по умолчанию</span>
+                  <span class="profit-meta-card__value" id="profitHeroPeriod">—</span>
+                  <span class="profit-meta-card__hint">По умолчанию используется текущий календарный месяц.</span>
+                </div>
+                <div class="profit-meta-card">
+                  <span class="profit-meta-card__label">Строк после фильтрации</span>
+                  <span class="profit-meta-card__value" id="profitHeroRows">0</span>
+                  <span class="profit-meta-card__hint">Учитываются только строки с валидной датой в колонке <code>Дата</code>.</span>
+                </div>
+                <div class="profit-meta-card">
+                  <span class="profit-meta-card__label">Покрытие дат</span>
+                  <span class="profit-meta-card__value" id="profitHeroCoverage">—</span>
+                  <span class="profit-meta-card__hint">Диапазон исходных дат после клиентской нормализации.</span>
+                </div>
+                <div class="profit-meta-card">
+                  <span class="profit-meta-card__label">Активные фильтры</span>
+                  <span class="profit-meta-card__value" id="profitHeroFilters">0</span>
+                  <span class="profit-meta-card__hint">Проект, направление, статья и раздел ОПиУ работают совместно.</span>
+                </div>
+              </div>
+            </section>
+
+            <section class="profit-filter-card">
+              <div class="section-head">
+                <span class="section-eyebrow">Управление выборкой</span>
+                <h3 class="section-title">Период и глобальные фильтры</h3>
+                <p class="section-text">Все фильтры применяются ко всей странице: KPI, диаграммам и двум проектным таблицам.</p>
+              </div>
+
+              <div class="profit-filter-grid">
+                <div class="profit-filter-block">
+                  <label class="profit-filter-label" for="profitPeriodStart">Дата начала</label>
+                  <input class="profit-filter-input" id="profitPeriodStart" type="date" data-profit-period-start>
+                </div>
+
+                <div class="profit-filter-block">
+                  <label class="profit-filter-label" for="profitPeriodEnd">Дата окончания</label>
+                  <input class="profit-filter-input" id="profitPeriodEnd" type="date" data-profit-period-end>
+                </div>
+
+                <div class="profit-filter-block" id="profitFilterProject"></div>
+                <div class="profit-filter-block" id="profitFilterDirection"></div>
+                <div class="profit-filter-block" id="profitFilterArticle"></div>
+                <div class="profit-filter-block" id="profitFilterSection"></div>
+              </div>
+
+              <div class="profit-pill-stack" id="profitActivePills"></div>
+              <p class="profit-filter-note" id="profitFilterNote">Фильтры ещё не применены.</p>
+            </section>
+
+            <section class="profit-empty-state" id="profitEmptyState" hidden>
+              <h3 class="profit-empty-state__title">Источник данных для раздела “Прибыль” пока не найден</h3>
+              <p class="profit-empty-state__text">
+                Модуль ожидает browser-side данные листа <code>Прибыль</code>. Здесь не используется Apps Script и нет серверной логики.
+              </p>
+              <ul class="profit-empty-state__list">
+                <li>Поддерживается <code>window.profitData</code> как массив объектов или строк диапазона.</li>
+                <li>Поддерживается <code>window.rangeprofit</code> с тем же принципом.</li>
+                <li>Поддерживается <code>window.workbookData</code>, если лист <code>Прибыль</code> доступен в клиентском runtime.</li>
+              </ul>
+            </section>
+
+            <section id="profitDashboard" hidden>
+              <div class="profit-kpi-grid" id="profitKpiGrid"></div>
+
+              <div class="profit-chart-grid">
+                <article class="profit-chart-card">
+                  <div class="profit-card__header">
+                    <div>
+                      <h3 class="profit-card__title">Выручка и MR по валовой прибыли</h3>
+                      <p class="profit-card__text">Столбики показывают выручку, линия — MR по валовой прибыли в процентах по месяцам.</p>
+                    </div>
+                  </div>
+
+                  <div class="profit-legend">
+                    <span class="profit-legend__item"><span class="profit-legend__swatch"></span>Выручка</span>
+                    <span class="profit-legend__item"><span class="profit-legend__swatch profit-legend__swatch--line"></span>MR валовой прибыли, %</span>
+                  </div>
+                  <div class="profit-svg-wrap" id="profitRevenueMrChart"></div>
+                </article>
+
+                <article class="profit-chart-card">
+                  <div class="profit-card__header">
+                    <div>
+                      <h3 class="profit-card__title">Выручка по направлениям</h3>
+                      <p class="profit-card__text">Накопленные столбцы показывают структуру выручки по направлениям по месяцам.</p>
+                    </div>
+                  </div>
+
+                  <div class="profit-svg-wrap" id="profitRevenueDirectionChart"></div>
+                </article>
+
+                <article class="profit-chart-card">
+                  <div class="profit-card__header">
+                    <div>
+                      <h3 class="profit-card__title">Валовая прибыль по направлениям</h3>
+                      <p class="profit-card__text">Формула: Выручка + Себестоимость + Общепроизводственные, уже с нормализованным знаком сумм.</p>
+                    </div>
+                  </div>
+
+                  <div class="profit-svg-wrap" id="profitGrossDirectionChart"></div>
+                </article>
+
+                <article class="profit-chart-card">
+                  <div class="profit-card__header">
+                    <div>
+                      <h3 class="profit-card__title">Чистая прибыль и рентабельность по ЧП</h3>
+                      <p class="profit-card__text">Столбики показывают чистую прибыль, линия — рентабельность по чистой прибыли по месяцам.</p>
+                    </div>
+                  </div>
+
+                  <div class="profit-legend">
+                    <span class="profit-legend__item"><span class="profit-legend__swatch"></span>Чистая прибыль</span>
+                    <span class="profit-legend__item"><span class="profit-legend__swatch profit-legend__swatch--line"></span>Рентабельность по ЧП, %</span>
+                  </div>
+                  <div class="profit-svg-wrap" id="profitNetMarginChart"></div>
+                </article>
+              </div>
+
+              <article class="profit-projects-card">
+                <div class="profit-projects__header">
+                  <div>
+                    <h3 class="profit-projects__title">Мини-таблицы по проектам</h3>
+                    <p class="profit-card__text">Проекты без названия не отображаются. Сортировка идет по убыванию валовой рентабельности.</p>
+                  </div>
+                  <div class="profit-pill-stack">
+                    <span class="profit-pill">Валовая прибыль = разделы 1 + 2 + 3</span>
+                    <span class="profit-pill">Рентабельность = Валовая прибыль / Выручка</span>
+                  </div>
+                </div>
+
+                <div class="profit-project-grid">
+                  <section>
+                    <h4 class="profit-card__title">Направление “Стройка”</h4>
+                    <div class="profit-project-table-wrap" id="profitProjectsBuild"></div>
+                  </section>
+                  <section>
+                    <h4 class="profit-card__title">Направление “Ремонт”</h4>
+                    <div class="profit-project-table-wrap" id="profitProjectsRepair"></div>
+                  </section>
+                </div>
+              </article>
+            </section>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="assets/xlsx.full.min.js"></script>
+    <script src="assets/js/gscore.js"></script>
+    <script src="assets/js/layout.js"></script>
+    <script>
+      (() => {
+        "use strict";
+
+        const profitCore = window.GSCore || {};
+        const profitState = {
+          rawRows: [],
+          normalizedRows: [],
+          validRows: [],
+          filteredRows: [],
+          sourceName: null,
+          filterOptions: {
+            project: [],
+            direction: [],
+            article: [],
+            section: []
+          },
+          filters: {
+            startDate: "",
+            endDate: "",
+            project: new Set(),
+            direction: new Set(),
+            article: new Set(),
+            section: new Set()
+          }
+        };
+
+        const profitFormatters = {
+          month: new Intl.DateTimeFormat("ru-RU", { month: "short", year: "numeric" }),
+          day: new Intl.DateTimeFormat("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" })
+        };
+
+        const profitPalette = [
+          "#00d9ff",
+          "#19c4b5",
+          "#8f7dff",
+          "#4fd37d",
+          "#ffd166",
+          "#ff9d9d",
+          "#74e4ff",
+          "#2de1cb"
+        ];
+
+        const profitSections = {
+          revenue: "1.Выручка",
+          cost: "2.Себестоимость",
+          overhead: "3.Общепроизводственные",
+          commercial: "4.Коммерческие расходы",
+          admin: "5. Административные расходы",
+          otherIncome: "6. Доходы ниже операционной прибыли",
+          otherExpense: "7. Расходы ниже операционной прибыли"
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+          profitInitPage().catch((error) => {
+            console.error("[profit] init failed", error);
+            profitLoadData();
+          });
+        });
+
+        async function profitInitPage() {
+          profitBindEvents();
+          await profitEnsureWorkbookData();
+          profitLoadData();
+        }
+
+        function profitBindEvents() {
+          const profitPage = document.getElementById("profitPage");
+          const refreshButton = document.querySelector("[data-profit-refresh]");
+          const resetButton = document.querySelector("[data-profit-reset-all]");
+
+          if (refreshButton) {
+            refreshButton.addEventListener("click", async () => {
+              await profitEnsureWorkbookData(true);
+              profitLoadData();
+            });
+          }
+
+          if (resetButton) {
+            resetButton.addEventListener("click", profitResetFilters);
+          }
+
+          if (!profitPage) {
+            return;
+          }
+
+          profitPage.addEventListener("change", (event) => {
+            const target = event.target;
+
+            if (target.matches("[data-profit-period-start]")) {
+              profitState.filters.startDate = target.value || "";
+              profitRenderAll();
+              return;
+            }
+
+            if (target.matches("[data-profit-period-end]")) {
+              profitState.filters.endDate = target.value || "";
+              profitRenderAll();
+              return;
+            }
+
+            if (target.matches("[data-profit-filter-checkbox]")) {
+              const filterName = target.getAttribute("data-profit-filter-name");
+              const optionValue = target.getAttribute("data-profit-filter-value");
+              profitToggleFilterValue(filterName, optionValue, target.checked);
+            }
+          });
+
+          profitPage.addEventListener("click", (event) => {
+            const actionButton = event.target.closest("[data-profit-action]");
+
+            if (!actionButton) {
+              return;
+            }
+
+            const actionName = actionButton.getAttribute("data-profit-action");
+            const filterName = actionButton.getAttribute("data-profit-filter-name");
+
+            if (actionName === "clear-filter" && filterName && profitState.filters[filterName] instanceof Set) {
+              profitState.filters[filterName].clear();
+              profitRenderAll();
+              return;
+            }
+
+            if (actionName === "select-all-filter" && filterName && profitState.filters[filterName] instanceof Set) {
+              profitState.filterOptions[filterName].forEach((value) => profitState.filters[filterName].add(value));
+              profitRenderAll();
+            }
+          });
+
+          document.addEventListener("click", (event) => {
+            document.querySelectorAll(".profit-filter-details[open]").forEach((node) => {
+              if (!node.contains(event.target)) {
+                node.open = false;
+              }
+            });
+          });
+        }
+
+        async function profitEnsureWorkbookData(forceRefresh = false) {
+          if (!profitCore.loadWorkbookData) {
+            return;
+          }
+
+          try {
+            await profitCore.loadWorkbookData({ forceRefresh });
+          } catch (error) {
+            console.error("[profit] workbook loader failed", error);
+          }
+        }
+
+        function profitLoadData() {
+          const resolved = profitResolveDataset();
+          profitState.rawRows = resolved.rows;
+          profitState.sourceName = resolved.sourceName;
+          profitState.normalizedRows = profitNormalizeRows(resolved.rows);
+          profitState.validRows = profitState.normalizedRows.filter((row) => row.profitDate instanceof Date);
+          profitState.filterOptions = profitBuildFilterOptions(profitState.validRows);
+          profitInitializeDefaultPeriod();
+          profitRenderAll();
+        }
+
+        function profitResolveDataset() {
+          const candidates = [
+            { sourceName: "window.profitData", value: window.profitData },
+            { sourceName: "window.rangeprofit", value: window.rangeprofit },
+            { sourceName: "window.workbookData", value: window.workbookData }
+          ];
+
+          for (const candidate of candidates) {
+            const rows = profitExtractRows(candidate.value, candidate.sourceName);
+            if (rows.length > 0) {
+              return { sourceName: candidate.sourceName, rows };
+            }
+          }
+
+          return { sourceName: null, rows: [] };
+        }
+
+        function profitExtractRows(candidateValue, candidateName) {
+          if (!candidateValue) {
+            return [];
+          }
+
+          if (candidateName === "window.workbookData" && profitCore.readSheetAsObjects && profitCore.CONFIG && profitCore.CONFIG.SHEETS) {
+            return profitCore.readSheetAsObjects(candidateValue, profitCore.CONFIG.SHEETS.PROFIT);
+          }
+
+          if (Array.isArray(candidateValue)) {
+            return profitExtractRowsFromArray(candidateValue);
+          }
+
+          if (typeof candidateValue === "object") {
+            if (Array.isArray(candidateValue.rows)) {
+              return profitExtractRowsFromArray(candidateValue.rows);
+            }
+            if (Array.isArray(candidateValue.data)) {
+              return profitExtractRowsFromArray(candidateValue.data);
+            }
+            if (Array.isArray(candidateValue.rangeprofit)) {
+              return profitExtractRowsFromArray(candidateValue.rangeprofit);
+            }
+            if (Array.isArray(candidateValue.profitData)) {
+              return profitExtractRowsFromArray(candidateValue.profitData);
+            }
+          }
+
+          return [];
+        }
+
+        function profitExtractRowsFromArray(value) {
+          if (value.length === 0) {
+            return [];
+          }
+
+          if (Array.isArray(value[0])) {
+            return profitConvertMatrixToObjects(value);
+          }
+
+          if (typeof value[0] === "object" && value[0] !== null) {
+            return value.slice();
+          }
+
+          return [];
+        }
+
+        function profitConvertMatrixToObjects(matrix) {
+          if (!Array.isArray(matrix) || matrix.length === 0 || !Array.isArray(matrix[0])) {
+            return [];
+          }
+
+          const [headerRow, ...dataRows] = matrix;
+          return dataRows.reduce((acc, dataRow) => {
+            if (!Array.isArray(dataRow)) {
+              return acc;
+            }
+            const rowObject = {};
+            headerRow.forEach((header, index) => {
+              rowObject[String(header).trim()] = dataRow[index];
+            });
+            acc.push(rowObject);
+            return acc;
+          }, []);
+        }
+
+        function profitNormalizeRows(rows) {
+          return rows.reduce((acc, rawRow, index) => {
+            if (!rawRow || typeof rawRow !== "object") {
+              return acc;
+            }
+
+            const rawDate = rawRow["Дата"];
+            const rawAmount = rawRow["Сумма"];
+            const rawDirection = rawRow["Направление"];
+            const rawProject = rawRow["Наименование проекта"];
+            const rawOperation = rawRow["Вид операции"];
+            const rawArticle = rawRow["Статья ОПиУ"];
+            const rawSection = rawRow["Раздел ОПиУ"];
+
+            const operationType = profitNormalizeText(rawOperation);
+            const normalizedAmount = profitNormalizeSignedAmount(rawAmount, operationType);
+            const dateValue = profitParseLocalDate(rawDate);
+
+            acc.push({
+              profitId: `profit-row-${index + 1}`,
+              profitDate: dateValue,
+              profitDateLabel: dateValue ? profitFormatters.day.format(dateValue) : "—",
+              profitMonthKey: dateValue ? profitGetMonthKey(dateValue) : null,
+              profitDirection: profitNormalizeText(rawDirection),
+              profitProject: profitNormalizeText(rawProject),
+              profitOperationType: operationType,
+              profitArticle: profitNormalizeText(rawArticle),
+              profitSection: profitNormalizeText(rawSection),
+              profitAmount: normalizedAmount
+            });
+
+            return acc;
+          }, []);
+        }
+
+        function profitInitializeDefaultPeriod() {
+          const now = new Date();
+          const start = new Date(now.getFullYear(), now.getMonth(), 1);
+          const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+          profitState.filters.startDate = profitFormatDateInput(start);
+          profitState.filters.endDate = profitFormatDateInput(end);
+        }
+
+        function profitBuildFilterOptions(rows) {
+          return {
+            project: profitBuildUniqueOptions(rows, "profitProject"),
+            direction: profitBuildUniqueOptions(rows, "profitDirection"),
+            article: profitBuildUniqueOptions(rows, "profitArticle"),
+            section: profitBuildUniqueOptions(rows, "profitSection")
+          };
+        }
+
+        function profitBuildUniqueOptions(rows, fieldName) {
+          return Array.from(
+            new Set(rows.map((row) => row[fieldName]).filter((value) => value))
+          ).sort((left, right) => left.localeCompare(right, "ru"));
+        }
+
+        function profitRenderAll() {
+          const emptyState = document.getElementById("profitEmptyState");
+          const dashboard = document.getElementById("profitDashboard");
+          const sourceBadge = document.getElementById("profitSourceBadge");
+
+          if (profitState.validRows.length === 0) {
+            if (emptyState) {
+              emptyState.hidden = false;
+            }
+            if (dashboard) {
+              dashboard.hidden = true;
+            }
+            if (sourceBadge) {
+              sourceBadge.textContent = "Источник не подключен";
+            }
+            profitRenderFilterControls();
+            profitRenderHeroMeta([], 0);
+            return;
+          }
+
+          profitState.filteredRows = profitApplyFilters(profitState.validRows);
+
+          if (emptyState) {
+            emptyState.hidden = true;
+          }
+          if (dashboard) {
+            dashboard.hidden = false;
+          }
+          if (sourceBadge) {
+            sourceBadge.textContent = profitState.sourceName ? `Источник: ${profitState.sourceName}` : "Источник: клиентский runtime";
+          }
+
+          profitRenderFilterControls();
+          profitRenderHeroMeta(profitState.filteredRows, profitCountActiveFilters());
+          profitRenderKpis();
+          profitRenderCharts();
+          profitRenderProjectTables();
+        }
+
+        function profitRenderHeroMeta(filteredRows, activeFilterCount) {
+          const periodNode = document.getElementById("profitHeroPeriod");
+          const rowsNode = document.getElementById("profitHeroRows");
+          const coverageNode = document.getElementById("profitHeroCoverage");
+          const filtersNode = document.getElementById("profitHeroFilters");
+          const bounds = profitGetDateBounds(profitState.validRows);
+
+          if (periodNode) {
+            periodNode.textContent = profitDescribeCurrentPeriod();
+          }
+          if (rowsNode) {
+            rowsNode.textContent = profitFormatInteger(filteredRows.length);
+          }
+          if (coverageNode) {
+            coverageNode.textContent = bounds.minDate && bounds.maxDate
+              ? `${profitFormatters.day.format(bounds.minDate)} — ${profitFormatters.day.format(bounds.maxDate)}`
+              : "Нет дат";
+          }
+          if (filtersNode) {
+            filtersNode.textContent = profitFormatInteger(activeFilterCount);
+          }
+        }
+
+        function profitRenderFilterControls() {
+          document.getElementById("profitPeriodStart").value = profitState.filters.startDate;
+          document.getElementById("profitPeriodEnd").value = profitState.filters.endDate;
+
+          const filterMap = {
+            project: document.getElementById("profitFilterProject"),
+            direction: document.getElementById("profitFilterDirection"),
+            article: document.getElementById("profitFilterArticle"),
+            section: document.getElementById("profitFilterSection")
+          };
+
+          Object.entries(filterMap).forEach(([filterName, container]) => {
+            if (!container) {
+              return;
+            }
+
+            container.innerHTML = profitBuildFilterMarkup(
+              filterName,
+              profitState.filterOptions[filterName],
+              profitState.filters[filterName]
+            );
+          });
+
+          const pillsNode = document.getElementById("profitActivePills");
+          const noteNode = document.getElementById("profitFilterNote");
+          if (pillsNode) {
+            pillsNode.innerHTML = profitBuildActivePillsMarkup();
+          }
+          if (noteNode) {
+            noteNode.textContent = profitState.filteredRows.length > 0
+              ? `После фильтрации доступно ${profitFormatInteger(profitState.filteredRows.length)} строк(и) с валидной датой.`
+              : "После фильтрации данные для отображения отсутствуют.";
+          }
+        }
+
+        function profitBuildFilterMarkup(filterName, options, selectedSet) {
+          const labelMap = {
+            project: "Наименование проекта",
+            direction: "Направление",
+            article: "Статья ОПиУ",
+            section: "Раздел ОПиУ"
+          };
+
+          const selectedValues = Array.from(selectedSet);
+          const summaryValue = selectedValues.length === 0
+            ? "Все значения"
+            : selectedValues.length === 1
+              ? selectedValues[0]
+              : `Выбрано: ${selectedValues.length}`;
+
+          const optionsMarkup = options.length === 0
+            ? '<div class="profit-no-data">Нет значений для выбора.</div>'
+            : options.map((value) => `
+                <label class="profit-filter-option">
+                  <input
+                    type="checkbox"
+                    data-profit-filter-checkbox
+                    data-profit-filter-name="${filterName}"
+                    data-profit-filter-value="${profitEscapeAttribute(value)}"
+                    ${selectedSet.has(value) ? "checked" : ""}
+                  >
+                  <span>${profitEscapeHtml(value)}</span>
+                </label>
+              `).join("");
+
+          return `
+            <label class="profit-filter-label">${profitEscapeHtml(labelMap[filterName])}</label>
+            <details class="profit-filter-details">
+              <summary class="profit-filter-summary">
+                <span class="profit-filter-summary__value">${profitEscapeHtml(summaryValue)}</span>
+                <span>▾</span>
+              </summary>
+              <div class="profit-filter-panel">
+                <div class="profit-filter-panel__actions">
+                  <button class="profit-filter-btn" type="button" data-profit-action="select-all-filter" data-profit-filter-name="${filterName}">Все</button>
+                  <button class="profit-filter-btn" type="button" data-profit-action="clear-filter" data-profit-filter-name="${filterName}">Сброс</button>
+                </div>
+                <input class="profit-filter-search" type="search" placeholder="Поиск не реализуется отдельно — список уже отфильтрован текущим набором данных" readonly>
+                <div class="profit-filter-options">
+                  ${optionsMarkup}
+                </div>
+              </div>
+            </details>
+          `;
+        }
+
+        function profitBuildActivePillsMarkup() {
+          const pills = [];
+
+          pills.push(`<span class="profit-pill">Период: ${profitEscapeHtml(profitDescribeCurrentPeriod())}</span>`);
+
+          ["project", "direction", "article", "section"].forEach((filterName) => {
+            const size = profitState.filters[filterName].size;
+            if (size > 0) {
+              pills.push(`<span class="profit-pill">${profitEscapeHtml(profitFilterDisplayName(filterName))}: ${size}</span>`);
+            }
+          });
+
+          return pills.join("");
+        }
+
+        function profitRenderKpis() {
+          const target = document.getElementById("profitKpiGrid");
+          if (!target) {
+            return;
+          }
+
+          if (profitState.filteredRows.length === 0) {
+            target.innerHTML = profitBuildEmptyChart("После фильтрации не осталось строк для расчета KPI.");
+            return;
+          }
+
+          const metrics = profitCalculateCoreMetrics(profitState.filteredRows);
+          const cards = [
+            {
+              label: "Выручка",
+              value: profitFormatCurrency(metrics.revenue),
+              hint: "Сумма строк с разделом ОПиУ “1.Выручка”.",
+              deltaLabel: metrics.revenue > 0 ? "База расчёта маржи" : "Нет выручки",
+              deltaType: metrics.revenue > 0 ? "positive" : "neutral"
+            },
+            {
+              label: "Себестоимость",
+              value: profitFormatCurrency(Math.abs(metrics.cost)),
+              hint: `Доля в выручке: ${profitFormatPercent(metrics.costShare)}`,
+              deltaLabel: metrics.cost < 0 ? "Расходный раздел" : "Нет затрат",
+              deltaType: metrics.cost < 0 ? "negative" : "neutral"
+            },
+            {
+              label: "MR по валовой прибыли",
+              value: profitFormatPercent(metrics.grossMarginRate),
+              hint: "Формула: (Выручка + Себестоимость + Общепроизводственные) / Выручка.",
+              deltaLabel: metrics.grossProfit >= 0 ? "Валовая прибыль положительна" : "Валовая прибыль отрицательна",
+              deltaType: metrics.grossProfit >= 0 ? "positive" : "negative"
+            },
+            {
+              label: "Доля постоянных затрат",
+              value: profitFormatPercent(metrics.fixedCostShare),
+              hint: "Коммерческие и административные расходы / все расходы.",
+              deltaLabel: metrics.fixedCostShare <= 0.35 ? "Контур затрат умеренный" : "Высокая доля постоянных затрат",
+              deltaType: metrics.fixedCostShare <= 0.35 ? "positive" : "negative"
+            },
+            {
+              label: "Чистая прибыль",
+              value: profitFormatCurrency(metrics.netProfit),
+              hint: "Учитываются разделы 1–7 с нормализованным знаком суммы.",
+              deltaLabel: metrics.netProfit >= 0 ? "Чистая прибыль положительна" : "Чистая прибыль отрицательна",
+              deltaType: metrics.netProfit >= 0 ? "positive" : "negative"
+            },
+            {
+              label: "Рентабельность по ЧП",
+              value: profitFormatPercent(metrics.netMarginRate),
+              hint: "Формула: Чистая прибыль / Выручка.",
+              deltaLabel: metrics.netMarginRate >= 0 ? "Рентабельность положительна" : "Рентабельность отрицательна",
+              deltaType: metrics.netMarginRate >= 0 ? "positive" : "negative"
+            }
+          ];
+
+          target.innerHTML = cards.map((card) => `
+            <article class="profit-kpi-card">
+              <span class="profit-kpi-card__label">${profitEscapeHtml(card.label)}</span>
+              <span class="profit-kpi-card__value">${profitEscapeHtml(card.value)}</span>
+              <span class="profit-kpi-card__hint">${profitEscapeHtml(card.hint)}</span>
+              <span class="profit-kpi-card__delta profit-kpi-card__delta--${card.deltaType}">${profitEscapeHtml(card.deltaLabel)}</span>
+            </article>
+          `).join("");
+        }
+
+        function profitRenderCharts() {
+          const monthlyMetrics = profitBuildMonthlyMetrics(profitState.filteredRows);
+          profitRenderRevenueMrChart(monthlyMetrics);
+          profitRenderRevenueDirectionChart(monthlyMetrics);
+          profitRenderGrossDirectionChart(monthlyMetrics);
+          profitRenderNetMarginChart(monthlyMetrics);
+        }
+
+        function profitRenderRevenueMrChart(monthlyMetrics) {
+          const target = document.getElementById("profitRevenueMrChart");
+          if (!target) {
+            return;
+          }
+
+          if (monthlyMetrics.length === 0) {
+            target.innerHTML = profitBuildEmptyChart("Недостаточно данных для динамики выручки и валовой маржи.");
+            return;
+          }
+
+          target.innerHTML = profitCreateComboChartSvg(monthlyMetrics, {
+            barKey: "revenue",
+            lineKey: "grossMarginRate",
+            barColor: "#00d9ff",
+            lineColor: "#8f7dff",
+            lineIsPercent: true,
+            ariaLabel: "Выручка и MR по валовой прибыли"
+          });
+        }
+
+        function profitRenderRevenueDirectionChart(monthlyMetrics) {
+          const target = document.getElementById("profitRevenueDirectionChart");
+          if (!target) {
+            return;
+          }
+
+          const directions = profitCollectDirections(monthlyMetrics, "revenueByDirection");
+          if (monthlyMetrics.length === 0 || directions.length === 0) {
+            target.innerHTML = profitBuildEmptyChart("Нет данных для разреза выручки по направлениям.");
+            return;
+          }
+
+          target.innerHTML = profitCreateStackedChartSvg(monthlyMetrics, directions, "revenueByDirection", {
+            ariaLabel: "Выручка по направлениям",
+            signed: false
+          });
+        }
+
+        function profitRenderGrossDirectionChart(monthlyMetrics) {
+          const target = document.getElementById("profitGrossDirectionChart");
+          if (!target) {
+            return;
+          }
+
+          const directions = profitCollectDirections(monthlyMetrics, "grossByDirection");
+          if (monthlyMetrics.length === 0 || directions.length === 0) {
+            target.innerHTML = profitBuildEmptyChart("Нет данных для валовой прибыли по направлениям.");
+            return;
+          }
+
+          target.innerHTML = profitCreateStackedChartSvg(monthlyMetrics, directions, "grossByDirection", {
+            ariaLabel: "Валовая прибыль по направлениям",
+            signed: true
+          });
+        }
+
+        function profitRenderNetMarginChart(monthlyMetrics) {
+          const target = document.getElementById("profitNetMarginChart");
+          if (!target) {
+            return;
+          }
+
+          if (monthlyMetrics.length === 0) {
+            target.innerHTML = profitBuildEmptyChart("Недостаточно данных для чистой прибыли и рентабельности.");
+            return;
+          }
+
+          target.innerHTML = profitCreateComboChartSvg(monthlyMetrics, {
+            barKey: "netProfit",
+            lineKey: "netMarginRate",
+            barColor: "#19c4b5",
+            lineColor: "#8f7dff",
+            lineIsPercent: true,
+            ariaLabel: "Чистая прибыль и рентабельность по ЧП"
+          });
+        }
+
+        function profitRenderProjectTables() {
+          const buildTarget = document.getElementById("profitProjectsBuild");
+          const repairTarget = document.getElementById("profitProjectsRepair");
+          if (!buildTarget || !repairTarget) {
+            return;
+          }
+
+          buildTarget.innerHTML = profitBuildProjectTableMarkup("строй");
+          repairTarget.innerHTML = profitBuildProjectTableMarkup("ремонт");
+        }
+
+        function profitBuildProjectTableMarkup(directionSearchToken) {
+          const projects = profitBuildProjectsDataset(directionSearchToken);
+          if (projects.length === 0) {
+            return profitBuildEmptyChart("После фильтрации нет проектов для этого направления.");
+          }
+
+          return `
+            <table class="profit-project-table">
+              <thead>
+                <tr>
+                  <th>Наименование проекта</th>
+                  <th>Выручка</th>
+                  <th>Валовая прибыль</th>
+                  <th>Рентабельность</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${projects.map((project) => `
+                  <tr>
+                    <td>${profitEscapeHtml(project.project)}</td>
+                    <td>${profitEscapeHtml(profitFormatCurrency(project.revenue))}</td>
+                    <td>${profitEscapeHtml(profitFormatCurrency(project.grossProfit))}</td>
+                    <td>${profitEscapeHtml(profitFormatPercent(project.profitability))}</td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          `;
+        }
+
+        function profitBuildProjectsDataset(directionSearchToken) {
+          const relevantRows = profitState.filteredRows.filter((row) => {
+            return row.profitProject && profitIncludesWord(row.profitDirection, directionSearchToken);
+          });
+
+          const grouped = {};
+          relevantRows.forEach((row) => {
+            if (!grouped[row.profitProject]) {
+              grouped[row.profitProject] = [];
+            }
+            grouped[row.profitProject].push(row);
+          });
+
+          return Object.entries(grouped)
+            .map(([project, rows]) => {
+              const revenue = rows
+                .filter((row) => row.profitSection === profitSections.revenue)
+                .reduce((sum, row) => sum + row.profitAmount, 0);
+              const grossProfit = rows
+                .filter((row) => [profitSections.revenue, profitSections.cost, profitSections.overhead].includes(row.profitSection))
+                .reduce((sum, row) => sum + row.profitAmount, 0);
+              const profitability = revenue === 0 ? 0 : grossProfit / revenue;
+
+              return {
+                project,
+                revenue,
+                grossProfit,
+                profitability
+              };
+            })
+            .sort((left, right) => right.profitability - left.profitability);
+        }
+
+        function profitBuildMonthlyMetrics(rows) {
+          const rowsByMonth = profitGroupBy(rows, (row) => row.profitMonthKey).filter((item) => item.key);
+          return rowsByMonth
+            .sort((left, right) => left.key.localeCompare(right.key))
+            .map((group) => {
+              const metrics = profitCalculateCoreMetrics(group.rows);
+              const revenueByDirection = {};
+              const grossByDirection = {};
+
+              group.rows.forEach((row) => {
+                const directionKey = row.profitDirection || "Без направления";
+
+                if (row.profitSection === profitSections.revenue) {
+                  revenueByDirection[directionKey] = (revenueByDirection[directionKey] || 0) + row.profitAmount;
+                }
+
+                if ([profitSections.revenue, profitSections.cost, profitSections.overhead].includes(row.profitSection)) {
+                  grossByDirection[directionKey] = (grossByDirection[directionKey] || 0) + row.profitAmount;
+                }
+              });
+
+              return {
+                key: group.key,
+                label: profitGetMonthLabelFromKey(group.key),
+                revenue: metrics.revenue,
+                grossMarginRate: metrics.grossMarginRate,
+                netProfit: metrics.netProfit,
+                netMarginRate: metrics.netMarginRate,
+                revenueByDirection,
+                grossByDirection
+              };
+            });
+        }
+
+        function profitCalculateCoreMetrics(rows) {
+          const sectionTotals = rows.reduce((acc, row) => {
+            acc[row.profitSection] = (acc[row.profitSection] || 0) + row.profitAmount;
+            return acc;
+          }, {});
+
+          const revenue = sectionTotals[profitSections.revenue] || 0;
+          const cost = sectionTotals[profitSections.cost] || 0;
+          const overhead = sectionTotals[profitSections.overhead] || 0;
+          const commercial = sectionTotals[profitSections.commercial] || 0;
+          const admin = sectionTotals[profitSections.admin] || 0;
+          const otherIncome = sectionTotals[profitSections.otherIncome] || 0;
+          const otherExpense = sectionTotals[profitSections.otherExpense] || 0;
+          const grossProfit = revenue + cost + overhead;
+          const grossMarginRate = revenue === 0 ? 0 : grossProfit / revenue;
+
+          const expenseRows = rows.filter((row) => row.profitOperationType === "Расход");
+          const expenseTotalAbs = expenseRows.reduce((sum, row) => sum + Math.abs(row.profitAmount), 0);
+          const fixedCostAbs = rows
+            .filter((row) => row.profitOperationType === "Расход" && [profitSections.commercial, profitSections.admin].includes(row.profitSection))
+            .reduce((sum, row) => sum + Math.abs(row.profitAmount), 0);
+          const fixedCostShare = expenseTotalAbs === 0 ? 0 : fixedCostAbs / expenseTotalAbs;
+
+          const netProfit = revenue + cost + overhead + commercial + admin + otherIncome + otherExpense;
+          const netMarginRate = revenue === 0 ? 0 : netProfit / revenue;
+
+          return {
+            revenue,
+            cost,
+            overhead,
+            grossProfit,
+            grossMarginRate,
+            fixedCostShare,
+            netProfit,
+            netMarginRate
+          };
+        }
+
+        function profitApplyFilters(rows) {
+          const startDate = profitParseLocalDate(profitState.filters.startDate);
+          const endDate = profitParseLocalDate(profitState.filters.endDate);
+
+          return rows.filter((row) => {
+            if (!(row.profitDate instanceof Date)) {
+              return false;
+            }
+
+            if (startDate && row.profitDate < profitStartOfDay(startDate)) {
+              return false;
+            }
+
+            if (endDate && row.profitDate > profitEndOfDay(endDate)) {
+              return false;
+            }
+
+            if (!profitMatchesFilter(row.profitProject, profitState.filters.project)) {
+              return false;
+            }
+            if (!profitMatchesFilter(row.profitDirection, profitState.filters.direction)) {
+              return false;
+            }
+            if (!profitMatchesFilter(row.profitArticle, profitState.filters.article)) {
+              return false;
+            }
+            if (!profitMatchesFilter(row.profitSection, profitState.filters.section)) {
+              return false;
+            }
+
+            return true;
+          });
+        }
+
+        function profitMatchesFilter(value, setValue) {
+          if (!(setValue instanceof Set) || setValue.size === 0) {
+            return true;
+          }
+
+          return setValue.has(value || "");
+        }
+
+        function profitToggleFilterValue(filterName, optionValue, checked) {
+          if (!(profitState.filters[filterName] instanceof Set)) {
+            return;
+          }
+
+          if (checked) {
+            profitState.filters[filterName].add(optionValue);
+          } else {
+            profitState.filters[filterName].delete(optionValue);
+          }
+
+          profitRenderAll();
+        }
+
+        function profitResetFilters() {
+          profitState.filters.project.clear();
+          profitState.filters.direction.clear();
+          profitState.filters.article.clear();
+          profitState.filters.section.clear();
+          profitInitializeDefaultPeriod();
+          profitRenderAll();
+        }
+
+        function profitCountActiveFilters() {
+          let count = 0;
+          if (profitState.filters.startDate) {
+            count += 1;
+          }
+          if (profitState.filters.endDate) {
+            count += 1;
+          }
+          ["project", "direction", "article", "section"].forEach((filterName) => {
+            count += profitState.filters[filterName].size;
+          });
+          return count;
+        }
+
+        function profitDescribeCurrentPeriod() {
+          const startDate = profitParseLocalDate(profitState.filters.startDate);
+          const endDate = profitParseLocalDate(profitState.filters.endDate);
+
+          if (startDate && endDate) {
+            return `${profitFormatters.day.format(startDate)} — ${profitFormatters.day.format(endDate)}`;
+          }
+          if (startDate) {
+            return `с ${profitFormatters.day.format(startDate)}`;
+          }
+          if (endDate) {
+            return `по ${profitFormatters.day.format(endDate)}`;
+          }
+          return "Без ограничения";
+        }
+
+        function profitGetDateBounds(rows) {
+          const dates = rows.map((row) => row.profitDate).filter((value) => value instanceof Date);
+          if (dates.length === 0) {
+            return { minDate: null, maxDate: null };
+          }
+          return {
+            minDate: new Date(Math.min(...dates.map((date) => date.getTime()))),
+            maxDate: new Date(Math.max(...dates.map((date) => date.getTime())))
+          };
+        }
+
+        function profitCollectDirections(monthlyMetrics, fieldName) {
+          return Array.from(
+            new Set(
+              monthlyMetrics.flatMap((item) => Object.keys(item[fieldName] || {}))
+            )
+          ).sort((left, right) => left.localeCompare(right, "ru"));
+        }
+
+        function profitCreateComboChartSvg(dataset, options) {
+          const width = 980;
+          const height = 320;
+          const padding = { top: 24, right: 56, bottom: 56, left: 72 };
+          const chartWidth = width - padding.left - padding.right;
+          const chartHeight = height - padding.top - padding.bottom;
+          const barValues = dataset.map((item) => item[options.barKey]);
+          const lineValues = dataset.map((item) => item[options.lineKey]);
+          const barMin = Math.min(...barValues, 0);
+          const barMax = Math.max(...barValues, 0, 1);
+          const barRange = barMax - barMin || 1;
+          const stepX = dataset.length > 1 ? chartWidth / (dataset.length - 1) : chartWidth;
+          const barSlot = dataset.length > 0 ? chartWidth / dataset.length : chartWidth;
+          const barWidth = Math.min(52, barSlot * 0.42);
+          const linePoints = dataset.map((item, index) => {
+            const x = padding.left + stepX * index;
+            const y = padding.top + chartHeight - ((item[options.lineKey] - 0) / 1) * chartHeight;
+            return { x, y };
+          });
+
+          const valueTicks = 4;
+          const zeroY = padding.top + chartHeight - ((0 - barMin) / barRange) * chartHeight;
+          const linePolyline = linePoints.map((point) => `${point.x},${point.y}`).join(" ");
+
+          return `
+            <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${profitEscapeAttribute(options.ariaLabel)}">
+              ${Array.from({ length: valueTicks + 1 }, (_, index) => {
+                const ratio = index / valueTicks;
+                const y = padding.top + chartHeight * ratio;
+                const tickValue = barMax - barRange * ratio;
+                return `
+                  <line x1="${padding.left}" y1="${y}" x2="${padding.left + chartWidth}" y2="${y}" stroke="rgba(138,164,214,0.14)" stroke-width="1"></line>
+                  <text x="${padding.left - 12}" y="${y + 4}" fill="#8fa3cc" font-size="12" text-anchor="end">${profitEscapeHtml(profitFormatCompactCurrency(tickValue))}</text>
+                `;
+              }).join("")}
+              <line x1="${padding.left}" y1="${zeroY}" x2="${padding.left + chartWidth}" y2="${zeroY}" stroke="rgba(255,255,255,0.18)" stroke-dasharray="4 4"></line>
+              ${dataset.map((item, index) => {
+                const xCenter = padding.left + stepX * index;
+                const value = item[options.barKey];
+                const barHeight = Math.abs(value / barRange) * chartHeight;
+                const y = value >= 0 ? zeroY - barHeight : zeroY;
+                return `
+                  <g>
+                    <rect x="${xCenter - barWidth / 2}" y="${y}" width="${barWidth}" height="${barHeight}" rx="12" fill="${options.barColor}"></rect>
+                    <text x="${xCenter}" y="${height - 20}" fill="#8fa3cc" font-size="12" text-anchor="middle">${profitEscapeHtml(item.label)}</text>
+                  </g>
+                `;
+              }).join("")}
+              <polyline points="${linePolyline}" fill="none" stroke="${options.lineColor}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></polyline>
+              ${linePoints.map((point, index) => `
+                <circle cx="${point.x}" cy="${point.y}" r="5.5" fill="#111a31" stroke="${options.lineColor}" stroke-width="3"></circle>
+                <text x="${width - 8}" y="${padding.top + 14 + index * 0}" fill="transparent">.</text>
+              `).join("")}
+              ${Array.from({ length: 5 }, (_, index) => {
+                const ratio = index / 4;
+                const y = padding.top + chartHeight * ratio;
+                const percentValue = 100 - ratio * 100;
+                return `<text x="${padding.left + chartWidth + 10}" y="${y + 4}" fill="#8fa3cc" font-size="12">${percentValue.toFixed(0)}%</text>`;
+              }).join("")}
+            </svg>
+          `;
+        }
+
+        function profitCreateStackedChartSvg(dataset, directions, fieldName, options) {
+          const width = 980;
+          const height = 320;
+          const padding = { top: 24, right: 24, bottom: 56, left: 72 };
+          const chartWidth = width - padding.left - padding.right;
+          const chartHeight = height - padding.top - padding.bottom;
+          const stepX = dataset.length > 0 ? chartWidth / dataset.length : chartWidth;
+          const barWidth = Math.min(66, stepX * 0.56);
+
+          const totals = dataset.map((item) => {
+            const values = directions.map((direction) => item[fieldName][direction] || 0);
+            return {
+              positive: values.filter((value) => value > 0).reduce((sum, value) => sum + value, 0),
+              negative: values.filter((value) => value < 0).reduce((sum, value) => sum + value, 0)
+            };
+          });
+
+          const maxPositive = Math.max(...totals.map((item) => item.positive), 0, 1);
+          const minNegative = Math.min(...totals.map((item) => item.negative), 0);
+          const range = maxPositive - minNegative || 1;
+          const zeroY = padding.top + chartHeight - ((0 - minNegative) / range) * chartHeight;
+
+          return `
+            <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${profitEscapeAttribute(options.ariaLabel)}">
+              ${Array.from({ length: 5 }, (_, index) => {
+                const ratio = index / 4;
+                const y = padding.top + chartHeight * ratio;
+                const tickValue = maxPositive - range * ratio;
+                return `
+                  <line x1="${padding.left}" y1="${y}" x2="${padding.left + chartWidth}" y2="${y}" stroke="rgba(138,164,214,0.14)" stroke-width="1"></line>
+                  <text x="${padding.left - 12}" y="${y + 4}" fill="#8fa3cc" font-size="12" text-anchor="end">${profitEscapeHtml(profitFormatCompactCurrency(tickValue))}</text>
+                `;
+              }).join("")}
+              <line x1="${padding.left}" y1="${zeroY}" x2="${padding.left + chartWidth}" y2="${zeroY}" stroke="rgba(255,255,255,0.18)" stroke-dasharray="4 4"></line>
+              ${dataset.map((item, monthIndex) => {
+                const x = padding.left + stepX * monthIndex + (stepX - barWidth) / 2;
+                let positiveOffset = 0;
+                let negativeOffset = 0;
+
+                const segments = directions.map((direction, directionIndex) => {
+                  const value = item[fieldName][direction] || 0;
+                  if (value === 0) {
+                    return "";
+                  }
+
+                  const segmentHeight = Math.abs(value / range) * chartHeight;
+                  let y;
+                  if (value > 0) {
+                    y = zeroY - positiveOffset - segmentHeight;
+                    positiveOffset += segmentHeight;
+                  } else {
+                    y = zeroY + negativeOffset;
+                    negativeOffset += segmentHeight;
+                  }
+
+                  return `<rect x="${x}" y="${y}" width="${barWidth}" height="${segmentHeight}" rx="10" fill="${profitPalette[directionIndex % profitPalette.length]}"></rect>`;
+                }).join("");
+
+                return `
+                  <g>
+                    ${segments}
+                    <text x="${x + barWidth / 2}" y="${height - 20}" fill="#8fa3cc" font-size="12" text-anchor="middle">${profitEscapeHtml(item.label)}</text>
+                  </g>
+                `;
+              }).join("")}
+              <g transform="translate(${padding.left}, ${height - 6})">
+                ${directions.map((direction, index) => `
+                  <g transform="translate(${index * 150}, 0)">
+                    <rect x="0" y="-12" width="12" height="12" rx="4" fill="${profitPalette[index % profitPalette.length]}"></rect>
+                    <text x="20" y="-2" fill="#9cb0d5" font-size="12">${profitEscapeHtml(direction)}</text>
+                  </g>
+                `).join("")}
+              </g>
+            </svg>
+          `;
+        }
+
+        function profitParseLocalDate(value) {
+          if (value instanceof Date && !Number.isNaN(value.getTime())) {
+            return new Date(value.getFullYear(), value.getMonth(), value.getDate(), 0, 0, 0, 0);
+          }
+
+          if (typeof value !== "string") {
+            return null;
+          }
+
+          const input = value.trim();
+          if (!input) {
+            return null;
+          }
+
+          const russianMatch = input.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+          if (russianMatch) {
+            return profitCreateValidatedDate(Number(russianMatch[3]), Number(russianMatch[2]), Number(russianMatch[1]));
+          }
+
+          const isoDateMatch = input.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+          if (isoDateMatch) {
+            return profitCreateValidatedDate(Number(isoDateMatch[1]), Number(isoDateMatch[2]), Number(isoDateMatch[3]));
+          }
+
+          const isoDateTimeMatch = input.match(/^(\d{4})-(\d{2})-(\d{2})T/);
+          if (isoDateTimeMatch) {
+            return profitCreateValidatedDate(Number(isoDateTimeMatch[1]), Number(isoDateTimeMatch[2]), Number(isoDateTimeMatch[3]));
+          }
+
+          return null;
+        }
+
+        function profitCreateValidatedDate(year, month, day) {
+          const dateValue = new Date(year, month - 1, day, 0, 0, 0, 0);
+          if (
+            Number.isNaN(dateValue.getTime()) ||
+            dateValue.getFullYear() !== year ||
+            dateValue.getMonth() !== month - 1 ||
+            dateValue.getDate() !== day
+          ) {
+            return null;
+          }
+          return dateValue;
+        }
+
+        function profitNormalizeSignedAmount(value, operationType) {
+          const numericValue = profitToNumber(value);
+          if (operationType === "Расход") {
+            return -Math.abs(numericValue);
+          }
+          if (operationType === "Приход") {
+            return Math.abs(numericValue);
+          }
+          return numericValue;
+        }
+
+        function profitToNumber(value) {
+          if (typeof value === "number") {
+            return Number.isFinite(value) ? value : 0;
+          }
+          if (typeof value === "string") {
+            const parsed = Number(value.replace(/\s+/g, "").replace(",", "."));
+            return Number.isFinite(parsed) ? parsed : 0;
+          }
+          return 0;
+        }
+
+        function profitNormalizeText(value) {
+          if (typeof value === "undefined" || value === null) {
+            return "";
+          }
+          return String(value).trim();
+        }
+
+        function profitStartOfDay(dateValue) {
+          return new Date(dateValue.getFullYear(), dateValue.getMonth(), dateValue.getDate(), 0, 0, 0, 0);
+        }
+
+        function profitEndOfDay(dateValue) {
+          return new Date(dateValue.getFullYear(), dateValue.getMonth(), dateValue.getDate(), 23, 59, 59, 999);
+        }
+
+        function profitGetMonthKey(dateValue) {
+          return `${dateValue.getFullYear()}-${String(dateValue.getMonth() + 1).padStart(2, "0")}`;
+        }
+
+        function profitGetMonthLabelFromKey(monthKey) {
+          const [year, month] = monthKey.split("-").map(Number);
+          return profitFormatters.month.format(new Date(year, month - 1, 1)).replace(".", "");
+        }
+
+        function profitFormatDateInput(dateValue) {
+          return `${dateValue.getFullYear()}-${String(dateValue.getMonth() + 1).padStart(2, "0")}-${String(dateValue.getDate()).padStart(2, "0")}`;
+        }
+
+        function profitFormatCurrency(value) {
+          if (profitCore.formatCurrency) {
+            return profitCore.formatCurrency(value);
+          }
+          return `${profitFormatNumber(value, 2)} ₽`;
+        }
+
+        function profitFormatNumber(value, digits = 2) {
+          if (!Number.isFinite(value)) {
+            return "0";
+          }
+          return new Intl.NumberFormat("ru-RU", {
+            minimumFractionDigits: digits,
+            maximumFractionDigits: digits
+          }).format(value);
+        }
+
+        function profitFormatCompactCurrency(value) {
+          const absolute = Math.abs(value);
+          if (absolute >= 1000000) {
+            return `${profitFormatNumber(value / 1000000, 1)} млн`;
+          }
+          if (absolute >= 1000) {
+            return `${profitFormatNumber(value / 1000, 1)} тыс`;
+          }
+          return profitFormatNumber(value, 0);
+        }
+
+        function profitFormatPercent(value) {
+          return `${profitFormatNumber((Number.isFinite(value) ? value : 0) * 100, 1)}%`;
+        }
+
+        function profitFormatInteger(value) {
+          return new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 0 }).format(value);
+        }
+
+        function profitFilterDisplayName(filterName) {
+          const map = {
+            project: "Проект",
+            direction: "Направление",
+            article: "Статья ОПиУ",
+            section: "Раздел ОПиУ"
+          };
+          return map[filterName] || filterName;
+        }
+
+        function profitGroupBy(rows, selector) {
+          return Object.entries(
+            rows.reduce((acc, row) => {
+              const key = selector(row);
+              if (!acc[key]) {
+                acc[key] = [];
+              }
+              acc[key].push(row);
+              return acc;
+            }, {})
+          ).map(([key, groupRows]) => ({ key, rows: groupRows }));
+        }
+
+        function profitIncludesWord(value, searchToken) {
+          return profitNormalizeText(value).toLowerCase().includes(searchToken);
+        }
+
+        function profitBuildEmptyChart(message) {
+          return `<div class="profit-empty-chart">${profitEscapeHtml(message)}</div>`;
+        }
+
+        function profitEscapeHtml(value) {
+          return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+        }
+
+        function profitEscapeAttribute(value) {
+          return profitEscapeHtml(value);
+        }
+      })();
+    </script>
+  </body>
+</html>
